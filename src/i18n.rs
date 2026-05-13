@@ -15,6 +15,7 @@ pub enum Key {
     MenuHelp,
     MenuItemSaveConfig,
     MenuItemLoadConfig,
+    MenuItemAutoStart,
     MenuItemAbout,
 
     // 标签页
@@ -162,6 +163,8 @@ impl Key {
             (Key::MenuItemSaveConfig, &Language::En) => "Save Config",
             (Key::MenuItemLoadConfig, &Language::Zh) => "加载配置",
             (Key::MenuItemLoadConfig, &Language::En) => "Load Config",
+            (Key::MenuItemAutoStart, &Language::Zh) => "开机自启动",
+            (Key::MenuItemAutoStart, &Language::En) => "Auto Start",
             (Key::MenuItemAbout, &Language::Zh) => "关于",
             (Key::MenuItemAbout, &Language::En) => "About",
 

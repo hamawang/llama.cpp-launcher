@@ -211,6 +211,10 @@ pub struct AppSettings {
     pub auto_scroll_logs: bool,
     #[serde(default = "default_max_log_lines")]
     pub max_log_lines: i32,
+
+    // 开机自启动
+    #[serde(default)]
+    pub auto_start: bool,
 }
 
 impl Default for AppSettings {
@@ -255,6 +259,7 @@ impl Default for AppSettings {
             rename_preset_new_name: String::new(),
             auto_scroll_logs: default_auto_scroll_logs(),
             max_log_lines: default_max_log_lines(),
+            auto_start: false,
         }
     }
 }

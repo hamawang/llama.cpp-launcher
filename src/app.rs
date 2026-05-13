@@ -137,6 +137,19 @@ impl eframe::App for LlamaLunchApp {
                             self.settings = s;
                         }
                     }
+                    // 开机自启动（仅在 Windows 显示）
+                    #[cfg(target_os = "windows")]
+                    if ui.checkbox(&mut self.settings.auto_start, i18n::t(i18n::Key::MenuItemAutoStart, &self.lang)).changed() {
+                        if self.settings.auto_start {
+                            enable_auto_start();
+                        } else {
+                            disable_auto_start();
+                        }
+                        // 保存设置到文件
+                        if let Err(e) = self.settings_manager.save(&self.settings) {
+                            log::error!("保存设置失败：{}", e);
+                        }
+                    }
                 });
 
                 // 标签页切换
@@ -213,3 +226,45 @@ impl Drop for LlamaLunchApp {
         self.save();
     }
 }
+
+// Windows 开机自启动注册表操作函数
+#[cfg(target_os = "windows")]
+fn enable_auto_start() {
+    use std::os::windows::process::CommandExt;
+    
+    // 获取当前可执行文件路径
+    let exe_path = std::env::current_exe().ok();
+    if let Some(path) = exe_path {
+        // 使用 reg add 命令写入注册表
+        let _ = std::process::Command::new("reg")
+            .arg("add")
+            .arg(r#"HKCU\Software\Microsoft\Windows\CurrentVersion\Run"#)
+            .arg("llama-lunch")
+            .arg(format!("/d {}", path.display()))
+            .arg("/f")
+            .creation_flags(0x08000000) // CREATE_NO_WINDOW
+            .output();
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn disable_auto_start() {
+    use std::os::windows::process::CommandExt;
+    
+    // 使用 reg delete 命令删除注册表项
+    let _ = std::process::Command::new("reg")
+        .arg("delete")
+        .arg(r#"HKCU\Software\Microsoft\Windows\CurrentVersion\Run"#)
+        .arg("/v")
+        .arg("llama-lunch")
+        .arg("/f")
+        .creation_flags(0x08000000) // CREATE_NO_WINDOW
+        .output();
+}
+
+// 非 Windows 平台的空实现
+#[cfg(not(target_os = "windows"))]
+fn enable_auto_start() {}
+
+#[cfg(not(target_os = "windows"))]
+fn disable_auto_start() {}
