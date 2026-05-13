@@ -24,6 +24,7 @@ pub enum Key {
     TabParams,
     TabLog,
     TabCommands,
+    TabPresets,
 
     // 按钮
     BtnStartServer,
@@ -34,6 +35,11 @@ pub enum Key {
     BtnAutoDetect,
     BtnClearLogs,
     BtnClose,
+    // 预设
+    BtnSavePreset,
+    BtnLoadPreset,
+    BtnDeletePreset,
+    BtnRenamePreset,
 
     // 状态
     StatusProcessing,
@@ -119,6 +125,12 @@ pub enum Key {
     LabelRpcCommand,
     HintNoCommand,
 
+    // 预设
+    SectionPresets,
+    LabelPresetName,
+    HintNoPresets,
+    HintPresetHelp,
+
     // 错误信息
     ErrServerModelMissing,
     ErrRpcPathMissing,
@@ -162,10 +174,12 @@ impl Key {
  
             (Key::TabLog, &Language::Zh) => "日志",
             (Key::TabLog, &Language::En) => "Logs",
-            (Key::TabCommands, &Language::Zh) => "启动命令",
-            (Key::TabCommands, &Language::En) => "Launch Cmd",
+         (Key::TabCommands, &Language::Zh) => "启动命令",
+             (Key::TabCommands, &Language::En) => "Launch Cmd",
+             (Key::TabPresets, &Language::Zh) => "预设",
+             (Key::TabPresets, &Language::En) => "Presets",
 
-            // 按钮
+             // 按钮
             (Key::BtnStartServer, &Language::Zh) => "启动 Server",
             (Key::BtnStartServer, &Language::En) => "Start Server",
             (Key::BtnStopServer, &Language::Zh) => "停止 Server",
@@ -180,10 +194,18 @@ impl Key {
             (Key::BtnAutoDetect, &Language::En) => "Auto Detect",
             (Key::BtnClearLogs, &Language::Zh) => "清空日志",
             (Key::BtnClearLogs, &Language::En) => "Clear Logs",
-          (Key::BtnClose, &Language::Zh) => "关闭",
-            (Key::BtnClose, &Language::En) => "Close",
+         (Key::BtnClose, &Language::Zh) => "关闭",
+             (Key::BtnClose, &Language::En) => "Close",
+             (Key::BtnSavePreset, &Language::Zh) => "保存预设",
+             (Key::BtnSavePreset, &Language::En) => "Save Preset",
+             (Key::BtnLoadPreset, &Language::Zh) => "加载",
+             (Key::BtnLoadPreset, &Language::En) => "Load",
+             (Key::BtnDeletePreset, &Language::Zh) => "删除",
+             (Key::BtnDeletePreset, &Language::En) => "Delete",
+             (Key::BtnRenamePreset, &Language::Zh) => "重命名",
+             (Key::BtnRenamePreset, &Language::En) => "Rename",
 
-            // 状态
+             // 状态
             (Key::StatusProcessing, &Language::Zh) => "处理中...",
             (Key::StatusProcessing, &Language::En) => "Processing...",
             (Key::StatusIdle, &Language::Zh) => "已停止",
@@ -356,10 +378,20 @@ impl Key {
             (Key::LabelServerCommand, &Language::En) => "Server Command:",
             (Key::LabelRpcCommand, &Language::Zh) => "RPC 启动命令:",
             (Key::LabelRpcCommand, &Language::En) => "RPC Command:",
-            (Key::HintNoCommand, &Language::Zh) => "尚未启动",
-            (Key::HintNoCommand, &Language::En) => "Not launched",
+        (Key::HintNoCommand, &Language::Zh) => "尚未启动",
+             (Key::HintNoCommand, &Language::En) => "Not launched",
 
-            // 错误信息
+             // 预设
+             (Key::SectionPresets, &Language::Zh) => "预设管理",
+             (Key::SectionPresets, &Language::En) => "Preset Management",
+             (Key::LabelPresetName, &Language::Zh) => "预设名称:",
+             (Key::LabelPresetName, &Language::En) => "Preset Name:",
+       (Key::HintNoPresets, &Language::Zh) => "暂无预设",
+        (Key::HintNoPresets, &Language::En) => "No presets yet",
+             (Key::HintPresetHelp, &Language::Zh) => "预设仅保存启动参数，不包含文件路径",
+             (Key::HintPresetHelp, &Language::En) => "Presets save launch parameters only, not file paths",
+
+             // 错误信息
             (Key::ErrServerModelMissing, &Language::Zh) => "请先配置 Server 路径和模型路径",
             (Key::ErrServerModelMissing, &Language::En) => "Please configure Server path and model path first",
             (Key::ErrRpcPathMissing, &Language::Zh) => "请先配置 rpc-server 路径",
