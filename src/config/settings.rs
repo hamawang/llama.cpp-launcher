@@ -2,8 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const CONFIG_DIR: &str = "llama_lunch";
-const CONFIG_FILE: &str = "settings.json";
+const CONFIG_FILE: &str = "llama_lunch_settings.json";
 
 fn default_flash_attn() -> String {
     "auto".to_string()
@@ -268,10 +267,7 @@ impl SettingsManager {
     pub fn new() -> Self {
         let config_dir = std::env::current_exe()
             .map(|p| p.parent().unwrap_or(Path::new("")).to_path_buf())
-            .unwrap_or_else(|_| PathBuf::from("."))
-            .join(CONFIG_DIR);
-
-        fs::create_dir_all(&config_dir).ok();
+            .unwrap_or_else(|_| PathBuf::from("."));
 
         Self { config_dir }
     }
