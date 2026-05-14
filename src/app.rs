@@ -223,12 +223,7 @@ impl eframe::App for LlamaLunchApp {
                       tab if tab == i18n::t(i18n::Key::TabCommands, &self.lang) => launch_commands_panel::ui(ui, &self.server_manager, &self.rpc_manager, &self.lang),
                       tab if tab == i18n::t(i18n::Key::TabPresets, &self.lang) => presets_panel::ui(ui, &mut self.settings, &self.lang),
 
-                    _ => { ui.label(i18n::t(i18n::Key::GenericSelectModule, &self.lang)); },
-                    }
-
-                    #[cfg(target_os = "windows")]
-                    if ui.button(i18n::t(i18n::Key::MenuItemCreateShortcut, &self.lang)).clicked() {
-                        let _ = crate::shortcut::create_desktop_shortcut();
+                   _ => { ui.label(i18n::t(i18n::Key::GenericSelectModule, &self.lang)); },
                     }
                 });
         });
