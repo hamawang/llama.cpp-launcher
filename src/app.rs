@@ -17,7 +17,15 @@ pub struct LlamaLunchApp {
 impl LlamaLunchApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let settings_manager = SettingsManager::new();
-        let settings = settings_manager.load().unwrap_or_default();
+        let mut settings = settings_manager.load().unwrap_or_default();
+        
+        // 应用自启动预设
+        if let Some(ref preset_name) = settings.auto_start_preset_name {
+            if let Some(preset) = settings.presets.iter().find(|p| p.name == *preset_name) {
+                preset.clone().apply_to(&mut settings);
+            }
+        }
+        
         let locale = sys_locale::get_locale().unwrap_or_default();
         let lang = if locale.starts_with("zh") {
             Language::Zh

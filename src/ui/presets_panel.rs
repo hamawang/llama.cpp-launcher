@@ -47,12 +47,28 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
             // 先收集需要操作的信息，避免借用冲突
             let mut load_index: Option<usize> = None;
             let mut delete_index: Option<usize> = None;
+            let mut auto_start_preset: Option<String> = None;
 
             for (i, preset) in settings.presets.iter().enumerate() {
                 ui.horizontal(|ui| {
                     // 预设名称（可点击加载）
                     if ui.selectable_label(false, format!("📦 {}", preset.name)).clicked() {
                         load_index = Some(i);
+                    }
+
+                    // 应用按钮 - 加载配置到表单，不自动启动服务
+                    if ui.small_button(i18n::t(i18n::Key::BtnApplyPreset, lang)).clicked() {
+                        load_index = Some(i);
+                    }
+
+                    // 自启动预设勾选框（单选）
+                    let mut is_auto = settings.auto_start_preset_name
+                        .as_ref()
+                        .is_some_and(|name| *name == preset.name);
+                    if ui.checkbox(&mut is_auto, i18n::t(i18n::Key::CheckboxAutoStartPreset, lang)).changed() {
+                        if is_auto {
+                            auto_start_preset = Some(preset.name.clone());
+                        }
                     }
 
                     // 重命名按钮 - 使用 settings 持久化状态
@@ -67,6 +83,11 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                     }
                 });
                 ui.separator();
+            }
+
+            // 执行自启动预设设置
+            if let Some(name) = auto_start_preset {
+                settings.auto_start_preset_name = Some(name);
             }
 
             // 执行加载
