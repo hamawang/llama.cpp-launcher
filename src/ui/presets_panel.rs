@@ -1,7 +1,9 @@
 use crate::config::settings::{AppSettings, Preset};
 use crate::i18n;
 
-pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) {
+pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) -> bool {
+    let mut should_start_server = false;
+
     ui.heading(i18n::t(i18n::Key::SectionPresets, lang));
     ui.separator();
 
@@ -61,13 +63,16 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                         load_index = Some(i);
                     }
 
-                    // 自启动预设勾选框（单选）
+                     // 自启动预设勾选框（单选）
                     let mut is_auto = settings.auto_start_preset_name
                         .as_ref()
                         .is_some_and(|name| *name == preset.name);
                     if ui.checkbox(&mut is_auto, i18n::t(i18n::Key::CheckboxAutoStartPreset, lang)).changed() {
                         if is_auto {
                             auto_start_preset = Some(preset.name.clone());
+                        } else if settings.auto_start_preset_name.as_ref() == Some(&preset.name) {
+                            // 取消勾选时清除自启动预设标记
+                            settings.auto_start_preset_name = None;
                         }
                     }
 
@@ -97,6 +102,12 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                     preset.apply_to(settings);
                 }
             }
+
+            // 检查是否需要启动 Server
+            should_start_server = load_index.map(|idx|
+                idx < settings.presets.len()
+                    && settings.auto_start_preset_name.as_ref() == Some(&settings.presets[idx].name)
+            ).unwrap_or(false);
 
             // 执行删除
             if let Some(idx) = delete_index {
@@ -141,4 +152,6 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
             }
         });
     }
+
+    should_start_server
 }

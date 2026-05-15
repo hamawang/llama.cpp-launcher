@@ -12,6 +12,7 @@ pub struct LlamaLunchApp {
     tab_selected: String,
     show_about: bool,
      lang: Language,
+    auto_start_server_on_first_frame: bool,  // 新增
 }
 
 impl LlamaLunchApp {
@@ -25,6 +26,8 @@ impl LlamaLunchApp {
                 preset.clone().apply_to(&mut settings);
             }
         }
+        
+        let auto_start_server_on_first_frame = settings.auto_start_preset_name.is_some();
         
         let locale = sys_locale::get_locale().unwrap_or_default();
         let lang = if locale.starts_with("zh") {
@@ -47,6 +50,7 @@ impl LlamaLunchApp {
             tab_selected: "Server".to_string(),
             show_about: false,
             lang,
+            auto_start_server_on_first_frame,
         }
     }
 
@@ -117,6 +121,12 @@ impl LlamaLunchApp {
 
 impl eframe::App for LlamaLunchApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // 应用启动时自动启动 Server
+        if self.auto_start_server_on_first_frame {
+            self.auto_start_server_on_first_frame = false;
+            self.server_manager.start(&self.settings);
+        }
+
         self.server_manager.poll_logs();
         self.rpc_manager.poll();
 
@@ -221,7 +231,12 @@ impl eframe::App for LlamaLunchApp {
                   tab if tab == i18n::t(i18n::Key::TabParams, &self.lang) => params_panel::ui(ui, &mut self.settings, &self.lang),
                        tab if tab == i18n::t(i18n::Key::TabLog, &self.lang) => log_panel::ui(ui, &mut self.settings, &mut self.server_manager, &self.lang),
                       tab if tab == i18n::t(i18n::Key::TabCommands, &self.lang) => launch_commands_panel::ui(ui, &self.server_manager, &self.rpc_manager, &self.lang),
-                      tab if tab == i18n::t(i18n::Key::TabPresets, &self.lang) => presets_panel::ui(ui, &mut self.settings, &self.lang),
+                     tab if tab == i18n::t(i18n::Key::TabPresets, &self.lang) => {
+                        let should_start = presets_panel::ui(ui, &mut self.settings, &self.lang);
+                        if should_start {
+                            self.server_manager.start(&self.settings);
+                        }
+                    }
 
                    _ => { ui.label(i18n::t(i18n::Key::GenericSelectModule, &self.lang)); },
                     }
