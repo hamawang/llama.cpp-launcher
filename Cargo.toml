@@ -1,5 +1,5 @@
 [package]
-name = "llama-cpp-lunch"
+name = "llama_cpp_lunch"
 version = "0.1.0"
 edition = "2021"
 
