@@ -31,53 +31,56 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, server: &mut ServerMana
         ui.add_space(4.0);
     }
 
-    egui::ScrollArea::vertical()
-        .auto_shrink(false)
-        .id_salt("log_scroll_area")
-        .stick_to_bottom(settings.auto_scroll_logs)  // 根据复选框控制自动滚动
-        .show(ui, |ui| {
-            let mut logs = server.logs();
-            // 根据设置截断日志行数 (-1 表示全部保留)
-            if settings.max_log_lines > 0 && logs.len() > settings.max_log_lines as usize {
-                let start_index = logs.len() - settings.max_log_lines as usize;
-                logs.drain(..start_index);
-            }
-            
-            if logs.is_empty() {
-                ui.add_space(20.0);
-                ui.horizontal_centered(|ui| {
-                    ui.colored_label(egui::Color32::GRAY, i18n::t(i18n::Key::HintNoLogs, lang));
-                });
-            } else {
-                for entry in &logs {
-                    let prefix = match entry.level {
-                        LogLevel::Info => "",
-                        LogLevel::Warn => "⚠ ",
-                        LogLevel::Error => "✖ ",
-                    };
-
-                    let text = format!("{}{}", prefix, entry.text);
-
-                    ui.horizontal_wrapped(|ui| {
-                        match entry.level {
-                            LogLevel::Info => {
-                                ui.colored_label(egui::Color32::BLACK, &text);
-                            }
-                            LogLevel::Warn => {
-                                egui::Frame::default()
-                                    .fill(egui::Color32::from_rgb(80, 80, 80))
-                                    .inner_margin(egui::Margin::same(4.0))
-                                    .show(ui, |ui| {
-                                        ui.colored_label(egui::Color32::YELLOW, &text);
-                                    });
-                            }
-                            LogLevel::Error => {
-                                ui.colored_label(egui::Color32::RED, &text);
-                            }
-                        }
-                    });
+    // max_log_lines == 0 时不显示日志区域
+    if settings.max_log_lines != 0 {
+        egui::ScrollArea::vertical()
+            .auto_shrink(false)
+            .id_salt("log_scroll_area")
+            .stick_to_bottom(settings.auto_scroll_logs)
+            .show(ui, |ui| {
+                let mut logs = server.logs();
+                // -1 表示全部保留；>0 时截断到最后 N 行
+                if settings.max_log_lines > 0 && logs.len() > settings.max_log_lines as usize {
+                    let start_index = logs.len() - settings.max_log_lines as usize;
+                    logs.drain(..start_index);
                 }
-            }
-        });
+
+                if logs.is_empty() {
+                    ui.add_space(20.0);
+                    ui.horizontal_centered(|ui| {
+                        ui.colored_label(egui::Color32::GRAY, i18n::t(i18n::Key::HintNoLogs, lang));
+                    });
+                } else {
+                    for entry in &logs {
+                        let prefix = match entry.level {
+                            LogLevel::Info => "",
+                            LogLevel::Warn => "⚠ ",
+                            LogLevel::Error => "✖ ",
+                        };
+
+                        let text = format!("{}{}", prefix, entry.text);
+
+                        ui.horizontal_wrapped(|ui| {
+                            match entry.level {
+                                LogLevel::Info => {
+                                    ui.colored_label(egui::Color32::BLACK, &text);
+                                }
+                                LogLevel::Warn => {
+                                    egui::Frame::default()
+                                        .fill(egui::Color32::from_rgb(80, 80, 80))
+                                        .inner_margin(egui::Margin::same(4.0))
+                                        .show(ui, |ui| {
+                                            ui.colored_label(egui::Color32::YELLOW, &text);
+                                        });
+                                }
+                                LogLevel::Error => {
+                                    ui.colored_label(egui::Color32::RED, &text);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+    }
     
 }
