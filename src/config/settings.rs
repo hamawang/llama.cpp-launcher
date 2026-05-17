@@ -4,6 +4,82 @@ use std::path::{Path, PathBuf};
 
 const CONFIG_FILE: &str = "llama_cpp_lunch_settings.json";
 
+/// GPU 层数卸载模式
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum GpuLayersMode {
+    Auto,       // 自动
+    All,        // 全部卸载到 GPU
+    Manual(usize), // 手动指定层数
+}
+
+impl serde::Serialize for GpuLayersMode {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        match self {
+            GpuLayersMode::Auto => serializer.serialize_str("auto"),
+            GpuLayersMode::All => serializer.serialize_str("all"),
+            GpuLayersMode::Manual(n) => n.serialize(serializer),
+        }
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for GpuLayersMode {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de;
+
+        struct GpuLayersModeVisitor;
+
+        impl<'de> de::Visitor<'de> for GpuLayersModeVisitor {
+            type Value = GpuLayersMode;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("auto, all, or a number")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<GpuLayersMode, E>
+            where
+                E: de::Error,
+            {
+                let v = value.trim().to_lowercase();
+                if v == "auto" {
+                    Ok(GpuLayersMode::Auto)
+                } else if v == "all" || v == "99" {
+                    Ok(GpuLayersMode::All)
+                } else if let Ok(n) = v.parse::<usize>() {
+                    Ok(GpuLayersMode::Manual(n))
+                } else {
+                    Err(de::Error::invalid_value(de::Unexpected::Str(value), &self))
+                }
+            }
+
+            fn visit_u64<E>(self, v: u64) -> Result<GpuLayersMode, E>
+            where
+                E: de::Error,
+            {
+                Ok(GpuLayersMode::Manual(v as usize))
+            }
+        }
+
+        deserializer.deserialize_any(GpuLayersModeVisitor)
+    }
+}
+
+impl GpuLayersMode {
+    /// 生成 --n-gpu-layers 参数值
+    pub fn to_arg(&self) -> String {
+        match self {
+            GpuLayersMode::Auto => "auto".to_string(),
+            GpuLayersMode::All => "99".to_string(),
+            GpuLayersMode::Manual(n) => n.to_string(),
+        }
+    }
+}
+
 fn default_flash_attn() -> String {
     "auto".to_string()
 }
@@ -38,7 +114,7 @@ pub struct Preset {
     pub cache_type_v: String,
     // GPU 与设备分配
     pub gpu_device: String,
-    pub gpu_layers_str: String,
+    pub gpu_layers_mode: GpuLayersMode,
     pub split_mode: String,
     pub tensor_split: String,
     pub cpu_moe: bool,
@@ -67,7 +143,7 @@ impl Default for Preset {
             cache_type_k: "f16".to_string(),
             cache_type_v: "f16".to_string(),
             gpu_device: "".to_string(),
-            gpu_layers_str: "99".to_string(),
+            gpu_layers_mode: GpuLayersMode::All,
             split_mode: "layer".to_string(),
             tensor_split: "".to_string(),
             cpu_moe: false,
@@ -97,7 +173,7 @@ impl Preset {
             cache_type_k: settings.cache_type_k.clone(),
             cache_type_v: settings.cache_type_v.clone(),
             gpu_device: settings.gpu_device.clone(),
-            gpu_layers_str: settings.gpu_layers_str.clone(),
+            gpu_layers_mode: settings.gpu_layers_mode,
             split_mode: settings.split_mode.clone(),
             tensor_split: settings.tensor_split.clone(),
             cpu_moe: settings.cpu_moe,
@@ -123,7 +199,7 @@ impl Preset {
         settings.cache_type_k = self.cache_type_k;
         settings.cache_type_v = self.cache_type_v;
         settings.gpu_device = self.gpu_device;
-        settings.gpu_layers_str = self.gpu_layers_str;
+        settings.gpu_layers_mode = self.gpu_layers_mode;
         settings.split_mode = self.split_mode;
         settings.tensor_split = self.tensor_split;
         settings.cpu_moe = self.cpu_moe;
@@ -166,7 +242,7 @@ pub struct AppSettings {
 
     // GPU 与设备分配
     pub gpu_device: String,
-    pub gpu_layers_str: String,
+    pub gpu_layers_mode: GpuLayersMode,
     pub split_mode: String,
     pub tensor_split: String,
      pub cpu_moe: bool,
@@ -237,7 +313,7 @@ impl Default for AppSettings {
             cache_type_k: "f16".to_string(),
             cache_type_v: "f16".to_string(),
             gpu_device: "".to_string(),
-            gpu_layers_str: "99".to_string(),
+            gpu_layers_mode: GpuLayersMode::All,
             split_mode: "layer".to_string(),
             tensor_split: "".to_string(),
             cpu_moe: false,
