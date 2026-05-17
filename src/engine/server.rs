@@ -89,31 +89,28 @@ impl ServerManager {
     }
 
     // 从日志文本中解析 progress = 0.xx，并更新进度值
+    // 不修改原始日志内容，只提取进度
     fn parse_progress(text: &str) -> (String, Option<f32>) {
         let mut progress = None;
-        let mut result = text.to_string();
 
         if let Some(pos) = text.find("progress = ") {
-            let rest = &text[pos..];
-            // 取 "progress = " 后的数字，直到空格/Tab/逗号/换行/行尾
+            let rest = &text[pos + "progress = ".len()..];
+            // 取数字部分，直到空格/Tab/逗号/换行/行尾
             let end = rest
                 .find(' ')
                 .or(rest.find('\t'))
                 .or(rest.find(','))
                 .or(rest.find('\n'))
                 .unwrap_or(rest.len());
-            let num_str = &rest["progress = ".len()..end];
+            let num_str = rest[..end].trim();
 
-            if let Ok(v) = num_str.trim().parse::<f32>() {
+            if let Ok(v) = num_str.parse::<f32>() {
                 progress = Some(v.clamp(0.0, 1.0));
-                // 从日志中移除 "progress = 0.xx" 片段，避免重复显示
-                result = text[..pos].to_string() + &text[end..];
-                // 清理多余空格
-                result = result.replace("  ", " ").trim().to_string();
             }
         }
 
-        (result, progress)
+        // 保留原始日志不做裁剪
+        (text.to_string(), progress)
     }
 
     pub fn launch_command(&self) -> Option<String> {
