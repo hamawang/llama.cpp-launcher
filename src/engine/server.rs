@@ -109,11 +109,10 @@ impl ServerManager {
         self._threads.clear();
 
         let mut cmd = Command::new(&server_path);
-        cmd.arg("-m").arg(&model_path)
+        cmd.arg("--model").arg(&model_path)
             .arg("--host").arg(&settings.host)
             .arg("--port").arg(settings.port.to_string())
-            .arg("-c").arg(settings.n_ctx.to_string())
-            .arg("-np").arg(settings.n_predict.to_string())
+            .arg("--ctx-size").arg(settings.n_ctx.to_string())
             .arg("--parallel").arg(settings.parallel_slots.to_string())
             .arg("--n-gpu-layers").arg(&settings.gpu_layers_str)
             .arg("--temp").arg(settings.temperature.to_string())
@@ -143,10 +142,10 @@ impl ServerManager {
             cmd.arg("-nkvo");
         }
         if !settings.cache_type_k.is_empty() {
-            cmd.arg("-ctk").arg(&settings.cache_type_k);
+            cmd.arg("--cache-type-k").arg(&settings.cache_type_k);
         }
         if !settings.cache_type_v.is_empty() {
-            cmd.arg("-ctv").arg(&settings.cache_type_v);
+            cmd.arg("--cache-type-v").arg(&settings.cache_type_v);
         }
 
         // GPU 与设备分配

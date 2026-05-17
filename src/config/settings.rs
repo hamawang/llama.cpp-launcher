@@ -26,7 +26,6 @@ pub struct Preset {
     pub parallel_slots: usize,
     // 推理参数
     pub n_ctx: usize,
-    pub n_predict: i32,
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
@@ -59,7 +58,6 @@ impl Default for Preset {
             port: 8080,
             parallel_slots: 4,
             n_ctx: 4096,
-            n_predict: 256,
             temperature: 0.8,
             top_p: 0.95,
             top_k: 40,
@@ -89,9 +87,8 @@ impl Preset {
             host: settings.host.clone(),
             port: settings.port,
             parallel_slots: settings.parallel_slots,
-            n_ctx: settings.n_ctx,
-            n_predict: settings.n_predict,
-            temperature: settings.temperature,
+       n_ctx: settings.n_ctx,
+        temperature: settings.temperature,
             top_p: settings.top_p,
             top_k: settings.top_k,
             repeat_penalty: settings.repeat_penalty,
@@ -117,7 +114,6 @@ impl Preset {
         settings.port = self.port;
         settings.parallel_slots = self.parallel_slots;
         settings.n_ctx = self.n_ctx;
-        settings.n_predict = self.n_predict;
         settings.temperature = self.temperature;
         settings.top_p = self.top_p;
         settings.top_k = self.top_k;
@@ -156,7 +152,6 @@ pub struct AppSettings {
 
     // 推理参数
     pub n_ctx: usize,
-    pub n_predict: i32,
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
@@ -233,7 +228,6 @@ impl Default for AppSettings {
     dflash_path: PathBuf::new(),
     model_dir: PathBuf::new(),
             n_ctx: 4096,
-            n_predict: 256,
             temperature: 0.8,
             top_p: 0.95,
             top_k: 40,
