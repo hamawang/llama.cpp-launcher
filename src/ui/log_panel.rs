@@ -19,6 +19,18 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, server: &mut ServerMana
 
     ui.add_space(8.0);
 
+    // 预填充进度条（0-100%），仅在进度 > 0 时显示
+    let progress = server.progress();
+    if progress > 0.0 {
+        let pct = (progress * 100.0).round() as u32;
+        let label = format!("{}: {}/100%", i18n::t(i18n::Key::LabelPreFillProgress, lang), pct);
+        ui.add(
+            egui::ProgressBar::new(progress)
+                .text(&label),
+        );
+        ui.add_space(4.0);
+    }
+
     egui::ScrollArea::vertical()
         .auto_shrink(false)
         .id_salt("log_scroll_area")

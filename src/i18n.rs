@@ -124,6 +124,7 @@ pub enum Key {
     HintNoLogs,
     CheckboxAutoScroll,
     LabelMaxLogLines,
+    LabelPreFillProgress,
     SectionLaunchCommands,
     LabelServerCommand,
     LabelRpcCommand,
@@ -380,6 +381,8 @@ impl Key {
             (Key::CheckboxAutoScroll, &Language::En) => "Auto-scroll to latest logs",
             (Key::LabelMaxLogLines, &Language::Zh) => "最大显示行数:",
             (Key::LabelMaxLogLines, &Language::En) => "Max log lines:",
+            (Key::LabelPreFillProgress, &Language::Zh) => "预填充进度",
+            (Key::LabelPreFillProgress, &Language::En) => "Pre-fill progress",
 
             // 启动命令
             (Key::SectionLaunchCommands, &Language::Zh) => "启动命令",

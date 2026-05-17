@@ -33,6 +33,7 @@ pub struct LogEntry {
 struct InnerState {
     child: Option<Child>,
     logs: Vec<LogEntry>,
+    progress: f32, // 预填充进度 0.0~1.0
 }
 
 pub struct ServerManager {
@@ -49,6 +50,7 @@ impl ServerManager {
             inner: Arc::new(Mutex::new(InnerState {
                 child: None,
                 logs: Vec::new(),
+                progress: 0.0,
             })),
             launch_command: None,
             _threads: Vec::new(),
@@ -79,6 +81,39 @@ impl ServerManager {
 
     pub fn clear_logs(&mut self) {
         self.inner.lock().unwrap().logs.clear();
+        self.inner.lock().unwrap().progress = 0.0;
+    }
+
+    pub fn progress(&self) -> f32 {
+        self.inner.lock().unwrap().progress
+    }
+
+    // 从日志文本中解析 progress = 0.xx，并更新进度值
+    fn parse_progress(text: &str) -> (String, Option<f32>) {
+        let mut progress = None;
+        let mut result = text.to_string();
+
+        if let Some(pos) = text.find("progress = ") {
+            let rest = &text[pos..];
+            // 取 "progress = " 后的数字，直到空格/Tab/逗号/换行/行尾
+            let end = rest
+                .find(' ')
+                .or(rest.find('\t'))
+                .or(rest.find(','))
+                .or(rest.find('\n'))
+                .unwrap_or(rest.len());
+            let num_str = &rest["progress = ".len()..end];
+
+            if let Ok(v) = num_str.trim().parse::<f32>() {
+                progress = Some(v.clamp(0.0, 1.0));
+                // 从日志中移除 "progress = 0.xx" 片段，避免重复显示
+                result = text[..pos].to_string() + &text[end..];
+                // 清理多余空格
+                result = result.replace("  ", " ").trim().to_string();
+            }
+        }
+
+        (result, progress)
     }
 
     pub fn launch_command(&self) -> Option<String> {
@@ -214,9 +249,13 @@ impl ServerManager {
                         for line in reader.lines() {
                             match line {
                                 Ok(l) => {
+                                    let (text, p) = Self::parse_progress(&l);
                                     let mut inner = inner_clone.lock().unwrap();
+                                    if let Some(v) = p {
+                                        inner.progress = v;
+                                    }
                                     inner.logs.push(LogEntry {
-                                        text: l,
+                                        text,
                                         level: LogLevel::Info,
                                     });
                                 }
@@ -248,9 +287,13 @@ impl ServerManager {
                                     } else {
                                         LogLevel::Info
                                     };
+                                    let (text, p) = Self::parse_progress(&l);
                                     let mut inner = inner_clone2.lock().unwrap();
+                                    if let Some(v) = p {
+                                        inner.progress = v;
+                                    }
                                     inner.logs.push(LogEntry {
-                                        text: l,
+                                        text,
                                         level,
                                     });
                                 }
