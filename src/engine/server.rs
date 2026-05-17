@@ -95,13 +95,17 @@ impl ServerManager {
 
         if let Some(pos) = text.find("progress = ") {
             let rest = &text[pos + "progress = ".len()..];
-            // 取数字部分，直到空格/Tab/逗号/换行/行尾
-            let end = rest
-                .find(' ')
-                .or(rest.find('\t'))
-                .or(rest.find(','))
-                .or(rest.find('\n'))
-                .unwrap_or(rest.len());
+            // 取所有终止符中的最小位置（避免空格/逗号优先级问题）
+            let end = [
+                rest.find(' '),
+                rest.find('\t'),
+                rest.find(','),
+                rest.find('\n'),
+            ]
+            .into_iter()
+            .flatten()
+            .min()
+            .unwrap_or(rest.len());
             let num_str = rest[..end].trim();
 
             if let Ok(v) = num_str.parse::<f32>() {
