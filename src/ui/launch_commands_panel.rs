@@ -9,12 +9,13 @@ pub fn ui(ui: &mut egui::Ui, server: &ServerManager, rpc: &RpcManager, lang: &i1
     // Server 启动命令
     ui.label(i18n::t(i18n::Key::LabelServerCommand, lang));
     if let Some(ref cmd) = server.launch_command() {
-        ui.horizontal(|ui| {
+        // 使用水平滚动区域，避免过长命令被截断
+        egui::ScrollArea::horizontal().show(ui, |ui| {
             ui.monospace(cmd);
-            if ui.button(i18n::t(i18n::Key::BtnCopyToClipboard, lang)).clicked() {
-                ui.ctx().output_mut(|o| o.copied_text = cmd.clone());
-            }
         });
+        if ui.button(i18n::t(i18n::Key::BtnCopyToClipboard, lang)).clicked() {
+            ui.ctx().output_mut(|o| o.copied_text = cmd.clone());
+        }
     } else {
         ui.colored_label(egui::Color32::GRAY, i18n::t(i18n::Key::HintNoCommand, lang));
     }
@@ -23,12 +24,13 @@ pub fn ui(ui: &mut egui::Ui, server: &ServerManager, rpc: &RpcManager, lang: &i1
     // RPC 启动命令
     ui.label(i18n::t(i18n::Key::LabelRpcCommand, lang));
     if let Some(ref cmd) = rpc.launch_command() {
-        ui.horizontal(|ui| {
+        // 使用水平滚动区域，避免过长命令被截断
+        egui::ScrollArea::horizontal().show(ui, |ui| {
             ui.monospace(cmd);
-            if ui.button(i18n::t(i18n::Key::BtnCopyToClipboard, lang)).clicked() {
-                ui.ctx().output_mut(|o| o.copied_text = cmd.clone());
-            }
         });
+        if ui.button(i18n::t(i18n::Key::BtnCopyToClipboard, lang)).clicked() {
+            ui.ctx().output_mut(|o| o.copied_text = cmd.clone());
+        }
     } else {
         ui.colored_label(egui::Color32::GRAY, i18n::t(i18n::Key::HintNoCommand, lang));
     }
