@@ -37,6 +37,8 @@ pub enum Key {
     BtnAutoDetect,
     BtnClearLogs,
     BtnClose,
+    BtnHostLocal,
+    BtnHostAny,
     // 预设
     BtnSavePreset,
     BtnDeletePreset,
@@ -192,7 +194,7 @@ impl Key {
              (Key::TabPresets, &Language::Zh) => "预设",
              (Key::TabPresets, &Language::En) => "Presets",
 
-             // 按钮
+           // 按钮
             (Key::BtnStartServer, &Language::Zh) => "启动 Server",
             (Key::BtnStartServer, &Language::En) => "Start Server",
             (Key::BtnStopServer, &Language::Zh) => "停止 Server",
@@ -207,8 +209,12 @@ impl Key {
             (Key::BtnAutoDetect, &Language::En) => "Auto Detect",
             (Key::BtnClearLogs, &Language::Zh) => "清空日志",
             (Key::BtnClearLogs, &Language::En) => "Clear Logs",
-         (Key::BtnClose, &Language::Zh) => "关闭",
-             (Key::BtnClose, &Language::En) => "Close",
+            (Key::BtnClose, &Language::Zh) => "关闭",
+            (Key::BtnClose, &Language::En) => "Close",
+            (Key::BtnHostLocal, &Language::Zh) => "本机",
+            (Key::BtnHostLocal, &Language::En) => "Local",
+            (Key::BtnHostAny, &Language::Zh) => "任意网络",
+            (Key::BtnHostAny, &Language::En) => "Any",
              (Key::BtnSavePreset, &Language::Zh) => "保存预设",
              (Key::BtnSavePreset, &Language::En) => "Save Preset",
 
@@ -276,8 +282,8 @@ impl Key {
             (Key::LabelRpcPath, &Language::En) => "rpc-server path:",
             (Key::LabelRpcThreads, &Language::Zh) => "CPU 线程数:",
             (Key::LabelRpcThreads, &Language::En) => "CPU Threads:",
-            (Key::HintRpcThreads, &Language::Zh) => "默认: 12",
-            (Key::HintRpcThreads, &Language::En) => "(default: 12)",
+            (Key::HintRpcThreads, &Language::Zh) => "默认: 8",
+            (Key::HintRpcThreads, &Language::En) => "(default: 8)",
             (Key::LabelRpcDevice, &Language::Zh) => "设备:",
             (Key::LabelRpcDevice, &Language::En) => "Device:",
             (Key::HintRpcDevice, &Language::Zh) => "逗号分隔，如: 0,1",

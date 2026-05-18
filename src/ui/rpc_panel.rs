@@ -41,6 +41,18 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, settings_manager: &Sett
         ui.add(egui::DragValue::new(&mut settings.rpc_port).range(1..=65535));
     });
 
+    ui.add_space(4.0);
+
+    // 快捷按钮
+    ui.horizontal(|ui| {
+        if ui.small_button(i18n::t(i18n::Key::BtnHostLocal, lang)).clicked() {
+            settings.rpc_host = "127.0.0.1".to_string();
+        }
+        if ui.small_button(i18n::t(i18n::Key::BtnHostAny, lang)).clicked() {
+            settings.rpc_host = "0.0.0.0".to_string();
+        }
+    });
+
     ui.add_space(8.0);
 
     ui.add_space(8.0);
