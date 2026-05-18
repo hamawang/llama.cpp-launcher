@@ -44,6 +44,7 @@ pub enum Key {
     BtnDeletePreset,
     BtnRenamePreset,
     BtnApplyPreset,
+    BtnCopyToClipboard,
     CheckboxAutoStartPreset,
 
     // 状态
@@ -422,7 +423,9 @@ impl Key {
             (Key::HintPresetHelp, &Language::Zh) => "预设保存所有配置参数及文件路径",
              (Key::HintPresetHelp, &Language::En) => "Presets save all configuration parameters and file paths",
              (Key::BtnApplyPreset, &Language::Zh) => "应用",
-             (Key::BtnApplyPreset, &Language::En) => "Apply",
+              (Key::BtnApplyPreset, &Language::En) => "Apply",
+              (Key::BtnCopyToClipboard, &Language::Zh) => "复制到剪贴板",
+              (Key::BtnCopyToClipboard, &Language::En) => "Copy",
              (Key::CheckboxAutoStartPreset, &Language::Zh) => "自启动预设",
              (Key::CheckboxAutoStartPreset, &Language::En) => "Auto-start preset",
 
