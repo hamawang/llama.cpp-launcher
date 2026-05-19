@@ -13,10 +13,22 @@ use egui::{FontData, FontDefinitions, FontFamily};
 fn main() -> eframe::Result {
     env_logger::init();
 
+    // 检测是否来自自启（后台）启动参数
+    let autostart_minimized = std::env::args().any(|arg| arg == "--autostart-minimized");
+
+    // 自启时使用较小的初始尺寸，避免遮挡桌面；正常启动使用主窗口尺寸
+    let default_size = if autostart_minimized {
+        egui::vec2(400.0, 300.0)
+    } else {
+        egui::vec2(1250.0, 800.0)
+    };
+
+    let viewport = egui::ViewportBuilder::default()
+        .with_inner_size(default_size)
+        .with_title("llama.cpp lunch");
+
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size(egui::vec2(1100.0, 700.0))
-            .with_title("llama.cpp lunch"),
+        viewport,
         ..Default::default()
     };
 

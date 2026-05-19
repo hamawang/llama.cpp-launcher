@@ -117,6 +117,17 @@ impl LlamaLunchApp {
             }
         }
     }
+
+    fn render_web_client_button(&mut self, ui: &mut egui::Ui) {
+        let rpc_state = self.rpc_manager.state();
+        let enabled = matches!(rpc_state, RpcState::Running);
+        if ui.add_enabled(
+            enabled,
+            egui::Button::new(i18n::t(i18n::Key::BtnOpenWebClient, &self.lang)),
+        ).clicked {
+            open_web_client_url(self.settings.rpc_port);
+        }
+    }
 }
 
 impl eframe::App for LlamaLunchApp {
@@ -197,6 +208,7 @@ impl eframe::App for LlamaLunchApp {
                 // 控制按钮
                 self.render_server_controls(ui);
                 self.render_rpc_controls(ui);
+                self.render_web_client_button(ui);
 
                 ui.menu_button(i18n::t(i18n::Key::MenuHelp, &self.lang), |ui| {
                     if ui.button(i18n::t(i18n::Key::MenuItemAbout, &self.lang)).clicked() {
@@ -258,35 +270,31 @@ impl Drop for LlamaLunchApp {
 // Windows 开机自启动注册表操作函数
 #[cfg(target_os = "windows")]
 fn enable_auto_start() {
-    use std::os::windows::process::CommandExt;
-    
-    // 获取当前可执行文件路径
-    let exe_path = std::env::current_exe().ok();
-    if let Some(path) = exe_path {
-        // 使用 reg add 命令写入注册表
-        let _ = std::process::Command::new("reg")
-            .arg("add")
-            .arg(r#"HKCU\Software\Microsoft\Windows\CurrentVersion\Run"#)
-            .arg("llama-lunch")
-            .arg(format!("/d {}", path.display()))
-            .arg("/f")
-            .creation_flags(0x08000000) // CREATE_NO_WINDOW
-            .output();
-    }
+    let exe_path = match std::env::current_exe() {
+        Ok(p) => p,
+        Err(_) => return,
+    };
+
+    // /d 与值分开，路径用双引号包裹；开机自启时附带 --autostart-minimized 参数启动最小化窗口
+    let path_str = exe_path.to_string_lossy().to_string();
+    let _ = std::process::Command::new("reg")
+        .arg("add")
+        .arg(r#"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run"#)
+        .arg("llama.cpp lunch")
+        .arg("/d")
+        .arg(format!("\"{}\" --autostart-minimized", path_str))
+        .arg("/f")
+        .output();
 }
 
 #[cfg(target_os = "windows")]
 fn disable_auto_start() {
-    use std::os::windows::process::CommandExt;
-    
-    // 使用 reg delete 命令删除注册表项
     let _ = std::process::Command::new("reg")
         .arg("delete")
-        .arg(r#"HKCU\Software\Microsoft\Windows\CurrentVersion\Run"#)
+        .arg(r#"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run"#)
         .arg("/v")
-        .arg("llama-lunch")
+        .arg("llama.cpp lunch")
         .arg("/f")
-        .creation_flags(0x08000000) // CREATE_NO_WINDOW
         .output();
 }
 
@@ -296,3 +304,20 @@ fn enable_auto_start() {}
 
 #[cfg(not(target_os = "windows"))]
 fn disable_auto_start() {}
+
+// 用系统默认浏览器打开 Web Client
+#[cfg(target_os = "windows")]
+fn open_web_client_url(port: u16) {
+    let url = format!("http://127.0.0.1:{}", port);
+    let _ = std::process::Command::new("cmd")
+        .args(&["/c", "start", "", &url])
+        .spawn();
+}
+
+#[cfg(not(target_os = "windows"))]
+fn open_web_client_url(port: u16) {
+    use std::process::Command;
+    let url = format!("http://127.0.0.1:{}", port);
+    // 简单 fallback，失败则忽略
+    let _ = Command::new("xdg-open").arg(&url).spawn();
+}

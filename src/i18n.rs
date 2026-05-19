@@ -45,6 +45,7 @@ pub enum Key {
     BtnRenamePreset,
     BtnApplyPreset,
     BtnCopyToClipboard,
+    BtnOpenWebClient,
     CheckboxAutoStartPreset,
 
     // 状态
@@ -428,8 +429,10 @@ impl Key {
              (Key::BtnApplyPreset, &Language::Zh) => "应用",
               (Key::BtnApplyPreset, &Language::En) => "Apply",
               (Key::BtnCopyToClipboard, &Language::Zh) => "复制到剪贴板",
-              (Key::BtnCopyToClipboard, &Language::En) => "Copy",
-             (Key::CheckboxAutoStartPreset, &Language::Zh) => "自启动预设",
+               (Key::BtnCopyToClipboard, &Language::En) => "Copy",
+              (Key::BtnOpenWebClient, &Language::Zh) => "打开网页客户端",
+              (Key::BtnOpenWebClient, &Language::En) => "Open Web Client",
+              (Key::CheckboxAutoStartPreset, &Language::Zh) => "自启动预设",
              (Key::CheckboxAutoStartPreset, &Language::En) => "Auto-start preset",
 
              // 错误信息
