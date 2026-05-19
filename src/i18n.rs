@@ -424,8 +424,8 @@ impl Key {
             // 关于
             (Key::AboutTitle, &Language::Zh) => "关于",
             (Key::AboutTitle, &Language::En) => "About",
-            (Key::AboutVersion, &Language::Zh) => "llama.cpp lunch v0.1.0",
-            (Key::AboutVersion, &Language::En) => "llama.cpp lunch v0.1.0",
+            (Key::AboutVersion, &Language::Zh) => "llama.cpp launcher v0.1.0",
+            (Key::AboutVersion, &Language::En) => "llama.cpp launcher v0.1.0",
             (Key::AboutDescription, &Language::Zh) => "llama-server 图形启动器",
             (Key::AboutDescription, &Language::En) => "llama-server GUI launcher",
 

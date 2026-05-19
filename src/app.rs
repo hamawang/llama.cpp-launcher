@@ -4,7 +4,7 @@ use crate::engine::server::{ServerManager, ServerState};
 use crate::i18n::{self, Language};
 use crate::ui::{launch_commands_panel, log_panel, model_panel, params_panel, presets_panel, rpc_panel, server_panel};
 
-pub struct LlamaLunchApp {
+pub struct LlamaLauncherApp {
     settings: AppSettings,
     settings_manager: SettingsManager,
     server_manager: ServerManager,
@@ -15,7 +15,7 @@ pub struct LlamaLunchApp {
     auto_start_server_on_first_frame: bool,  // 新增
 }
 
-impl LlamaLunchApp {
+impl LlamaLauncherApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let settings_manager = SettingsManager::new();
         let mut settings = settings_manager.load().unwrap_or_default();
@@ -131,7 +131,7 @@ impl LlamaLunchApp {
     }
 }
 
-impl eframe::App for LlamaLunchApp {
+impl eframe::App for LlamaLauncherApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // 应用启动时自动启动 Server
         if self.auto_start_server_on_first_frame {
@@ -260,7 +260,7 @@ impl eframe::App for LlamaLunchApp {
     }
 }
 
-impl Drop for LlamaLunchApp {
+impl Drop for LlamaLauncherApp {
     fn drop(&mut self) {
         self.server_manager.stop();
         self.rpc_manager.stop();
@@ -281,7 +281,7 @@ fn enable_auto_start() {
     let _ = std::process::Command::new("reg")
         .arg("add")
         .arg(r#"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run"#)
-        .arg("llama.cpp lunch")
+        .arg("llama.cpp launcher")
         .arg("/d")
         .arg(format!("\"{}\" --autostart-minimized", path_str))
         .arg("/f")
@@ -294,7 +294,7 @@ fn disable_auto_start() {
         .arg("delete")
         .arg(r#"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run"#)
         .arg("/v")
-        .arg("llama.cpp lunch")
+        .arg("llama.cpp launcher")
         .arg("/f")
         .output();
 }

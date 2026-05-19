@@ -7,7 +7,7 @@ mod i18n;
 mod ui;
 mod shortcut;
 
-use app::LlamaLunchApp;
+use app::LlamaLauncherApp;
 use egui::{FontData, FontDefinitions, FontFamily};
 
 fn main() -> eframe::Result {
@@ -25,7 +25,7 @@ fn main() -> eframe::Result {
 
     let viewport = egui::ViewportBuilder::default()
         .with_inner_size(default_size)
-        .with_title("llama.cpp lunch");
+        .with_title("llama.cpp launcher");
 
     let options = eframe::NativeOptions {
         viewport,
@@ -33,7 +33,7 @@ fn main() -> eframe::Result {
     };
 
     eframe::run_native(
-        "llama.cpp lunch",
+        "llama.cpp launcher",
         options,
         Box::new(|cc| {
             // 配置 CJK 中文字体，解决中文乱码问题
@@ -41,7 +41,7 @@ fn main() -> eframe::Result {
             load_cjk_fonts(&mut fonts);
             cc.egui_ctx.set_fonts(fonts);
 
-            Ok(Box::new(LlamaLunchApp::new(&cc)))
+            Ok(Box::new(LlamaLauncherApp::new(&cc)))
         }),
     )
 }

@@ -1,4 +1,4 @@
-# LLama Lunch — Root
+# LLama Launcher — Root
 
 ## 项目概述
 llama.cpp 桌面启动器。Rust + eframe/egui 0.29 构建的 GUI，管理 llama-server 进程和 RPC 后端。
@@ -45,8 +45,8 @@ main.rs → App (app.rs) → 6个面板 (ui/) + SettingsManager (config/) + Serv
 ## 构建
 ```bash
 cargo build --release
-# Windows 输出: target/release/llama-lunch.exe
-# 运行时在 exe 同级创建 llama_lunch/settings.json
+# Windows 输出: target/release/llama-launcher.exe
+# 运行时在 exe 同级创建 llama_launcher/settings.json
 ```
 
 ## 代码风格

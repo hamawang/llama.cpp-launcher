@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const CONFIG_FILE: &str = "llama_cpp_lunch_settings.json";
+const CONFIG_FILE: &str = "llama_cpp_launcher_settings.json";
 
 /// GPU 层数卸载模式
 #[derive(Debug, Clone, Copy, PartialEq)]

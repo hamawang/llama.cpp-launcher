@@ -2,11 +2,11 @@
 fn main() {
     let mut res = winres::WindowsResource::new();
     res.set_icon("llama-blue.ico");
-    res.set("ProductName", "llama.cpp lunch");
-    res.set("FileDescription", "llama.cpp lunch - GUI Launcher");
+    res.set("ProductName", "llama.cpp launcher");
+    res.set("FileDescription", "llama.cpp launcher - GUI Launcher");
     res.set("LegalCopyright", "Copyright 2025");
-    res.set("InternalName", "llama.cpp lunch");
-    res.set("OriginalFilename", "llama_cpp_lunch.exe");
+    res.set("InternalName", "llama.cpp launcher");
+    res.set("OriginalFilename", "llama_cpp_launcher.exe");
     res.set_version_info(winres::VersionInfo::FILEVERSION, 0x0000000100000000u64);
     res.set_version_info(winres::VersionInfo::PRODUCTVERSION, 0x0000000100000000u64);
     res.set_version_info(winres::VersionInfo::FILEOS, 0x40004u64);
