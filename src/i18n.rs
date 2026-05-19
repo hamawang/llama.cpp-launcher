@@ -124,9 +124,6 @@ pub enum Key {
     HintCpuMoe,
     LabelNCpuMoe,
     HintNCpuMoe,
-    SectionParamsHelp,
-    ParamsHelpText,
-
     // 日志面板
     PanelLogTitle,
     HintLogSession,
@@ -370,30 +367,7 @@ impl Key {
             (Key::LabelNCpuMoe, &Language::En) => "N CPU MoE:",
             (Key::HintNCpuMoe, &Language::Zh) => "前 N 层 MoE 权重保留在 CPU",
             (Key::HintNCpuMoe, &Language::En) => "Keep first N MoE layers on CPU",
-            (Key::SectionParamsHelp, &Language::Zh) => "参数说明",
-            (Key::SectionParamsHelp, &Language::En) => "Parameter Help",
-            (Key::ParamsHelpText, &Language::Zh) => "温度: 控制随机性，越高越随机\n\
- Top P: 核采样阈值，只保留累积概率超过该值的token\n\
- Top K: 只保留概率最高的K个候选token\n\
- 重复惩罚: 降低重复内容的概率\n\n\
- K/V 缓存卸载: 允许将 K/V 缓存卸载到 GPU\n\
- K/V 缓存类型: 缓存数据类型 (f16, q8_0, q4_0)，使用量化类型可节省显存\n\n\
- GPU 层数: 存储在显存中的模型层数\n\
- 拆分模式: layer(按层), none(单GPU), row(按行), tensor(按张量)\n\
- 张量拆分: 多 GPU 卸载比例\n\
- CPU MoE: 将 MoE 权重保留在 CPU",
-            (Key::ParamsHelpText, &Language::En) => "Temperature: Controls randomness, higher = more random\n\
- Top P: Nucleus sampling threshold, only keep tokens with cumulative probability above this value\n\
- Top K: Only keep the top K most probable candidate tokens\n\
- Repeat Penalty: Reduces the probability of repetitive content\n\n\
- KV Cache Offload: Allows offloading KV cache to GPU\n\
- K/V Cache Type: Cache data type (f16, q8_0, q4_0), quantized types save VRAM\n\n\
- GPU Layers: Number of model layers stored in VRAM\n\
- Split Mode: layer, none (single GPU), row, tensor\n\
- Tensor Split: Multi-GPU offload ratio\n\
-          CPU MoE: Keep MoE weights on CPU",
-
-            // 日志面板
+           // 日志面板
             (Key::PanelLogTitle, &Language::Zh) => "运行日志",
             (Key::PanelLogTitle, &Language::En) => "Runtime Logs",
             (Key::HintLogSession, &Language::Zh) => "日志仅在当前会话中保留",

@@ -179,9 +179,4 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.small(i18n::t(i18n::Key::HintNCpuMoe, lang));
     });
 
-    ui.add_space(16.0);
-    ui.heading(i18n::t(i18n::Key::SectionParamsHelp, lang));
-    ui.separator();
-
-    ui.label(egui::RichText::new(i18n::t(i18n::Key::ParamsHelpText, lang)).weak());
-}
+ }
