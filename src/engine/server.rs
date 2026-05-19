@@ -99,6 +99,61 @@ impl ServerManager {
         self.inner.lock().unwrap().progress
     }
 
+    /// 基于时间戳+位置的单字母标识符检测日志等级
+    fn detect_log_level(line: &str) -> Option<LogLevel> {
+        let line = line.trim_start();
+
+        // 必须以数字开头（类似时间戳）
+        if !line.chars().next().map(|c| c.is_ascii_digit()).unwrap_or(false) {
+            return None;
+        }
+
+        // 找到第一个空格，前面视为时间戳段
+        let Some(first_space) = line.find(' ') else {
+            return None;
+        };
+
+        let ts_part = &line[..first_space];
+
+        // 时间戳段只允许数字和点
+        if ts_part.chars().any(|c| !(c.is_ascii_digit() || c == '.')) {
+            return None;
+        }
+
+        // 至少两个点，看起来更像时间戳而不是普通数字
+        let dot_count = ts_part.chars().filter(|&c| c == '.').count();
+        if dot_count < 2 {
+            return None;
+        }
+
+        // 时间戳后是单字母等级标识符 I / W / E，后面接空格或结尾
+        let rest = &line[first_space + 1..];
+        if rest.is_empty() {
+            return None;
+        }
+
+        match rest.as_bytes()[0] {
+            b'I' => {
+                if rest.len() == 1 || rest.as_bytes().get(1).map_or(false, |&b| b == b' ') {
+                    return Some(LogLevel::Info);
+                }
+            }
+            b'W' => {
+                if rest.len() == 1 || rest.as_bytes().get(1).map_or(false, |&b| b == b' ') {
+                    return Some(LogLevel::Warn);
+                }
+            }
+            b'E' => {
+                if rest.len() == 1 || rest.as_bytes().get(1).map_or(false, |&b| b == b' ') {
+                    return Some(LogLevel::Error);
+                }
+            }
+            _ => {}
+        };
+
+        None
+    }
+
     // 从日志文本中解析 progress = 0.xx，并更新进度值
     // 不修改原始日志内容，只提取进度
     fn parse_progress(text: &str) -> (String, Option<f32>) {
@@ -261,21 +316,33 @@ impl ServerManager {
                         let reader = BufReader::new(stdout);
                         for line in reader.lines() {
                             match line {
-                                Ok(l) => {
-                                    let (text, p) = Self::parse_progress(&l);
-                                    let mut inner = inner_clone.lock().unwrap();
-                                    if let Some(v) = p {
-                                        inner.progress = v;
+                                   Ok(l) => {
+                                        // 优先使用基于时间戳+位置的单字母等级检测
+                                        let level = match Self::detect_log_level(&l) {
+                                            Some(level) => level,
+                                            None => if l.contains("WARN") || l.contains("warn") {
+                                                LogLevel::Warn
+                                            } else if l.contains("ERROR") || l.contains("error") {
+                                                LogLevel::Error
+                                            } else {
+                                                LogLevel::Info
+                                            },
+                                        };
+
+                                        let (text, p) = Self::parse_progress(&l);
+                                        let mut inner = inner_clone.lock().unwrap();
+                                        if let Some(v) = p {
+                                            inner.progress = v;
+                                        }
+                                        // 超过上限时丢弃最旧的一行
+                                        if inner.logs.len() >= MAX_LOG_LINES {
+                                            inner.logs.pop_front();
+                                        }
+                                        inner.logs.push_back(LogEntry {
+                                            text,
+                                            level,
+                                        });
                                     }
-                                    // 超过上限时丢弃最旧的一行
-                                    if inner.logs.len() >= MAX_LOG_LINES {
-                                        inner.logs.pop_front();
-                                    }
-                                    inner.logs.push_back(LogEntry {
-                                        text,
-                                        level: LogLevel::Info,
-                                    });
-                                }
                                 Err(_) => break,
                             }
                         }
@@ -297,12 +364,16 @@ impl ServerManager {
                         for line in reader.lines() {
                             match line {
                                 Ok(l) => {
-                                    let level = if l.contains("WARN") || l.contains("warn") {
-                                        LogLevel::Warn
-                                    } else if l.contains("ERROR") || l.contains("error") {
-                                        LogLevel::Error
-                                    } else {
-                                        LogLevel::Info
+                                    // 优先使用基于时间戳+位置的单字母等级检测
+                                    let level = match Self::detect_log_level(&l) {
+                                        Some(level) => level,
+                                        None => if l.contains("WARN") || l.contains("warn") {
+                                            LogLevel::Warn
+                                        } else if l.contains("ERROR") || l.contains("error") {
+                                            LogLevel::Error
+                                        } else {
+                                            LogLevel::Info
+                                        },
                                     };
                                     let (text, p) = Self::parse_progress(&l);
                                     let mut inner = inner_clone2.lock().unwrap();
