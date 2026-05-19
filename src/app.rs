@@ -119,8 +119,9 @@ impl LlamaLunchApp {
     }
 
     fn render_web_client_button(&mut self, ui: &mut egui::Ui) {
-        let rpc_state = self.rpc_manager.state();
-        let enabled = matches!(rpc_state, RpcState::Running);
+        let server_running = matches!(self.server_manager.state(), ServerState::Running);
+        let listening = self.server_manager.is_listening();
+        let enabled = server_running && listening;
         if ui.add_enabled(
             enabled,
             egui::Button::new(i18n::t(i18n::Key::BtnOpenWebClient, &self.lang)),

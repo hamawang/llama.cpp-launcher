@@ -79,6 +79,12 @@ impl ServerManager {
         self.inner.lock().unwrap().logs.clone()
     }
 
+    // 判断 Server 是否已输出 "server is listening on"（表示真正就绪）
+    pub fn is_listening(&self) -> bool {
+        let inner = self.inner.lock().unwrap();
+        inner.logs.iter().any(|e| e.text.contains("server is listening on"))
+    }
+
     pub fn clear_logs(&mut self) {
         self.inner.lock().unwrap().logs.clear();
         self.inner.lock().unwrap().progress = 0.0;
