@@ -34,14 +34,20 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 温度
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelTemperature, lang));
-        ui.add(egui::Slider::new(&mut settings.temperature, 0.0..=2.0));
+        ui.add(
+            egui::Slider::new(&mut settings.temperature, 0.0..=2.0)
+                .smallest_positive(0.01),
+        );
         ui.label(format!("{:.2}", settings.temperature));
     });
 
     // top_p
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelTopP, lang));
-        ui.add(egui::Slider::new(&mut settings.top_p, 0.0..=1.0));
+        ui.add(
+            egui::Slider::new(&mut settings.top_p, 0.0..=1.0)
+                .smallest_positive(0.01),
+        );
         ui.label(format!("{:.2}", settings.top_p));
     });
 
@@ -54,14 +60,20 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 重复惩罚
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelRepeatPenalty, lang));
-        ui.add(egui::Slider::new(&mut settings.repeat_penalty, 0.0..=2.0));
+        ui.add(
+            egui::Slider::new(&mut settings.repeat_penalty, 0.0..=2.0)
+                .smallest_positive(0.01),
+        );
         ui.label(format!("{:.2}", settings.repeat_penalty));
     });
 
     // 存在惩罚
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelPresencePenalty, lang));
-        ui.add(egui::Slider::new(&mut settings.presence_penalty, -2.0..=2.0));
+        ui.add(
+            egui::Slider::new(&mut settings.presence_penalty, -2.0..=2.0)
+                .smallest_positive(0.01),
+        );
         ui.label(format!("{:.2}", settings.presence_penalty));
     });
 
@@ -173,7 +185,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.small(i18n::t(i18n::Key::HintTensorSplit, lang));
     });
 
-    // CPU MoE（与 RPC 模式一致的缩进样式）
+   // CPU MoE（与 RPC 模式一致的缩进样式）
     ui.horizontal(|ui| {
         ui.checkbox(&mut settings.cpu_moe, i18n::t(i18n::Key::CheckboxCpuMoe, lang));
         ui.small(i18n::t(i18n::Key::HintCpuMoe, lang));
@@ -188,4 +200,71 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         });
     }
 
- }
+    // 推测解码（Speculative Decoding）- GPU/设备分配下方追加的新设置
+    ui.add_space(12.0);
+    ui.heading(i18n::t(i18n::Key::SectionSpecDecoding, lang));
+    ui.separator();
+
+    // 算法类型 --spec-type（ComboBox）
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::SpecTypeLabel, lang));
+
+        let spec_options = [
+            "none",
+            "draft-simple",
+            "draft-eagle3",
+            "draft-mtp",
+            "ngram-simple",
+            "ngram-map-k",
+            "ngram-map-k4v",
+            "ngram-mod",
+            "ngram-cache",
+        ];
+
+        egui::ComboBox::from_id_source("spec_type_combo")
+            .width(180.0)
+            .selected_text(&settings.spec_type)
+            .show_ui(ui, |ui| {
+                for opt in &spec_options[..] {
+                    let label = if *opt == "none" {
+                        i18n::t(i18n::Key::FaModeOff, lang).to_string()
+                    } else {
+                        (*opt).to_string()
+                    };
+                    ui.selectable_value(&mut settings.spec_type, opt.to_string(), label);
+                }
+            });
+    });
+
+    // 最大推测数量 --spec-draft-n-max（DragValue）
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::SpecDraftNMaxLabel, lang));
+        ui.add(egui::DragValue::new(&mut settings.spec_draft_n_max).range(0..=64));
+    });
+
+    // 最小推测数量 --spec-draft-n-min（DragValue）
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::SpecDraftNMinLabel, lang));
+        ui.add(egui::DragValue::new(&mut settings.spec_draft_n_min).range(0..=32));
+    });
+
+    // 信任度 --spec-draft-p-min（Slider）
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::SpecDraftPMinLabel, lang));
+        ui.add(
+            egui::Slider::new(&mut settings.spec_draft_p_min, 0.0..=1.0)
+                .smallest_positive(0.01),
+        );
+        ui.label(format!("{:.2}", settings.spec_draft_p_min));
+    });
+
+    // 分裂概率 --spec-draft-p-split（Slider）
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::SpecDraftPSplitLabel, lang));
+        ui.add(
+            egui::Slider::new(&mut settings.spec_draft_p_split, 0.0..=1.0)
+                .smallest_positive(0.01),
+        );
+        ui.label(format!("{:.2}", settings.spec_draft_p_split));
+    });
+}

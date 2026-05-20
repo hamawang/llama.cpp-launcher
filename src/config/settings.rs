@@ -104,6 +104,23 @@ fn default_ubatch_size() -> usize {
     512
 }
 
+// 推测解码（Speculative Decoding）默认值
+fn default_spec_type() -> String {
+    "none".to_string()
+}
+
+fn default_spec_draft_n_max() -> usize {
+    16
+}
+
+fn default_spec_draft_p_min() -> f32 {
+    0.75
+}
+
+fn default_spec_draft_p_split() -> f32 {
+    0.10
+}
+
 // Duplicate definition removed - keeping only one instance above
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Preset {
@@ -112,7 +129,7 @@ pub struct Preset {
     pub host: String,
     pub port: u16,
     pub parallel_slots: usize,
-    // 推理参数
+   // 推理参数
     pub n_ctx: usize,
     #[serde(default = "default_batch_size")]
     pub batch_size: usize,       // --batch-size
@@ -121,12 +138,25 @@ pub struct Preset {
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
-    pub repeat_penalty: f32,
-    pub presence_penalty: f32,
-    #[serde(default = "default_flash_attn")]
-    pub flash_attn: String,
-    // KV 缓存配置
-    pub kv_offload: bool,
+   pub repeat_penalty: f32,
+     pub presence_penalty: f32,
+     #[serde(default = "default_flash_attn")]
+     pub flash_attn: String,
+
+     // 推测解码（Speculative Decoding）配置
+     #[serde(default = "default_spec_type")]
+     pub spec_type: String,                 // --spec-type
+     #[serde(default = "default_spec_draft_n_max")]
+     pub spec_draft_n_max: usize,           // --spec-draft-n-max
+     #[serde(default)]
+     pub spec_draft_n_min: usize,           // --spec-draft-n-min
+     #[serde(default = "default_spec_draft_p_min")]
+     pub spec_draft_p_min: f32,             // --spec-draft-p-min
+     #[serde(default = "default_spec_draft_p_split")]
+     pub spec_draft_p_split: f32,           // --spec-draft-p-split
+
+     // KV 缓存配置
+     pub kv_offload: bool,
     pub cache_type_k: String,
     pub cache_type_v: String,
     // GPU 与设备分配
@@ -167,6 +197,11 @@ impl Default for Preset {
             repeat_penalty: 1.1,
             presence_penalty: 0.0,
             flash_attn: default_flash_attn(),
+            spec_type: default_spec_type(),
+            spec_draft_n_max: default_spec_draft_n_max(),
+            spec_draft_n_min: 0,
+            spec_draft_p_min: default_spec_draft_p_min(),
+            spec_draft_p_split: default_spec_draft_p_split(),
             kv_offload: true,
             cache_type_k: "f16".to_string(),
             cache_type_v: "f16".to_string(),
@@ -202,6 +237,11 @@ impl Preset {
             repeat_penalty: settings.repeat_penalty,
             presence_penalty: settings.presence_penalty,
             flash_attn: settings.flash_attn.clone(),
+            spec_type: settings.spec_type.clone(),
+            spec_draft_n_max: settings.spec_draft_n_max,
+            spec_draft_n_min: settings.spec_draft_n_min,
+            spec_draft_p_min: settings.spec_draft_p_min,
+            spec_draft_p_split: settings.spec_draft_p_split,
             kv_offload: settings.kv_offload,
             cache_type_k: settings.cache_type_k.clone(),
             cache_type_v: settings.cache_type_v.clone(),
@@ -233,6 +273,12 @@ impl Preset {
         settings.repeat_penalty = self.repeat_penalty;
         settings.presence_penalty = self.presence_penalty;
         settings.flash_attn = self.flash_attn;
+        // 推测解码（Speculative Decoding）配置
+        settings.spec_type = self.spec_type;
+        settings.spec_draft_n_max = self.spec_draft_n_max;
+        settings.spec_draft_n_min = self.spec_draft_n_min;
+        settings.spec_draft_p_min = self.spec_draft_p_min;
+        settings.spec_draft_p_split = self.spec_draft_p_split;
         settings.kv_offload = self.kv_offload;
         settings.cache_type_k = self.cache_type_k;
         settings.cache_type_v = self.cache_type_v;
@@ -279,6 +325,19 @@ pub struct AppSettings {
     pub presence_penalty: f32,
     #[serde(default = "default_flash_attn")]
     pub flash_attn: String,
+
+    // 推测解码（Speculative Decoding）配置
+    #[serde(default = "default_spec_type")]
+    pub spec_type: String,                 // --spec-type
+    #[serde(default = "default_spec_draft_n_max")]
+    pub spec_draft_n_max: usize,           // --spec-draft-n-max
+    #[serde(default)]
+    pub spec_draft_n_min: usize,           // --spec-draft-n-min
+    #[serde(default = "default_spec_draft_p_min")]
+    pub spec_draft_p_min: f32,             // --spec-draft-p-min
+    #[serde(default = "default_spec_draft_p_split")]
+    pub spec_draft_p_split: f32,           // --spec-draft-p-split
+
     // KV 缓存配置
     pub kv_offload: bool,
     pub cache_type_k: String,
@@ -364,6 +423,11 @@ impl Default for AppSettings {
             repeat_penalty: 1.1,
             presence_penalty: 0.0,
             flash_attn: default_flash_attn(),
+            spec_type: default_spec_type(),
+            spec_draft_n_max: default_spec_draft_n_max(),
+            spec_draft_n_min: 0,
+            spec_draft_p_min: default_spec_draft_p_min(),
+            spec_draft_p_split: default_spec_draft_p_split(),
             kv_offload: true,
             cache_type_k: "f16".to_string(),
             cache_type_v: "f16".to_string(),

@@ -235,9 +235,31 @@ impl ServerManager {
             cmd.arg("--mmproj").arg(&settings.mmproj_path);
         }
 
-        // DFlash 草稿文件
-        if !settings.dflash_path.as_os_str().is_empty() {
-            cmd.arg("--model-draft").arg(&settings.dflash_path).arg("--spec-type").arg("dflash");
+        // DFlash / Speculative Decoding 参数整合
+        let dflash_configured = !settings.dflash_path.as_os_str().is_empty();
+
+        // 1) --model-draft: 如果配置了 DFlash，始终写入
+        if dflash_configured {
+            cmd.arg("--model-draft").arg(&settings.dflash_path);
+        }
+
+        // 2) --spec-type: 优先级逻辑 (用户选择 > DFlash 兼容 > 不写)
+        if settings.spec_type != "none" {
+            cmd.arg("--spec-type").arg(&settings.spec_type);
+        } else if dflash_configured {
+            cmd.arg("--spec-type").arg("dflash");
+        }
+
+        // 3) --spec-draft-*: 仅在 spec_type != "none" 时写入
+        if settings.spec_type != "none" {
+            cmd.arg("--spec-draft-n-max")
+                .arg(settings.spec_draft_n_max.to_string());
+            cmd.arg("--spec-draft-n-min")
+                .arg(settings.spec_draft_n_min.to_string());
+            cmd.arg("--spec-draft-p-min")
+                .arg(format!("{}", settings.spec_draft_p_min));
+            cmd.arg("--spec-draft-p-split")
+                .arg(format!("{}", settings.spec_draft_p_split));
         }
 
         // KV 缓存配置
