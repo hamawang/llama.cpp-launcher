@@ -278,8 +278,8 @@ impl Key {
 
     (Key::CheckboxRpcMode, &Language::Zh) => "RPC 模式",
      (Key::CheckboxRpcMode, &Language::En) => "RPC Mode",
-             (Key::CheckboxEnableWebClient, &Language::Zh) => "启用网页客户端",
-             (Key::CheckboxEnableWebClient, &Language::En) => "Enable Web Client",
+             (Key::CheckboxEnableWebClient, &Language::Zh) => "网页客户端",
+             (Key::CheckboxEnableWebClient, &Language::En) => "Web Client",
              (Key::LabelRpcEndpoints, &Language::Zh) => "RPC 节点地址:",
             (Key::LabelRpcEndpoints, &Language::En) => "RPC Endpoints:",
    (Key::HintRpcEndpoints, &Language::Zh) => "逗号分隔，如: 主机IP:端口,从机IP:端口",
