@@ -205,7 +205,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.heading(i18n::t(i18n::Key::SectionSpecDecoding, lang));
     ui.separator();
 
-    // 算法类型 --spec-type（ComboBox）
+    // 算法类型 --spec-type（与拆分模式相同样式）
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::SpecTypeLabel, lang));
 
@@ -221,19 +221,15 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
             "ngram-cache",
         ];
 
-        egui::ComboBox::from_id_source("spec_type_combo")
-            .width(180.0)
-            .selected_text(&settings.spec_type)
-            .show_ui(ui, |ui| {
-                for opt in &spec_options[..] {
-                    let label = if *opt == "none" {
-                        i18n::t(i18n::Key::FaModeOff, lang).to_string()
-                    } else {
-                        (*opt).to_string()
-                    };
-                    ui.selectable_value(&mut settings.spec_type, opt.to_string(), label);
+        ui.horizontal(|ui| {
+            ui.spacing_mut().item_spacing.x = 8.0;
+            for opt in &spec_options[..] {
+                let selected = settings.spec_type == *opt;
+                if ui.selectable_label(selected, *opt).clicked() {
+                    settings.spec_type = opt.to_string();
                 }
-            });
+            }
+        });
     });
 
     // 最大推测数量 --spec-draft-n-max（DragValue）
