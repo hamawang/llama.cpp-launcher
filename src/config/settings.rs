@@ -96,6 +96,14 @@ fn default_max_log_lines() -> i32 {
     100
 }
 
+fn default_batch_size() -> usize {
+    2048
+}
+
+fn default_ubatch_size() -> usize {
+    512
+}
+
 // Duplicate definition removed - keeping only one instance above
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Preset {
@@ -106,6 +114,10 @@ pub struct Preset {
     pub parallel_slots: usize,
     // 推理参数
     pub n_ctx: usize,
+    #[serde(default = "default_batch_size")]
+    pub batch_size: usize,       // --batch-size
+    #[serde(default = "default_ubatch_size")]
+    pub ubatch_size: usize,      // --ubatch-size
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
@@ -147,6 +159,8 @@ impl Default for Preset {
             port: 8080,
             parallel_slots: 1,
             n_ctx: 4096,
+            batch_size: 2048,
+            ubatch_size: 512,
             temperature: 0.8,
             top_p: 0.95,
             top_k: 40,
@@ -180,6 +194,8 @@ impl Preset {
             port: settings.port,
             parallel_slots: settings.parallel_slots,
        n_ctx: settings.n_ctx,
+        batch_size: settings.batch_size,
+        ubatch_size: settings.ubatch_size,
         temperature: settings.temperature,
             top_p: settings.top_p,
             top_k: settings.top_k,
@@ -206,10 +222,12 @@ impl Preset {
     /// 将预设应用到 AppSettings
     pub fn apply_to(self, settings: &mut AppSettings) {
         settings.host = self.host;
-        settings.port = self.port;
-        settings.parallel_slots = self.parallel_slots;
-        settings.n_ctx = self.n_ctx;
-        settings.temperature = self.temperature;
+            settings.port = self.port;
+            settings.parallel_slots = self.parallel_slots;
+            settings.n_ctx = self.n_ctx;
+            settings.batch_size = self.batch_size;
+            settings.ubatch_size = self.ubatch_size;
+            settings.temperature = self.temperature;
         settings.top_p = self.top_p;
         settings.top_k = self.top_k;
         settings.repeat_penalty = self.repeat_penalty;
@@ -250,6 +268,10 @@ pub struct AppSettings {
 
     // 推理参数
     pub n_ctx: usize,
+    #[serde(default = "default_batch_size")]
+    pub batch_size: usize,       // --batch-size
+    #[serde(default = "default_ubatch_size")]
+    pub ubatch_size: usize,      // --ubatch-size
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
@@ -334,6 +356,8 @@ impl Default for AppSettings {
     dflash_path: PathBuf::new(),
     model_dir: PathBuf::new(),
             n_ctx: 4096,
+            batch_size: 2048,
+            ubatch_size: 512,
             temperature: 0.8,
             top_p: 0.95,
             top_k: 40,
