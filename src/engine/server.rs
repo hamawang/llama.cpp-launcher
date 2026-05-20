@@ -237,7 +237,7 @@ impl ServerManager {
 
         // DFlash 草稿文件
         if !settings.dflash_path.as_os_str().is_empty() {
-            cmd.arg("-md").arg(&settings.dflash_path).arg("--spec-type").arg("dflash");
+            cmd.arg("--model-draft").arg(&settings.dflash_path).arg("--spec-type").arg("dflash");
         }
 
         // KV 缓存配置
