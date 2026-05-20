@@ -166,17 +166,19 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.small(i18n::t(i18n::Key::HintTensorSplit, lang));
     });
 
-    // CPU MoE
+    // CPU MoE（与 RPC 模式一致的缩进样式）
     ui.horizontal(|ui| {
         ui.checkbox(&mut settings.cpu_moe, i18n::t(i18n::Key::CheckboxCpuMoe, lang));
         ui.small(i18n::t(i18n::Key::HintCpuMoe, lang));
     });
-
-    // N CPU MoE
-    ui.horizontal(|ui| {
-        ui.label(i18n::t(i18n::Key::LabelNCpuMoe, lang));
-        ui.add(egui::DragValue::new(&mut settings.n_cpu_moe).range(0..=256));
-        ui.small(i18n::t(i18n::Key::HintNCpuMoe, lang));
-    });
+    if settings.cpu_moe {
+        ui.indent("cpu_moe_options", |ui| {
+            ui.horizontal(|ui| {
+                ui.label(i18n::t(i18n::Key::LabelNCpuMoe, lang));
+                ui.add(egui::DragValue::new(&mut settings.n_cpu_moe).range(0..=256));
+                ui.small(i18n::t(i18n::Key::HintNCpuMoe, lang));
+            });
+        });
+    }
 
  }
