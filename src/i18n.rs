@@ -65,10 +65,8 @@ pub enum Key {
     LabelHost,
     LabelPort,
     LabelParallelSlots,
-    HintGpuLayers,
-    GpuLayersAuto,
-    GpuLayersAll,
-    GpuLayersManual,
+  
+ 
     CheckboxVerbose,
     CheckboxOfflineMode,       // “离线模式”
     CheckboxRpcMode,
@@ -111,6 +109,10 @@ pub enum Key {
     LabelRepeatPenalty,
     LabelPresencePenalty,
     LabelFlashAttn,
+    // Flash Attention 模式选项 (on/off/auto)
+    FaModeOn,
+    FaModeOff,
+    FaModeAuto,
     SectionKvCache,
     CheckboxKvOffload,
     HintKvOffload,
@@ -261,14 +263,8 @@ impl Key {
             (Key::LabelPort, &Language::En) => "Port:",
             (Key::LabelParallelSlots, &Language::Zh) => "并发数量:",
             (Key::LabelParallelSlots, &Language::En) => "Parallel slots:",
-            (Key::HintGpuLayers, &Language::Zh) => "自动: 由 llama.cpp 自动决定; 全部: 所有层卸载到 GPU; 手动: 自定义层数",
-            (Key::HintGpuLayers, &Language::En) => "Auto: let llama.cpp decide; All: offload all layers; Manual: custom layers",
-            (Key::GpuLayersAuto, &Language::Zh) => "自动",
-            (Key::GpuLayersAuto, &Language::En) => "Auto",
-            (Key::GpuLayersAll, &Language::Zh) => "全部",
-            (Key::GpuLayersAll, &Language::En) => "All",
-            (Key::GpuLayersManual, &Language::Zh) => "手动",
-            (Key::GpuLayersManual, &Language::En) => "Manual",
+
+
             (Key::CheckboxVerbose, &Language::Zh) => "详细输出",
           (Key::CheckboxVerbose, &Language::En) => "Verbose output",
 
@@ -349,8 +345,15 @@ impl Key {
             (Key::LabelRepeatPenalty, &Language::En) => "Repeat Penalty:",
             (Key::LabelPresencePenalty, &Language::Zh) => "存在惩罚:",
             (Key::LabelPresencePenalty, &Language::En) => "Presence Penalty:",
-            (Key::LabelFlashAttn, &Language::Zh) => "Flash Attention:",
+            (Key::LabelFlashAttn, &Language::Zh) => "Flash Attention（加速算法）:",
             (Key::LabelFlashAttn, &Language::En) => "Flash Attention:",
+            // Flash Attention 模式选项
+            (Key::FaModeOn, &Language::Zh) => "开",
+            (Key::FaModeOn, &Language::En) => "On",
+            (Key::FaModeOff, &Language::Zh) => "关",
+            (Key::FaModeOff, &Language::En) => "Off",
+            (Key::FaModeAuto, &Language::Zh) => "自动",
+            (Key::FaModeAuto, &Language::En) => "Auto",
             (Key::SectionKvCache, &Language::Zh) => "KV 缓存配置",
             (Key::SectionKvCache, &Language::En) => "KV Cache Config",
             (Key::CheckboxKvOffload, &Language::Zh) => "K/V 缓存卸载到 GPU",
