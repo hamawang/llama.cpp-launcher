@@ -35,7 +35,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.add_space(8.0);
     ui.separator();
 
-      // 预设列表
+    // 预设列表
     if settings.presets.is_empty() {
         ui.centered_and_justified(|ui| {
             ui.label(i18n::t(i18n::Key::HintNoPresets, lang));
@@ -59,7 +59,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                         load_index = Some(i);
                     }
 
-                     // 自启动预设勾选框（单选）
+                    // 自启动预设勾选框（单选）
                     let mut is_auto = settings.auto_start_preset_name
                         .as_ref()
                         .is_some_and(|name| *name == preset.name);

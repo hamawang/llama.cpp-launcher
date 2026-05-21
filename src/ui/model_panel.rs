@@ -5,7 +5,7 @@ use crate::i18n;
 /// 检查应用所在目录中是否有 model 或 models 文件夹（不区分大小写）
 fn auto_detect_model_dir() -> Option<std::path::PathBuf> {
     let exe_dir = std::env::current_exe().ok()?.parent()?.to_path_buf();
-    
+
     let dirs: Vec<_> = match std::fs::read_dir(&exe_dir) {
         Ok(entries) => entries
             .filter_map(|e| e.ok())
@@ -212,7 +212,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         return;
     }
 
-   // 模型文件列表
+    // 模型文件列表
     ui.heading(i18n::t(i18n::Key::SectionModels, lang));
     ui.separator();
     let selected_model = settings.model_path.clone();

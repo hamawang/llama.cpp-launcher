@@ -96,12 +96,67 @@ fn default_max_log_lines() -> i32 {
     100
 }
 
+// n_ctx / batch_size / ubatch_size 以 k 为单位存储 (1k = 1024)
+// 反序列化时兼容旧版原始值（如 4096 → 自动转为 4）
+
+fn default_n_ctx() -> usize {
+    4 // 4k = 4096
+}
+
 fn default_batch_size() -> usize {
-    2048
+    2 // 2k = 2048
 }
 
 fn default_ubatch_size() -> usize {
-    512
+    1 // 1k = 1024
+}
+
+/// 将旧版原始值（如 4096）转换为 k 单位，若已是小数值则视为 k 单位
+fn from_raw_or_k(v: usize) -> usize {
+    if v >= 128 {
+        (v + 512) / 1024 // 向上取整到最近的 k
+    } else {
+        v.max(1)
+    }
+}
+
+mod deserialize_n_ctx {
+    use super::from_raw_or_k;
+    use serde::{self, Deserialize};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<usize, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let v = usize::deserialize(deserializer)?;
+        Ok(from_raw_or_k(v))
+    }
+}
+
+mod deserialize_batch_size {
+    use super::from_raw_or_k;
+    use serde::{self, Deserialize};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<usize, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let v = usize::deserialize(deserializer)?;
+        Ok(from_raw_or_k(v))
+    }
+}
+
+mod deserialize_ubatch_size {
+    use super::from_raw_or_k;
+    use serde::{self, Deserialize};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<usize, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let v = usize::deserialize(deserializer)?;
+        Ok(from_raw_or_k(v))
+    }
 }
 
 // 推测解码（Speculative Decoding）默认值
@@ -129,34 +184,41 @@ pub struct Preset {
     pub host: String,
     pub port: u16,
     pub parallel_slots: usize,
-   // 推理参数
-    pub n_ctx: usize,
-    #[serde(default = "default_batch_size")]
-    pub batch_size: usize,       // --batch-size
-    #[serde(default = "default_ubatch_size")]
-    pub ubatch_size: usize,      // --ubatch-size
+    // 推理参数（以 k 为单位存储，1k = 1024）
+    #[serde(default = "default_n_ctx", deserialize_with = "deserialize_n_ctx::deserialize")]
+    pub n_ctx: usize,            // --ctx-size (k)
+    #[serde(
+        default = "default_batch_size",
+        deserialize_with = "deserialize_batch_size::deserialize"
+    )]
+    pub batch_size: usize,       // --batch-size (k)
+    #[serde(
+        default = "default_ubatch_size",
+        deserialize_with = "deserialize_ubatch_size::deserialize"
+    )]
+    pub ubatch_size: usize,      // --ubatch-size (k)
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
-   pub repeat_penalty: f32,
-     pub presence_penalty: f32,
-     #[serde(default = "default_flash_attn")]
-     pub flash_attn: String,
+    pub repeat_penalty: f32,
+    pub presence_penalty: f32,
+    #[serde(default = "default_flash_attn")]
+    pub flash_attn: String,
 
-     // 推测解码（Speculative Decoding）配置
-     #[serde(default = "default_spec_type")]
-     pub spec_type: String,                 // --spec-type
-     #[serde(default = "default_spec_draft_n_max")]
-     pub spec_draft_n_max: usize,           // --spec-draft-n-max
-     #[serde(default)]
-     pub spec_draft_n_min: usize,           // --spec-draft-n-min
-     #[serde(default = "default_spec_draft_p_min")]
-     pub spec_draft_p_min: f32,             // --spec-draft-p-min
-     #[serde(default = "default_spec_draft_p_split")]
-     pub spec_draft_p_split: f32,           // --spec-draft-p-split
+    // 推测解码（Speculative Decoding）配置
+    #[serde(default = "default_spec_type")]
+    pub spec_type: String,                 // --spec-type
+    #[serde(default = "default_spec_draft_n_max")]
+    pub spec_draft_n_max: usize,           // --spec-draft-n-max
+    #[serde(default)]
+    pub spec_draft_n_min: usize,           // --spec-draft-n-min
+    #[serde(default = "default_spec_draft_p_min")]
+    pub spec_draft_p_min: f32,             // --spec-draft-p-min
+    #[serde(default = "default_spec_draft_p_split")]
+    pub spec_draft_p_split: f32,           // --spec-draft-p-split
 
-     // KV 缓存配置
-     pub kv_offload: bool,
+    // KV 缓存配置
+    pub kv_offload: bool,
     pub cache_type_k: String,
     pub cache_type_v: String,
     // GPU 与设备分配
@@ -188,9 +250,9 @@ impl Default for Preset {
             host: "127.0.0.1".to_string(),
             port: 8080,
             parallel_slots: 1,
-            n_ctx: 4096,
-            batch_size: 2048,
-            ubatch_size: 512,
+            n_ctx: 4,          // 4k = 4096
+            batch_size: 2,    // 2k = 2048
+            ubatch_size: 1,   // 1k = 1024
             temperature: 0.8,
             top_p: 0.95,
             top_k: 40,
@@ -221,6 +283,11 @@ impl Default for Preset {
 }
 
 impl Preset {
+    /// k 值 → 实际参数值 (value * 1024)
+    pub fn n_ctx_actual(&self) -> usize { self.n_ctx * 1024 }
+    pub fn batch_size_actual(&self) -> usize { self.batch_size * 1024 }
+    pub fn ubatch_size_actual(&self) -> usize { self.ubatch_size * 1024 }
+
     /// 从当前 AppSettings 创建预设快照
     pub fn from_settings(settings: &AppSettings, name: String) -> Self {
         Self {
@@ -228,10 +295,10 @@ impl Preset {
             host: settings.host.clone(),
             port: settings.port,
             parallel_slots: settings.parallel_slots,
-       n_ctx: settings.n_ctx,
-        batch_size: settings.batch_size,
-        ubatch_size: settings.ubatch_size,
-        temperature: settings.temperature,
+            n_ctx: settings.n_ctx,
+            batch_size: settings.batch_size,
+            ubatch_size: settings.ubatch_size,
+            temperature: settings.temperature,
             top_p: settings.top_p,
             top_k: settings.top_k,
             repeat_penalty: settings.repeat_penalty,
@@ -249,11 +316,11 @@ impl Preset {
             gpu_layers_mode: settings.gpu_layers_mode,
             split_mode: settings.split_mode.clone(),
             tensor_split: settings.tensor_split.clone(),
-           cpu_moe: settings.cpu_moe,
-             n_cpu_moe: settings.n_cpu_moe,
-             verbose: settings.verbose,
-             offline_mode: settings.offline_mode,
-             rpc_mode: settings.rpc_mode,
+            cpu_moe: settings.cpu_moe,
+            n_cpu_moe: settings.n_cpu_moe,
+            verbose: settings.verbose,
+            offline_mode: settings.offline_mode,
+            rpc_mode: settings.rpc_mode,
             rpc_endpoints: settings.rpc_endpoints.clone(),
             web_ui_enabled: settings.web_ui_enabled,
         }
@@ -262,12 +329,12 @@ impl Preset {
     /// 将预设应用到 AppSettings
     pub fn apply_to(self, settings: &mut AppSettings) {
         settings.host = self.host;
-            settings.port = self.port;
-            settings.parallel_slots = self.parallel_slots;
-            settings.n_ctx = self.n_ctx;
-            settings.batch_size = self.batch_size;
-            settings.ubatch_size = self.ubatch_size;
-            settings.temperature = self.temperature;
+        settings.port = self.port;
+        settings.parallel_slots = self.parallel_slots;
+        settings.n_ctx = self.n_ctx;
+        settings.batch_size = self.batch_size;
+        settings.ubatch_size = self.ubatch_size;
+        settings.temperature = self.temperature;
         settings.top_p = self.top_p;
         settings.top_k = self.top_k;
         settings.repeat_penalty = self.repeat_penalty;
@@ -312,16 +379,23 @@ pub struct AppSettings {
     #[serde(default)]
     pub model_dir: PathBuf,
 
-    // 推理参数
-    pub n_ctx: usize,
-    #[serde(default = "default_batch_size")]
-    pub batch_size: usize,       // --batch-size
-    #[serde(default = "default_ubatch_size")]
-    pub ubatch_size: usize,      // --ubatch-size
+    // 推理参数（以 k 为单位存储，1k = 1024）
+    #[serde(default = "default_n_ctx", deserialize_with = "deserialize_n_ctx::deserialize")]
+    pub n_ctx: usize,            // --ctx-size (k)
+    #[serde(
+        default = "default_batch_size",
+        deserialize_with = "deserialize_batch_size::deserialize"
+    )]
+    pub batch_size: usize,       // --batch-size (k)
+    #[serde(
+        default = "default_ubatch_size",
+        deserialize_with = "deserialize_ubatch_size::deserialize"
+    )]
+    pub ubatch_size: usize,      // --ubatch-size (k)
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
-   pub repeat_penalty: f32,
+    pub repeat_penalty: f32,
     pub presence_penalty: f32,
     #[serde(default = "default_flash_attn")]
     pub flash_attn: String,
@@ -348,7 +422,7 @@ pub struct AppSettings {
     pub gpu_layers_mode: GpuLayersMode,
     pub split_mode: String,
     pub tensor_split: String,
-     pub cpu_moe: bool,
+    pub cpu_moe: bool,
     pub n_cpu_moe: usize,
 
     // RPC 配置
@@ -411,12 +485,12 @@ impl Default for AppSettings {
             port: 8080,
             parallel_slots: 1,
             model_path: PathBuf::new(),
-    mmproj_path: PathBuf::new(),
-    dflash_path: PathBuf::new(),
-    model_dir: PathBuf::new(),
-            n_ctx: 4096,
-            batch_size: 2048,
-            ubatch_size: 512,
+            mmproj_path: PathBuf::new(),
+            dflash_path: PathBuf::new(),
+            model_dir: PathBuf::new(),
+            n_ctx: 4,          // 4k = 4096
+            batch_size: 2,    // 2k = 2048
+            ubatch_size: 1,   // 1k = 1024
             temperature: 0.8,
             top_p: 0.95,
             top_k: 40,
@@ -442,8 +516,8 @@ impl Default for AppSettings {
             rpc_port: 50052,
             rpc_threads: 8,
             rpc_device: "".to_string(),
-           rpc_cache: false,
-             verbose: false,
+            rpc_cache: false,
+            verbose: false,
             offline_mode: false,
             rpc_mode: false,
             rpc_endpoints: "127.0.0.1:50052".to_string(),
@@ -458,6 +532,13 @@ impl Default for AppSettings {
             auto_start_preset_name: None,
         }
     }
+}
+
+impl AppSettings {
+    /// k 值 → 实际参数值 (value * 1024)
+    pub fn n_ctx_actual(&self) -> usize { self.n_ctx * 1024 }
+    pub fn batch_size_actual(&self) -> usize { self.batch_size * 1024 }
+    pub fn ubatch_size_actual(&self) -> usize { self.ubatch_size * 1024 }
 }
 
 pub struct SettingsManager {

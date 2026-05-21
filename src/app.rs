@@ -11,7 +11,7 @@ pub struct LlamaLauncherApp {
     rpc_manager: RpcManager,
     tab_selected: String,
     show_about: bool,
-     lang: Language,
+    lang: Language,
     auto_start_server_on_first_frame: bool,  // 新增
 }
 
@@ -19,16 +19,16 @@ impl LlamaLauncherApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let settings_manager = SettingsManager::new();
         let mut settings = settings_manager.load().unwrap_or_default();
-        
+
         // 应用自启动预设
         if let Some(ref preset_name) = settings.auto_start_preset_name {
             if let Some(preset) = settings.presets.iter().find(|p| p.name == *preset_name) {
                 preset.clone().apply_to(&mut settings);
             }
         }
-        
+
         let auto_start_server_on_first_frame = settings.auto_start_preset_name.is_some();
-        
+
         let locale = sys_locale::get_locale().unwrap_or_default();
         let lang = if locale.starts_with("zh") {
             Language::Zh
@@ -161,7 +161,7 @@ impl eframe::App for LlamaLauncherApp {
                         {
                             self.show_about = false;
                         }
-                   });
+                    });
                 });
         }
 
@@ -253,19 +253,19 @@ impl eframe::App for LlamaLauncherApp {
                     tab if tab == i18n::t(i18n::Key::TabServer, &self.lang) => server_panel::ui(ui, &mut self.settings, &self.settings_manager, &self.lang),
                     tab if tab == i18n::t(i18n::Key::TabRpc, &self.lang) => rpc_panel::ui(ui, &mut self.settings, &self.settings_manager, &self.lang),
                     tab if tab == i18n::t(i18n::Key::TabModel, &self.lang) => model_panel::ui(ui, &mut self.settings, &self.lang),
-                  tab if tab == i18n::t(i18n::Key::TabParams, &self.lang) => params_panel::ui(ui, &mut self.settings, &self.lang),
-                       tab if tab == i18n::t(i18n::Key::TabLog, &self.lang) => log_panel::ui(ui, &mut self.settings, &mut self.server_manager, &self.lang),
-                      tab if tab == i18n::t(i18n::Key::TabCommands, &self.lang) => launch_commands_panel::ui(ui, &self.server_manager, &self.rpc_manager, &self.lang),
-                     tab if tab == i18n::t(i18n::Key::TabPresets, &self.lang) => {
+                    tab if tab == i18n::t(i18n::Key::TabParams, &self.lang) => params_panel::ui(ui, &mut self.settings, &self.lang),
+                    tab if tab == i18n::t(i18n::Key::TabLog, &self.lang) => log_panel::ui(ui, &mut self.settings, &mut self.server_manager, &self.lang),
+                    tab if tab == i18n::t(i18n::Key::TabCommands, &self.lang) => launch_commands_panel::ui(ui, &self.server_manager, &self.rpc_manager, &self.lang),
+                    tab if tab == i18n::t(i18n::Key::TabPresets, &self.lang) => {
                         let should_start = presets_panel::ui(ui, &mut self.settings, &self.lang);
                         if should_start {
                             self.server_manager.start(&self.settings);
                         }
                     }
 
-                   _ => { ui.label(i18n::t(i18n::Key::GenericSelectModule, &self.lang)); },
-                    }
-                });
+                    _ => { ui.label(i18n::t(i18n::Key::GenericSelectModule, &self.lang)); }
+                }
+            });
         });
 
         ctx.request_repaint_after(std::time::Duration::from_millis(500));
@@ -348,7 +348,7 @@ fn enable_auto_start() {}
 #[cfg(not(target_os = "windows"))]
 fn disable_auto_start() {}
 
- // 用 ShellExecuteW 打开 URL，无黑窗口 (Windows)
+// 用 ShellExecuteW 打开 URL，无黑窗口 (Windows)
 #[cfg(target_os = "windows")]
 mod shell_execute {
     use std::ffi::{c_void, OsStr};
@@ -357,12 +357,12 @@ mod shell_execute {
     #[link(name = "shell32", kind = "dylib")]
     extern "system" {
         fn ShellExecuteW(
-            hwnd: *mut c_void,
-            lpOperation: *const u16,
-            lpFile: *const u16,
-            lpParameters: *const u16,
-            lpDirectory: *const u16,
-            nShowCmd: i32,
+            hind_window: *mut c_void,
+            lp_operation: *const u16,
+            lp_file: *const u16,
+            lp_parameters: *const u16,
+            lp_directory: *const u16,
+            n_show_cmd: i32,
         ) -> isize;
     }
 

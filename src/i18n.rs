@@ -65,8 +65,7 @@ pub enum Key {
     LabelHost,
     LabelPort,
     LabelParallelSlots,
-  
- 
+
     CheckboxVerbose,
     CheckboxOfflineMode,       // “离线模式”
     CheckboxRpcMode,
@@ -84,9 +83,9 @@ pub enum Key {
     LabelRpcDevice,
     HintRpcDevice,
     CheckboxRpcCache,
-  DialogSelectRpc,
+    DialogSelectRpc,
 
-      // 模型面板
+    // 模型面板
     PanelModelTitle,
     LabelModelDir,
     BtnSelectFolder,
@@ -104,6 +103,7 @@ pub enum Key {
     LabelNCtx,
     LabelBatchSize,
     LabelUBatchSize,
+    HintKUnit,
     SectionSampling,
     LabelTemperature,
     LabelTopP,
@@ -205,15 +205,15 @@ impl Key {
             (Key::TabModel, &Language::En) => "Model",
             (Key::TabParams, &Language::Zh) => "参数",
             (Key::TabParams, &Language::En) => "Params",
-  
+
             (Key::TabLog, &Language::Zh) => "日志",
             (Key::TabLog, &Language::En) => "Logs",
-         (Key::TabCommands, &Language::Zh) => "启动命令",
-              (Key::TabCommands, &Language::En) => "Launch Cmd",
-              (Key::TabPresets, &Language::Zh) => "预设",
-              (Key::TabPresets, &Language::En) => "Presets",
+            (Key::TabCommands, &Language::Zh) => "启动命令",
+            (Key::TabCommands, &Language::En) => "Launch Cmd",
+            (Key::TabPresets, &Language::Zh) => "预设",
+            (Key::TabPresets, &Language::En) => "Presets",
 
-           // 按钮
+            // 按钮
             (Key::BtnStartServer, &Language::Zh) => "启动 Server",
             (Key::BtnStartServer, &Language::En) => "Start Server",
             (Key::BtnStopServer, &Language::Zh) => "停止 Server",
@@ -234,15 +234,15 @@ impl Key {
             (Key::BtnHostLocal, &Language::En) => "Local",
             (Key::BtnHostAny, &Language::Zh) => "任意网络",
             (Key::BtnHostAny, &Language::En) => "Any",
-              (Key::BtnSavePreset, &Language::Zh) => "保存预设",
-              (Key::BtnSavePreset, &Language::En) => "Save Preset",
+            (Key::BtnSavePreset, &Language::Zh) => "保存预设",
+            (Key::BtnSavePreset, &Language::En) => "Save Preset",
 
-              (Key::BtnDeletePreset, &Language::Zh) => "删除",
-              (Key::BtnDeletePreset, &Language::En) => "Delete",
-              (Key::BtnRenamePreset, &Language::Zh) => "重命名",
-              (Key::BtnRenamePreset, &Language::En) => "Rename",
+            (Key::BtnDeletePreset, &Language::Zh) => "删除",
+            (Key::BtnDeletePreset, &Language::En) => "Delete",
+            (Key::BtnRenamePreset, &Language::Zh) => "重命名",
+            (Key::BtnRenamePreset, &Language::En) => "Rename",
 
-              // 状态
+            // 状态
             (Key::StatusProcessing, &Language::Zh) => "处理中...",
             (Key::StatusProcessing, &Language::En) => "Processing...",
             (Key::StatusIdle, &Language::Zh) => "已停止",
@@ -274,22 +274,21 @@ impl Key {
             (Key::LabelParallelSlots, &Language::Zh) => "并发数量:",
             (Key::LabelParallelSlots, &Language::En) => "Parallel slots:",
 
-
             (Key::CheckboxVerbose, &Language::Zh) => "详细输出",
-          (Key::CheckboxVerbose, &Language::En) => "Verbose output",
+            (Key::CheckboxVerbose, &Language::En) => "Verbose output",
 
-              // 离线模式
-              (Key::CheckboxOfflineMode, &Language::Zh) => "离线模式",
-              (Key::CheckboxOfflineMode, &Language::En) => "Offline Mode",
+            // 离线模式
+            (Key::CheckboxOfflineMode, &Language::Zh) => "离线模式",
+            (Key::CheckboxOfflineMode, &Language::En) => "Offline Mode",
 
-    (Key::CheckboxRpcMode, &Language::Zh) => "RPC 模式",
-     (Key::CheckboxRpcMode, &Language::En) => "RPC Mode",
-              (Key::CheckboxEnableWebClient, &Language::Zh) => "网页客户端",
-              (Key::CheckboxEnableWebClient, &Language::En) => "Web Client",
-              (Key::LabelRpcEndpoints, &Language::Zh) => "RPC 节点地址:",
-             (Key::LabelRpcEndpoints, &Language::En) => "RPC Endpoints:",
-    (Key::HintRpcEndpoints, &Language::Zh) => "逗号分隔，如: 主机IP:端口,从机IP:端口",
-     (Key::HintRpcEndpoints, &Language::En) => "comma separated, e.g.: host:port,host:port",
+            (Key::CheckboxRpcMode, &Language::Zh) => "RPC 模式",
+            (Key::CheckboxRpcMode, &Language::En) => "RPC Mode",
+            (Key::CheckboxEnableWebClient, &Language::Zh) => "网页客户端",
+            (Key::CheckboxEnableWebClient, &Language::En) => "Web Client",
+            (Key::LabelRpcEndpoints, &Language::Zh) => "RPC 节点地址:",
+            (Key::LabelRpcEndpoints, &Language::En) => "RPC Endpoints:",
+            (Key::HintRpcEndpoints, &Language::Zh) => "逗号分隔，如: 主机IP:端口,从机IP:端口",
+            (Key::HintRpcEndpoints, &Language::En) => "comma separated, e.g.: host:port,host:port",
             (Key::DialogSelectServer, &Language::Zh) => "选择 llama-server 可执行文件",
             (Key::DialogSelectServer, &Language::En) => "Select llama-server executable",
             (Key::FilterExecutable, &Language::Zh) => "可执行文件",
@@ -311,9 +310,9 @@ impl Key {
             (Key::CheckboxRpcCache, &Language::Zh) => "启用本地文件缓存",
             (Key::CheckboxRpcCache, &Language::En) => "Enable local file cache",
             (Key::DialogSelectRpc, &Language::Zh) => "选择 rpc-server 可执行文件",
-(Key::DialogSelectRpc, &Language::En) => "Select rpc-server executable",
+            (Key::DialogSelectRpc, &Language::En) => "Select rpc-server executable",
 
-        // 模型面板
+            // 模型面板
             (Key::PanelModelTitle, &Language::Zh) => "模型管理",
             (Key::PanelModelTitle, &Language::En) => "Model Management",
             (Key::LabelModelDir, &Language::Zh) => "模型文件夹:",
@@ -347,6 +346,8 @@ impl Key {
             (Key::LabelBatchSize, &Language::En) => "Max Batch Size:",
             (Key::LabelUBatchSize, &Language::Zh) => "最大物理批次大小:",
             (Key::LabelUBatchSize, &Language::En) => "Max UBatch Size:",
+            (Key::HintKUnit, &Language::Zh) => "(1k = 1024)",
+            (Key::HintKUnit, &Language::En) => "(1k = 1024)",
             (Key::SectionSampling, &Language::Zh) => "采样参数",
             (Key::SectionSampling, &Language::En) => "Sampling",
             (Key::LabelTemperature, &Language::Zh) => "温度:",
@@ -412,7 +413,7 @@ impl Key {
             (Key::LabelNCpuMoe, &Language::En) => "N CPU MoE:",
             (Key::HintNCpuMoe, &Language::Zh) => "前 N 层 MoE 权重保留在 CPU",
             (Key::HintNCpuMoe, &Language::En) => "Keep first N MoE layers on CPU",
-           // 日志面板
+            // 日志面板
             (Key::PanelLogTitle, &Language::Zh) => "运行日志",
             (Key::PanelLogTitle, &Language::En) => "Runtime Logs",
             (Key::HintLogSession, &Language::Zh) => "日志仅在当前会话中保留",
@@ -433,36 +434,36 @@ impl Key {
             (Key::LabelServerCommand, &Language::En) => "Server Command:",
             (Key::LabelRpcCommand, &Language::Zh) => "RPC 启动命令:",
             (Key::LabelRpcCommand, &Language::En) => "RPC Command:",
-        (Key::HintNoCommand, &Language::Zh) => "尚未启动",
-              (Key::HintNoCommand, &Language::En) => "Not launched",
+            (Key::HintNoCommand, &Language::Zh) => "尚未启动",
+            (Key::HintNoCommand, &Language::En) => "Not launched",
 
-              // 预设
-              (Key::SectionPresets, &Language::Zh) => "预设管理",
-              (Key::SectionPresets, &Language::En) => "Preset Management",
-              (Key::LabelPresetName, &Language::Zh) => "预设名称:",
-              (Key::LabelPresetName, &Language::En) => "Preset Name:",
-        (Key::HintNoPresets, &Language::Zh) => "暂无预设",
-          (Key::HintNoPresets, &Language::En) => "No presets yet",
-              (Key::BtnApplyPreset, &Language::Zh) => "应用",
-               (Key::BtnApplyPreset, &Language::En) => "Apply",
-               (Key::BtnCopyToClipboard, &Language::Zh) => "复制到剪贴板",
-                (Key::BtnCopyToClipboard, &Language::En) => "Copy",
-               (Key::BtnOpenWebClient, &Language::Zh) => "打开网页客户端",
-               (Key::BtnOpenWebClient, &Language::En) => "Open Web Client",
-               (Key::CheckboxAutoStartPreset, &Language::Zh) => "自启动预设",
-              (Key::CheckboxAutoStartPreset, &Language::En) => "Auto-start preset",
+            // 预设
+            (Key::SectionPresets, &Language::Zh) => "预设管理",
+            (Key::SectionPresets, &Language::En) => "Preset Management",
+            (Key::LabelPresetName, &Language::Zh) => "预设名称:",
+            (Key::LabelPresetName, &Language::En) => "Preset Name:",
+            (Key::HintNoPresets, &Language::Zh) => "暂无预设",
+            (Key::HintNoPresets, &Language::En) => "No presets yet",
+            (Key::BtnApplyPreset, &Language::Zh) => "应用",
+            (Key::BtnApplyPreset, &Language::En) => "Apply",
+            (Key::BtnCopyToClipboard, &Language::Zh) => "复制到剪贴板",
+            (Key::BtnCopyToClipboard, &Language::En) => "Copy",
+            (Key::BtnOpenWebClient, &Language::Zh) => "打开网页客户端",
+            (Key::BtnOpenWebClient, &Language::En) => "Open Web Client",
+            (Key::CheckboxAutoStartPreset, &Language::Zh) => "自启动预设",
+            (Key::CheckboxAutoStartPreset, &Language::En) => "Auto-start preset",
 
-              // 错误信息
+            // 错误信息
             (Key::ErrServerModelMissing, &Language::Zh) => "请先配置 Server 路径和模型路径",
             (Key::ErrServerModelMissing, &Language::En) => "Please configure Server path and model path first",
             (Key::ErrRpcPathMissing, &Language::Zh) => "请先配置 rpc-server 路径",
             (Key::ErrRpcPathMissing, &Language::En) => "Please configure rpc-server path first",
             (Key::ErrRpcFileNotFound, &Language::Zh) => "rpc-server.exe 文件不存在",
             (Key::ErrRpcFileNotFound, &Language::En) => "rpc-server.exe file not found",
-          (Key::ErrStartFailed, &Language::Zh) => "启动失败",
-              (Key::ErrStartFailed, &Language::En) => "Start failed",
-              (Key::ErrPortConflict, &Language::Zh) => "Server 端口和 RPC 端口不能相同",
-              (Key::ErrPortConflict, &Language::En) => "Server port and RPC port cannot be the same",
+            (Key::ErrStartFailed, &Language::Zh) => "启动失败",
+            (Key::ErrStartFailed, &Language::En) => "Start failed",
+            (Key::ErrPortConflict, &Language::Zh) => "Server 端口和 RPC 端口不能相同",
+            (Key::ErrPortConflict, &Language::En) => "Server port and RPC port cannot be the same",
 
             // 关于
             (Key::AboutTitle, &Language::Zh) => "关于",

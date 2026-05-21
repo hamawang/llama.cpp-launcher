@@ -5,26 +5,32 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.heading(i18n::t(i18n::Key::PanelParamsTitle, lang));
     ui.separator();
 
-    // 上下文
+    // 上下文长度 (k)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelNCtx, lang));
         ui.add(
             egui::DragValue::new(&mut settings.n_ctx)
-                .range(256..=262144)
-                .speed(256),
+                .range(1..=256)       // 1k ~ 256k
+                .speed(1),
         );
+        ui.label("k");
+        ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
 
-    // 最大批次大小 (--batch-size)
+    // 最大批次大小 (--batch-size) (k)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelBatchSize, lang));
-        ui.add(egui::DragValue::new(&mut settings.batch_size).range(1..=4096));
+        ui.add(egui::DragValue::new(&mut settings.batch_size).range(1..=4)); // 1k ~ 4k
+        ui.label("k");
+        ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
 
-    // 最大物理批次大小 (--ubatch-size)
+    // 最大物理批次大小 (--ubatch-size) (k)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelUBatchSize, lang));
-        ui.add(egui::DragValue::new(&mut settings.ubatch_size).range(1..=2048));
+        ui.add(egui::DragValue::new(&mut settings.ubatch_size).range(1..=2)); // 1k ~ 2k
+        ui.label("k");
+        ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
 
     ui.add_space(12.0);
@@ -154,7 +160,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         }
     });
 
-  
+
     // 设备列表
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelRpcDevice, lang));
@@ -185,7 +191,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.small(i18n::t(i18n::Key::HintTensorSplit, lang));
     });
 
-   // CPU MoE（与 RPC 模式一致的缩进样式）
+    // CPU MoE（与 RPC 模式一致的缩进样式）
     ui.horizontal(|ui| {
         ui.checkbox(&mut settings.cpu_moe, i18n::t(i18n::Key::CheckboxCpuMoe, lang));
         ui.small(i18n::t(i18n::Key::HintCpuMoe, lang));

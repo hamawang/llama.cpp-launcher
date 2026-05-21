@@ -82,5 +82,4 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, server: &mut ServerMana
                 }
             });
     }
-    
 }

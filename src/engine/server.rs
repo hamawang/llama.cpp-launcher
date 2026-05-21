@@ -1,8 +1,8 @@
 use crate::config::settings::AppSettings;
 use crate::i18n;
+use std::collections::VecDeque;
 use std::io::{BufRead, BufReader};
 use std::process::{Child, Command};
-use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -168,10 +168,10 @@ impl ServerManager {
                 rest.find(','),
                 rest.find('\n'),
             ]
-            .into_iter()
-            .flatten()
-            .min()
-            .unwrap_or(rest.len());
+                .into_iter()
+                .flatten()
+                .min()
+                .unwrap_or(rest.len());
             let num_str = rest[..end].trim();
 
             if let Ok(v) = num_str.parse::<f32>() {
@@ -214,10 +214,10 @@ impl ServerManager {
         cmd.arg("--model").arg(&model_path)
             .arg("--host").arg(&settings.host)
             .arg("--port").arg(settings.port.to_string())
-            .arg("--ctx-size").arg(settings.n_ctx.to_string())
+            .arg("--ctx-size").arg(settings.n_ctx_actual().to_string())
             .arg("--parallel").arg(settings.parallel_slots.to_string())
-            .arg("--batch-size").arg(settings.batch_size.to_string())
-            .arg("--ubatch-size").arg(settings.ubatch_size.to_string())
+            .arg("--batch-size").arg(settings.batch_size_actual().to_string())
+            .arg("--ubatch-size").arg(settings.ubatch_size_actual().to_string())
             .arg("--gpu-layers").arg(settings.gpu_layers_mode.to_arg())
             .arg("--temperature").arg(settings.temperature.to_string())
             .arg("--top-p").arg(settings.top_p.to_string())
@@ -352,33 +352,33 @@ impl ServerManager {
                         let reader = BufReader::new(stdout);
                         for line in reader.lines() {
                             match line {
-                                   Ok(l) => {
-                                        // 优先使用基于时间戳+位置的单字母等级检测
-                                        let level = match Self::detect_log_level(&l) {
-                                            Some(level) => level,
-                                            None => if l.contains("WARN") || l.contains("warn") {
-                                                LogLevel::Warn
-                                            } else if l.contains("ERROR") || l.contains("error") {
-                                                LogLevel::Error
-                                            } else {
-                                                LogLevel::Info
-                                            },
-                                        };
+                                Ok(l) => {
+                                    // 优先使用基于时间戳+位置的单字母等级检测
+                                    let level = match Self::detect_log_level(&l) {
+                                        Some(level) => level,
+                                        None => if l.contains("WARN") || l.contains("warn") {
+                                            LogLevel::Warn
+                                        } else if l.contains("ERROR") || l.contains("error") {
+                                            LogLevel::Error
+                                        } else {
+                                            LogLevel::Info
+                                        },
+                                    };
 
-                                        let (text, p) = Self::parse_progress(&l);
-                                        let mut inner = inner_clone.lock().unwrap();
-                                        if let Some(v) = p {
-                                            inner.progress = v;
-                                        }
-                                        // 超过上限时丢弃最旧的一行
-                                        if inner.logs.len() >= MAX_LOG_LINES {
-                                            inner.logs.pop_front();
-                                        }
-                                        inner.logs.push_back(LogEntry {
-                                            text,
-                                            level,
-                                        });
+                                    let (text, p) = Self::parse_progress(&l);
+                                    let mut inner = inner_clone.lock().unwrap();
+                                    if let Some(v) = p {
+                                        inner.progress = v;
                                     }
+                                    // 超过上限时丢弃最旧的一行
+                                    if inner.logs.len() >= MAX_LOG_LINES {
+                                        inner.logs.pop_front();
+                                    }
+                                    inner.logs.push_back(LogEntry {
+                                        text,
+                                        level,
+                                    });
+                                }
                                 Err(_) => break,
                             }
                         }

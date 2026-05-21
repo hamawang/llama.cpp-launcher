@@ -75,5 +75,4 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, settings_manager: &Sett
     ui.horizontal(|ui| {
         ui.checkbox(&mut settings.rpc_cache, i18n::t(i18n::Key::CheckboxRpcCache, lang));
     });
-
-  }
+}
