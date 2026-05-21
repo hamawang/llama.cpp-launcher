@@ -79,6 +79,6 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, settings_manager: &Sett
         });
     }
 
-    ui.add_space(8.0);
+    // ui.add_space(2.0);
     ui.checkbox(&mut settings.web_ui_enabled, i18n::t(i18n::Key::CheckboxEnableWebClient, lang));
 }

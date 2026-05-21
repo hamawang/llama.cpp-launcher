@@ -10,7 +10,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.label(i18n::t(i18n::Key::LabelNCtx, lang));
         ui.add(
             egui::DragValue::new(&mut settings.n_ctx)
-                .range(1..=256)       // 1k ~ 256k
+                .range(1..=1024)       // 1k ~ 1024k
                 .speed(1),
         );
         ui.label("k");
@@ -20,7 +20,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 最大批次大小 (--batch-size) (k)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelBatchSize, lang));
-        ui.add(egui::DragValue::new(&mut settings.batch_size).range(1..=4)); // 1k ~ 4k
+        ui.add(egui::DragValue::new(&mut settings.batch_size).range(1..=16).speed(1)); // 1k ~ 16k
         ui.label("k");
         ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
@@ -28,7 +28,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 最大物理批次大小 (--ubatch-size) (k)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelUBatchSize, lang));
-        ui.add(egui::DragValue::new(&mut settings.ubatch_size).range(1..=2)); // 1k ~ 2k
+        ui.add(egui::DragValue::new(&mut settings.ubatch_size).range(1..=4).speed(1)); // 1k ~ 4k
         ui.label("k");
         ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
