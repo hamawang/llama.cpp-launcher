@@ -316,11 +316,11 @@ impl ServerManager {
             cmd.arg("--rpc").arg(&settings.rpc_endpoints);
         }
 
-        // 网页客户端开关：启用用 --webui，禁用用 --no-webui
+        // 网页客户端开关：启用用 --ui，禁用用 --no-ui
         if settings.web_ui_enabled {
-            cmd.arg("--webui");
+            cmd.arg("--ui");
         } else {
-            cmd.arg("--no-webui");
+            cmd.arg("--no-ui");
         }
 
         // 记录启动命令
