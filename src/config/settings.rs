@@ -88,6 +88,10 @@ fn default_web_ui_enabled() -> bool {
     true
 }
 
+fn default_session_timeout() -> usize {
+    600 // 会话超时（秒）默认值
+}
+
 fn default_auto_scroll_logs() -> bool {
     true
 }
@@ -255,6 +259,10 @@ pub struct Preset {
     // 网页客户端开关
     #[serde(default = "default_web_ui_enabled")]
     pub web_ui_enabled: bool,
+
+    // 会话超时（秒）
+    #[serde(default = "default_session_timeout")]
+    pub session_timeout: usize,
 }
 
  impl Default for Preset {
@@ -295,6 +303,7 @@ pub struct Preset {
             rpc_mode: false,
             rpc_endpoints: "127.0.0.1:50052".to_string(),
             web_ui_enabled: default_web_ui_enabled(),
+            session_timeout: default_session_timeout(),
         }
     }
 }
@@ -338,6 +347,7 @@ impl Preset {
             rpc_mode: settings.rpc_mode,
             rpc_endpoints: settings.rpc_endpoints.clone(),
             web_ui_enabled: settings.web_ui_enabled,
+            session_timeout: settings.session_timeout,
         }
     }
 
@@ -378,6 +388,7 @@ impl Preset {
         settings.rpc_mode = self.rpc_mode;
         settings.rpc_endpoints = self.rpc_endpoints;
         settings.web_ui_enabled = self.web_ui_enabled;
+        settings.session_timeout = self.session_timeout;
     }
 }
 
@@ -471,6 +482,10 @@ pub struct AppSettings {
     #[serde(default = "default_web_ui_enabled")]
     pub web_ui_enabled: bool,
 
+    // 会话超时（秒，追加 --timeout）
+    #[serde(default = "default_session_timeout")]
+    pub session_timeout: usize,
+
     // 预设
     #[serde(default)]
     pub presets: Vec<Preset>,
@@ -550,6 +565,7 @@ impl Default for AppSettings {
             rpc_mode: false,
             rpc_endpoints: "127.0.0.1:50052".to_string(),
             web_ui_enabled: default_web_ui_enabled(),
+            session_timeout: default_session_timeout(),
             presets: Vec::new(),
             new_preset_name: String::new(),
             rename_preset_index: None,
