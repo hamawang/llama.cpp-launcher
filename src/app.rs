@@ -13,6 +13,7 @@ pub struct LlamaLauncherApp {
     show_about: bool,
     lang: Language,
     auto_start_server_on_first_frame: bool,  // 新增
+    debug_mode: bool,                         // egui Inspector / 调试模式开关
 }
 
 impl LlamaLauncherApp {
@@ -42,7 +43,7 @@ impl LlamaLauncherApp {
         // 全局 UI 放大 1.5 倍
         cc.egui_ctx.set_zoom_factor(1.5);
 
-        Self {
+       Self {
             settings,
             settings_manager,
             server_manager,
@@ -51,6 +52,7 @@ impl LlamaLauncherApp {
             show_about: false,
             lang,
             auto_start_server_on_first_frame,
+            debug_mode: false,
         }
     }
 
@@ -133,8 +135,14 @@ impl LlamaLauncherApp {
 
 impl eframe::App for LlamaLauncherApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        let ctx = ui.ctx();
-        ctx.request_repaint_after(std::time::Duration::from_millis(500));
+        // 先获取上下文并执行不依赖面板借用的操作，再释放引用避免后面 show_inside(ui) 冲突
+        {
+            let ctx = ui.ctx();
+            ctx.request_repaint_after(std::time::Duration::from_millis(500));
+
+            // 根据调试模式开关，控制 egui Inspector（悬浮时显示内置检查器面板）
+            ctx.set_debug_on_hover(self.debug_mode);
+        }
 
         // 应用启动时自动启动 Server
         if self.auto_start_server_on_first_frame {
@@ -230,9 +238,11 @@ impl eframe::App for LlamaLauncherApp {
                     if ui.button(i18n::t(i18n::Key::MenuItemRepo, &self.lang)).clicked() {
                         open_repo_url();
                     }
+               // 调试模式：开启 egui Inspector / 内置检查器面板
+                    ui.checkbox(&mut self.debug_mode, i18n::t(i18n::Key::MenuItemDebugMode, &self.lang));
                 });
 
-                ui.separator();
+                 ui.separator();
                 let status = self.server_manager.status_text(&self.lang);
                 let color = if self.server_manager.is_running() {
                     egui::Color32::from_rgb(110, 255, 140)

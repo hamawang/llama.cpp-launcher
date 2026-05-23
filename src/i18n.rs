@@ -177,6 +177,9 @@ pub enum Key {
     // 菜单 - 项目地址
     MenuItemRepo,
 
+    // 菜单 - 调试模式
+    MenuItemDebugMode,
+
     // 通用
     GenericSelectModule,
 
@@ -200,8 +203,12 @@ impl Key {
             (Key::MenuItemAutoStart, &Language::En) => "Auto Start",
             (Key::MenuItemAbout, &Language::Zh) => "关于",
             (Key::MenuItemAbout, &Language::En) => "About",
-            (Key::MenuItemRepo, &Language::Zh) => "项目地址",
-            (Key::MenuItemRepo, &Language::En) => "Repository",
+      (Key::MenuItemRepo, &Language::Zh) => "项目地址",
+        (Key::MenuItemRepo, &Language::En) => "Repository",
+
+        // 调试模式
+        (Key::MenuItemDebugMode, &Language::Zh) => "⚙ 调试模式",
+        (Key::MenuItemDebugMode, &Language::En) => "⚙ Debug Mode (Inspector)",
             (Key::MenuItemCreateShortcut, &Language::Zh) => "创建桌面快捷方式",
             (Key::MenuItemCreateShortcut, &Language::En) => "Create Desktop Shortcut",
 
