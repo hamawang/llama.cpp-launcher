@@ -1,5 +1,6 @@
 use crate::config::settings::{AppSettings, GpuLayersMode};
 use crate::i18n;
+use crate::kv_cache;
 
 pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) {
     ui.heading(i18n::t(i18n::Key::PanelParamsTitle, lang));
@@ -10,7 +11,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.label(i18n::t(i18n::Key::LabelNCtx, lang));
         ui.add(
             egui::DragValue::new(&mut settings.n_ctx)
-                .range(1..=1024)       // 1k ~ 1024k
+                .range(1..=1024) // 1k ~ 1024k
                 .speed(1),
         );
         ui.label("k");
@@ -20,7 +21,11 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 最大批次大小 (--batch-size) (k)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelBatchSize, lang));
-        ui.add(egui::DragValue::new(&mut settings.batch_size).range(1..=16).speed(1)); // 1k ~ 16k
+        ui.add(
+            egui::DragValue::new(&mut settings.batch_size)
+                .range(1..=16)
+                .speed(1),
+        ); // 1k ~ 16k
         ui.label("k");
         ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
@@ -28,15 +33,23 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 最大物理批次大小 (--ubatch-size) (k)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelUBatchSize, lang));
-        ui.add(egui::DragValue::new(&mut settings.ubatch_size).range(0.5..=16.0).speed(0.5)); // 0.5k ~ 16k, 步进 0.5
+        ui.add(
+            egui::DragValue::new(&mut settings.ubatch_size)
+                .range(0.5..=16.0)
+                .speed(0.5),
+        ); // 0.5k ~ 16k, 步进 0.5
         ui.label("k");
         ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
 
-   // 会话超时设置 (--timeout) (秒)
+    // 会话超时设置 (--timeout) (秒)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelSessionTimeout, lang));
-        ui.add(egui::DragValue::new(&mut settings.session_timeout).range(60..=3600).speed(10)); // 60~3600秒，步进10
+        ui.add(
+            egui::DragValue::new(&mut settings.session_timeout)
+                .range(60..=3600)
+                .speed(10),
+        ); // 60~3600秒，步进10
         ui.label("s");
     });
 
@@ -58,20 +71,14 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 温度
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelTemperature, lang));
-        ui.add(
-            egui::Slider::new(&mut settings.temperature, 0.0..=2.0)
-                .smallest_positive(0.01),
-        );
+        ui.add(egui::Slider::new(&mut settings.temperature, 0.0..=2.0).smallest_positive(0.01));
         ui.label(format!("{:.2}", settings.temperature));
     });
 
     // top_p
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelTopP, lang));
-        ui.add(
-            egui::Slider::new(&mut settings.top_p, 0.0..=1.0)
-                .smallest_positive(0.01),
-        );
+        ui.add(egui::Slider::new(&mut settings.top_p, 0.0..=1.0).smallest_positive(0.01));
         ui.label(format!("{:.2}", settings.top_p));
     });
 
@@ -84,10 +91,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 重复惩罚
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelRepeatPenalty, lang));
-        ui.add(
-            egui::Slider::new(&mut settings.repeat_penalty, 0.0..=2.0)
-                .smallest_positive(0.01),
-        );
+        ui.add(egui::Slider::new(&mut settings.repeat_penalty, 0.0..=2.0).smallest_positive(0.01));
         ui.label(format!("{:.2}", settings.repeat_penalty));
     });
 
@@ -95,8 +99,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelPresencePenalty, lang));
         ui.add(
-            egui::Slider::new(&mut settings.presence_penalty, -2.0..=2.0)
-                .smallest_positive(0.01),
+            egui::Slider::new(&mut settings.presence_penalty, -2.0..=2.0).smallest_positive(0.01),
         );
         ui.label(format!("{:.2}", settings.presence_penalty));
     });
@@ -125,16 +128,43 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.heading(i18n::t(i18n::Key::SectionKvCache, lang));
     ui.separator();
 
+   // KV 缓存空间计算按钮
+    let server_path_valid = settings.server_path
+        .file_name()
+        .and_then(|f| f.to_str())
+        .is_some_and(|name| name == "llama-server.exe");
+    let can_start = server_path_valid && !settings.model_path.as_os_str().is_empty();
+
+    let mut kv_result: Option<String> = None;
+    if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnCalcKvCache, lang))).clicked() {
+        kv_result = match kv_cache::calc_and_format(settings) {
+            Ok(result) => Some(format!("{} {}", i18n::t(i18n::Key::LabelKvCacheResult, lang), result)),
+            Err(e) => Some(format!("⚠ {}", e)),
+        };
+    }
+    settings.kv_cache_result = kv_result;
+
+    ui.horizontal(|ui| {
+        if let Some(ref result) = settings.kv_cache_result {
+            ui.small(egui::RichText::new(result).weak());
+        }
+    });
+
     // K/V 缓存卸载
     ui.horizontal(|ui| {
-        ui.checkbox(&mut settings.kv_offload, i18n::t(i18n::Key::CheckboxKvOffload, lang));
+        ui.checkbox(
+            &mut settings.kv_offload,
+            i18n::t(i18n::Key::CheckboxKvOffload, lang),
+        );
         ui.small(i18n::t(i18n::Key::HintKvOffload, lang));
     });
 
     // K 缓存类型
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelCacheTypeK, lang));
-        let k_types = ["f32", "f16", "bf16", "q8_0", "q4_0", "q4_1", "iq4_nl", "q5_0", "q5_1"];
+        let k_types = [
+            "f32", "f16", "bf16", "q8_0", "q4_0", "q4_1", "iq4_nl", "q5_0", "q5_1",
+        ];
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 8.0;
             for k_type in &k_types {
@@ -149,7 +179,9 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // V 缓存类型
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelCacheTypeV, lang));
-        let v_types = ["f32", "f16", "bf16", "q8_0", "q4_0", "q4_1", "iq4_nl", "q5_0", "q5_1"];
+        let v_types = [
+            "f32", "f16", "bf16", "q8_0", "q4_0", "q4_1", "iq4_nl", "q5_0", "q5_1",
+        ];
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 8.0;
             for v_type in &v_types {
@@ -162,16 +194,28 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     });
 
     // 锁定内存
-    ui.checkbox(&mut settings.kv_mlock, i18n::t(i18n::Key::CheckboxKvMlock, lang));
+    ui.checkbox(
+        &mut settings.kv_mlock,
+        i18n::t(i18n::Key::CheckboxKvMlock, lang),
+    );
 
     // 内存映射
-    ui.checkbox(&mut settings.kv_mmap, i18n::t(i18n::Key::CheckboxKvMmap, lang));
+    ui.checkbox(
+        &mut settings.kv_mmap,
+        i18n::t(i18n::Key::CheckboxKvMmap, lang),
+    );
 
     // 统一键值缓存
-    ui.checkbox(&mut settings.kv_unified, i18n::t(i18n::Key::CheckboxKvUnified, lang));
+    ui.checkbox(
+        &mut settings.kv_unified,
+        i18n::t(i18n::Key::CheckboxKvUnified, lang),
+    );
 
     // 完整滑动窗口
-    ui.checkbox(&mut settings.swa_full, i18n::t(i18n::Key::CheckboxSwaFull, lang));
+    ui.checkbox(
+        &mut settings.swa_full,
+        i18n::t(i18n::Key::CheckboxSwaFull, lang),
+    );
 
     ui.add_space(12.0);
     ui.heading(i18n::t(i18n::Key::SectionGpuDevice, lang));
@@ -185,11 +229,13 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
 
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelGpuDevice, lang));
-        if ui.add(egui::DragValue::new(&mut gpu_layers).range(0..=256)).changed() {
+        if ui
+            .add(egui::DragValue::new(&mut gpu_layers).range(0..=256))
+            .changed()
+        {
             settings.gpu_layers_mode = GpuLayersMode::Manual(gpu_layers);
         }
     });
-
 
     // 设备列表
     ui.horizontal(|ui| {
@@ -223,7 +269,10 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
 
     // CPU MoE（与 RPC 模式一致的缩进样式）
     ui.horizontal(|ui| {
-        ui.checkbox(&mut settings.cpu_moe, i18n::t(i18n::Key::CheckboxCpuMoe, lang));
+        ui.checkbox(
+            &mut settings.cpu_moe,
+            i18n::t(i18n::Key::CheckboxCpuMoe, lang),
+        );
         ui.small(i18n::t(i18n::Key::HintCpuMoe, lang));
     });
     if settings.cpu_moe {
@@ -285,8 +334,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::SpecDraftPMinLabel, lang));
         ui.add(
-            egui::Slider::new(&mut settings.spec_draft_p_min, 0.0..=1.0)
-                .smallest_positive(0.01),
+            egui::Slider::new(&mut settings.spec_draft_p_min, 0.0..=1.0).smallest_positive(0.01),
         );
         ui.label(format!("{:.2}", settings.spec_draft_p_min));
     });
@@ -295,8 +343,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::SpecDraftPSplitLabel, lang));
         ui.add(
-            egui::Slider::new(&mut settings.spec_draft_p_split, 0.0..=1.0)
-                .smallest_positive(0.01),
+            egui::Slider::new(&mut settings.spec_draft_p_split, 0.0..=1.0).smallest_positive(0.01),
         );
         ui.label(format!("{:.2}", settings.spec_draft_p_split));
     });

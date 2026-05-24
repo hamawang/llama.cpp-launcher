@@ -72,7 +72,7 @@ pub enum Key {
     LabelParallelSlots,
 
     CheckboxVerbose,
-    CheckboxOfflineMode,       // “离线模式”
+    CheckboxOfflineMode, // “离线模式”
     CheckboxRpcMode,
     CheckboxEnableWebClient,
     LabelRpcEndpoints,
@@ -134,6 +134,8 @@ pub enum Key {
     HintKvOffload,
     LabelCacheTypeK,
     LabelCacheTypeV,
+    BtnCalcKvCache,
+    LabelKvCacheResult,
     CheckboxKvMlock,
     CheckboxKvMmap,
     CheckboxKvUnified,
@@ -208,12 +210,12 @@ impl Key {
             (Key::MenuItemAutoStart, &Language::En) => "Auto Start",
             (Key::MenuItemAbout, &Language::Zh) => "关于",
             (Key::MenuItemAbout, &Language::En) => "About",
-      (Key::MenuItemRepo, &Language::Zh) => "项目地址",
-        (Key::MenuItemRepo, &Language::En) => "Repository",
+            (Key::MenuItemRepo, &Language::Zh) => "项目地址",
+            (Key::MenuItemRepo, &Language::En) => "Repository",
 
-        // 调试模式
-        (Key::MenuItemDebugMode, &Language::Zh) => "⚙ 调试模式",
-        (Key::MenuItemDebugMode, &Language::En) => "⚙ Debug Mode (Inspector)",
+            // 调试模式
+            (Key::MenuItemDebugMode, &Language::Zh) => "⚙ 调试模式",
+            (Key::MenuItemDebugMode, &Language::En) => "⚙ Debug Mode (Inspector)",
             (Key::MenuItemCreateShortcut, &Language::Zh) => "创建桌面快捷方式",
             (Key::MenuItemCreateShortcut, &Language::En) => "Create Desktop Shortcut",
 
@@ -363,7 +365,6 @@ impl Key {
             (Key::NoDflashFiles, &Language::Zh) => "没有检测到 DFlash 文件",
             (Key::NoDflashFiles, &Language::En) => "No DFlash files detected",
 
-
             // 参数面板
             (Key::PanelParamsTitle, &Language::Zh) => "推理参数",
             (Key::PanelParamsTitle, &Language::En) => "Inference Params",
@@ -422,6 +423,12 @@ impl Key {
             (Key::LabelCacheTypeK, &Language::En) => "K Cache Type:",
             (Key::LabelCacheTypeV, &Language::Zh) => "V 缓存类型:",
             (Key::LabelCacheTypeV, &Language::En) => "V Cache Type:",
+
+            // KV 计算按钮和结果标签
+            (Key::BtnCalcKvCache, &Language::Zh) => "计算 KV 缓存空间",
+            (Key::BtnCalcKvCache, &Language::En) => "Calculate KV Cache Space",
+            (Key::LabelKvCacheResult, &Language::Zh) => "缓存可用空间：",
+            (Key::LabelKvCacheResult, &Language::En) => "Available Cache:",
             (Key::CheckboxKvMlock, &Language::Zh) => "锁定内存",
             (Key::CheckboxKvMlock, &Language::En) => "Lock memory (mlock)",
             (Key::CheckboxKvMmap, &Language::Zh) => "内存映射",
@@ -438,8 +445,8 @@ impl Key {
             (Key::LabelGpuDevice, &Language::En) => "GPU Layers (n_gl):",
             (Key::LabelSplitMode, &Language::Zh) => "拆分模式:",
             (Key::LabelSplitMode, &Language::En) => "Split Mode (sm):",
-       (Key::HintSplitMode, &Language::Zh) => "默认: none",
-        (Key::HintSplitMode, &Language::En) => "(default: none)",
+            (Key::HintSplitMode, &Language::Zh) => "默认: none",
+            (Key::HintSplitMode, &Language::En) => "(default: none)",
             (Key::LabelTensorSplit, &Language::Zh) => "张量拆分比例:",
             (Key::LabelTensorSplit, &Language::En) => "Tensor Split Ratio (ts):",
             (Key::HintTensorSplit, &Language::Zh) => "如: 3,1",
@@ -494,7 +501,9 @@ impl Key {
 
             // 错误信息
             (Key::ErrServerModelMissing, &Language::Zh) => "请先配置 Server 路径和模型路径",
-            (Key::ErrServerModelMissing, &Language::En) => "Please configure Server path and model path first",
+            (Key::ErrServerModelMissing, &Language::En) => {
+                "Please configure Server path and model path first"
+            }
             (Key::ErrRpcPathMissing, &Language::Zh) => "请先配置 rpc-server 路径",
             (Key::ErrRpcPathMissing, &Language::En) => "Please configure rpc-server path first",
             (Key::ErrRpcFileNotFound, &Language::Zh) => "rpc-server.exe 文件不存在",

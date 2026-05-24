@@ -7,8 +7,8 @@ const CONFIG_FILE: &str = "llama_cpp_launcher_settings.json";
 /// GPU 层数卸载模式
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum GpuLayersMode {
-    Auto,       // 自动
-    All,        // 全部卸载到 GPU
+    Auto,          // 自动
+    All,           // 全部卸载到 GPU
     Manual(usize), // 手动指定层数
 }
 
@@ -205,18 +205,21 @@ pub struct Preset {
     pub port: u16,
     pub parallel_slots: usize,
     // 推理参数（以 k 为单位存储，1k = 1024）
-    #[serde(default = "default_n_ctx", deserialize_with = "deserialize_n_ctx::deserialize")]
-    pub n_ctx: usize,            // --ctx-size (k)
+    #[serde(
+        default = "default_n_ctx",
+        deserialize_with = "deserialize_n_ctx::deserialize"
+    )]
+    pub n_ctx: usize, // --ctx-size (k)
     #[serde(
         default = "default_batch_size",
         deserialize_with = "deserialize_batch_size::deserialize"
     )]
-    pub batch_size: usize,       // --batch-size (k)
+    pub batch_size: usize, // --batch-size (k)
     #[serde(
         default = "default_ubatch_size",
         deserialize_with = "deserialize_ubatch_size::deserialize"
     )]
-    pub ubatch_size: f32,        // --ubatch-size (k, 0.5 步进)
+    pub ubatch_size: f32, // --ubatch-size (k, 0.5 步进)
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
@@ -227,27 +230,27 @@ pub struct Preset {
 
     // 推测解码（Speculative Decoding）配置
     #[serde(default = "default_spec_type")]
-    pub spec_type: String,                 // --spec-type
+    pub spec_type: String, // --spec-type
     #[serde(default = "default_spec_draft_n_max")]
-    pub spec_draft_n_max: usize,           // --spec-draft-n-max
+    pub spec_draft_n_max: usize, // --spec-draft-n-max
     #[serde(default)]
-    pub spec_draft_n_min: usize,           // --spec-draft-n-min
+    pub spec_draft_n_min: usize, // --spec-draft-n-min
     #[serde(default = "default_spec_draft_p_min")]
-    pub spec_draft_p_min: f32,             // --spec-draft-p-min
+    pub spec_draft_p_min: f32, // --spec-draft-p-min
     #[serde(default = "default_spec_draft_p_split")]
-    pub spec_draft_p_split: f32,           // --spec-draft-p-split
+    pub spec_draft_p_split: f32, // --spec-draft-p-split
 
-   // KV 缓存配置
+    // KV 缓存配置
     pub kv_offload: bool,
     pub cache_type_k: String,
     pub cache_type_v: String,
-    pub kv_mlock: bool,              // --mlock
-    pub kv_mmap: bool,               // --mmap / --no-mmap
-    pub kv_unified: bool,            // --kv-unified
+    pub kv_mlock: bool,   // --mlock
+    pub kv_mmap: bool,    // --mmap / --no-mmap
+    pub kv_unified: bool, // --kv-unified
     #[serde(default)]
-    pub swa_full: bool,              // --swa-full
+    pub swa_full: bool, // --swa-full
     #[serde(default = "default_kv_cache_ratio")]
-    pub kv_cache_ratio: f32,         // KV 缓存比例 (不拼接启动命令)
+    pub kv_cache_ratio: f32, // KV 缓存比例 (不拼接启动命令)
     // GPU 与设备分配
     pub gpu_device: String,
     pub gpu_layers_mode: GpuLayersMode,
@@ -274,14 +277,14 @@ pub struct Preset {
     pub session_timeout: usize,
 }
 
- impl Default for Preset {
+impl Default for Preset {
     fn default() -> Self {
         Self {
             name: String::new(),
             host: "127.0.0.1".to_string(),
             port: 8080,
             parallel_slots: 1,
-            n_ctx: 4,          // 4k = 4096
+            n_ctx: 4,         // 4k = 4096
             batch_size: 2,    // 2k = 2048
             ubatch_size: 0.5, // 0.5k = 512
             temperature: 0.8,
@@ -424,18 +427,21 @@ pub struct AppSettings {
     pub model_dir: PathBuf,
 
     // 推理参数（以 k 为单位存储，1k = 1024）
-    #[serde(default = "default_n_ctx", deserialize_with = "deserialize_n_ctx::deserialize")]
-    pub n_ctx: usize,            // --ctx-size (k)
+    #[serde(
+        default = "default_n_ctx",
+        deserialize_with = "deserialize_n_ctx::deserialize"
+    )]
+    pub n_ctx: usize, // --ctx-size (k)
     #[serde(
         default = "default_batch_size",
         deserialize_with = "deserialize_batch_size::deserialize"
     )]
-    pub batch_size: usize,       // --batch-size (k)
+    pub batch_size: usize, // --batch-size (k)
     #[serde(
         default = "default_ubatch_size",
         deserialize_with = "deserialize_ubatch_size::deserialize"
     )]
-    pub ubatch_size: f32,        // --ubatch-size (k, 0.5 步进)
+    pub ubatch_size: f32, // --ubatch-size (k, 0.5 步进)
     pub temperature: f32,
     pub top_p: f32,
     pub top_k: i32,
@@ -446,27 +452,27 @@ pub struct AppSettings {
 
     // 推测解码（Speculative Decoding）配置
     #[serde(default = "default_spec_type")]
-    pub spec_type: String,                 // --spec-type
+    pub spec_type: String, // --spec-type
     #[serde(default = "default_spec_draft_n_max")]
-    pub spec_draft_n_max: usize,           // --spec-draft-n-max
+    pub spec_draft_n_max: usize, // --spec-draft-n-max
     #[serde(default)]
-    pub spec_draft_n_min: usize,           // --spec-draft-n-min
+    pub spec_draft_n_min: usize, // --spec-draft-n-min
     #[serde(default = "default_spec_draft_p_min")]
-    pub spec_draft_p_min: f32,             // --spec-draft-p-min
+    pub spec_draft_p_min: f32, // --spec-draft-p-min
     #[serde(default = "default_spec_draft_p_split")]
-    pub spec_draft_p_split: f32,           // --spec-draft-p-split
+    pub spec_draft_p_split: f32, // --spec-draft-p-split
 
     // KV 缓存配置
     pub kv_offload: bool,
     pub cache_type_k: String,
     pub cache_type_v: String,
-    pub kv_mlock: bool,              // --mlock
-    pub kv_mmap: bool,               // --mmap / --no-mmap
-    pub kv_unified: bool,            // --kv-unified
+    pub kv_mlock: bool,   // --mlock
+    pub kv_mmap: bool,    // --mmap / --no-mmap
+    pub kv_unified: bool, // --kv-unified
     #[serde(default)]
-    pub swa_full: bool,              // --swa-full
+    pub swa_full: bool, // --swa-full
     #[serde(default = "default_kv_cache_ratio")]
-    pub kv_cache_ratio: f32,         // KV 缓存比例 (不拼接启动命令)
+    pub kv_cache_ratio: f32, // KV 缓存比例 (不拼接启动命令)
 
     // GPU 与设备分配
     pub gpu_device: String,
@@ -534,6 +540,10 @@ pub struct AppSettings {
     // llama.cpp 版本信息（不序列化，运行时缓存）
     #[serde(skip, default)]
     pub llama_version: String,
+
+    // KV 缓存计算结果（运行时缓存，不序列化）
+    #[serde(skip, default)]
+    pub kv_cache_result: Option<String>,
 }
 
 impl Default for AppSettings {
@@ -547,7 +557,7 @@ impl Default for AppSettings {
             mmproj_path: PathBuf::new(),
             dflash_path: PathBuf::new(),
             model_dir: PathBuf::new(),
-            n_ctx: 4,          // 4k = 4096
+            n_ctx: 4,         // 4k = 4096
             batch_size: 2,    // 2k = 2048
             ubatch_size: 0.5, // 0.5k = 512
             temperature: 0.8,
@@ -596,15 +606,22 @@ impl Default for AppSettings {
             auto_start: false,
             auto_start_preset_name: None,
             llama_version: String::new(),
+            kv_cache_result: None,
         }
     }
 }
 
 impl AppSettings {
     /// k 值 → 实际参数值 (value * 1024)
-    pub fn n_ctx_actual(&self) -> usize { self.n_ctx * 1024 }
-    pub fn batch_size_actual(&self) -> usize { self.batch_size * 1024 }
-    pub fn ubatch_size_actual(&self) -> usize { (self.ubatch_size * 1024.0) as usize }
+    pub fn n_ctx_actual(&self) -> usize {
+        self.n_ctx * 1024
+    }
+    pub fn batch_size_actual(&self) -> usize {
+        self.batch_size * 1024
+    }
+    pub fn ubatch_size_actual(&self) -> usize {
+        (self.ubatch_size * 1024.0) as usize
+    }
 }
 
 pub struct SettingsManager {
@@ -631,8 +648,8 @@ impl SettingsManager {
 
     pub fn save(&self, settings: &AppSettings) -> Result<(), String> {
         let path = self.config_dir.join(CONFIG_FILE);
-        let content = serde_json::to_string_pretty(settings)
-            .map_err(|e| format!("序列化配置失败: {}", e))?;
+        let content =
+            serde_json::to_string_pretty(settings).map_err(|e| format!("序列化配置失败: {}", e))?;
         fs::write(&path, content).map_err(|e| format!("写入配置失败: {}", e))?;
         Ok(())
     }

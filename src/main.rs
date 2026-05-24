@@ -1,11 +1,12 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
-mod app;
-mod config;
-mod engine;
-mod i18n;
-mod ui;
-mod shortcut;
+pub mod app;
+pub mod config;
+pub mod engine;
+pub mod i18n;
+pub mod kv_cache;
+pub mod shortcut;
+pub mod ui;
 
 use app::LlamaLauncherApp;
 use egui::{FontData, FontDefinitions, FontFamily};
@@ -45,57 +46,72 @@ fn load_cjk_fonts(fonts: &mut FontDefinitions) {
     let cjk_proportional: Vec<&str> = if cfg!(target_os = "windows") {
         // Windows 中文字体文件路径
         vec![
-            ("C:\\Windows\\Fonts\\msyh.ttc", "Microsoft YaHei"),       // 微软雅黑
+            ("C:\\Windows\\Fonts\\msyh.ttc", "Microsoft YaHei"), // 微软雅黑
             ("C:\\Windows\\Fonts\\msyhbd.ttc", "Microsoft YaHei Bold"), // 微软雅黑粗体
-            ("C:\\Windows\\Fonts\\simhei.ttf", "SimHei"),               // 黑体
-            ("C:\\Windows\\Fonts\\simsun.ttc", "SimSun"),               // 宋体
+            ("C:\\Windows\\Fonts\\simhei.ttf", "SimHei"),        // 黑体
+            ("C:\\Windows\\Fonts\\simsun.ttc", "SimSun"),        // 宋体
         ]
-            .into_iter()
-            .filter_map(|(path, name)| {
-                if let Ok(data) = std::fs::read(path) {
-                    fonts.font_data.insert(name.to_string(), Arc::new(FontData::from_owned(data)));
-                    Some(name)
-                } else {
-                    None
-                }
-            })
-            .collect()
+        .into_iter()
+        .filter_map(|(path, name)| {
+            if let Ok(data) = std::fs::read(path) {
+                fonts
+                    .font_data
+                    .insert(name.to_string(), Arc::new(FontData::from_owned(data)));
+                Some(name)
+            } else {
+                None
+            }
+        })
+        .collect()
     } else if cfg!(target_os = "macos") {
         vec![
             ("/System/Library/Fonts/PingFang.ttc", "PingFang SC"),
             ("/System/Library/Fonts/STHeiti Lite.ttc", "STHeiti"),
-            ("/System/Library/Fonts/Supplemental/Arial Unicode.ttf", "Arial Unicode"),
+            (
+                "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+                "Arial Unicode",
+            ),
         ]
-            .into_iter()
-            .filter_map(|(path, name)| {
-                if let Ok(data) = std::fs::read(path) {
-                    fonts.font_data.insert(name.to_string(), Arc::new(FontData::from_owned(data)));
-                    Some(name)
-                } else {
-                    None
-                }
-            })
-            .collect()
+        .into_iter()
+        .filter_map(|(path, name)| {
+            if let Ok(data) = std::fs::read(path) {
+                fonts
+                    .font_data
+                    .insert(name.to_string(), Arc::new(FontData::from_owned(data)));
+                Some(name)
+            } else {
+                None
+            }
+        })
+        .collect()
     } else {
         // Linux
         vec![
-            ("/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf", "Noto Sans SC"),
-            ("/usr/share/fonts/opentype/noto/NotoSansSC-Regular.otf", "Noto Sans SC"),
+            (
+                "/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf",
+                "Noto Sans SC",
+            ),
+            (
+                "/usr/share/fonts/opentype/noto/NotoSansSC-Regular.otf",
+                "Noto Sans SC",
+            ),
             (
                 "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
                 "WenQuanYi Micro Hei",
             ),
         ]
-            .into_iter()
-            .filter_map(|(path, name)| {
-                if let Ok(data) = std::fs::read(path) {
-                    fonts.font_data.insert(name.to_string(), Arc::new(FontData::from_owned(data)));
-                    Some(name)
-                } else {
-                    None
-                }
-            })
-            .collect()
+        .into_iter()
+        .filter_map(|(path, name)| {
+            if let Ok(data) = std::fs::read(path) {
+                fonts
+                    .font_data
+                    .insert(name.to_string(), Arc::new(FontData::from_owned(data)));
+                Some(name)
+            } else {
+                None
+            }
+        })
+        .collect()
     };
 
     // 将 CJK 字体添加到 Proportional 和 Monospace 家族，作为 fallback
@@ -121,5 +137,3 @@ fn load_cjk_fonts(fonts: &mut FontDefinitions) {
             .extend(cjk_proportional.iter().map(|s| s.to_string()));
     }
 }
-
-
