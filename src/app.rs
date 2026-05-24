@@ -146,7 +146,7 @@ impl eframe::App for LlamaLauncherApp {
             {
                 ctx.set_debug_on_hover(self.debug_mode);
                 ctx.global_style_mut(|s| {
-                    s.hover_shows_next = self.debug_mode;
+                    s.debug.hover_shows_next = self.debug_mode;
                 });
             }
         }

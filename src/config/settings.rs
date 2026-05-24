@@ -191,6 +191,11 @@ fn default_spec_draft_p_split() -> f32 {
     0.10
 }
 
+// KV 缓存比例默认值
+fn default_kv_cache_ratio() -> f32 {
+    0.95
+}
+
 // Duplicate definition removed - keeping only one instance above
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Preset {
@@ -232,13 +237,15 @@ pub struct Preset {
     #[serde(default = "default_spec_draft_p_split")]
     pub spec_draft_p_split: f32,           // --spec-draft-p-split
 
-    // KV 缓存配置
+   // KV 缓存配置
     pub kv_offload: bool,
     pub cache_type_k: String,
     pub cache_type_v: String,
     pub kv_mlock: bool,              // --mlock
     pub kv_mmap: bool,               // --mmap / --no-mmap
     pub kv_unified: bool,            // --kv-unified
+    #[serde(default = "default_kv_cache_ratio")]
+    pub kv_cache_ratio: f32,         // KV 缓存比例 (不拼接启动命令)
     // GPU 与设备分配
     pub gpu_device: String,
     pub gpu_layers_mode: GpuLayersMode,
@@ -292,6 +299,7 @@ pub struct Preset {
             kv_mlock: false,
             kv_mmap: true,
             kv_unified: false,
+            kv_cache_ratio: default_kv_cache_ratio(),
             gpu_device: "".to_string(),
             gpu_layers_mode: GpuLayersMode::All,
             split_mode: "none".to_string(),
@@ -336,6 +344,7 @@ impl Preset {
             kv_mlock: settings.kv_mlock,
             kv_mmap: settings.kv_mmap,
             kv_unified: settings.kv_unified,
+            kv_cache_ratio: settings.kv_cache_ratio,
             gpu_device: settings.gpu_device.clone(),
             gpu_layers_mode: settings.gpu_layers_mode,
             split_mode: settings.split_mode.clone(),
@@ -377,6 +386,7 @@ impl Preset {
         settings.kv_mlock = self.kv_mlock;
         settings.kv_mmap = self.kv_mmap;
         settings.kv_unified = self.kv_unified;
+        settings.kv_cache_ratio = self.kv_cache_ratio;
         settings.gpu_device = self.gpu_device;
         settings.gpu_layers_mode = self.gpu_layers_mode;
         settings.split_mode = self.split_mode;
@@ -448,6 +458,8 @@ pub struct AppSettings {
     pub kv_mlock: bool,              // --mlock
     pub kv_mmap: bool,               // --mmap / --no-mmap
     pub kv_unified: bool,            // --kv-unified
+    #[serde(default = "default_kv_cache_ratio")]
+    pub kv_cache_ratio: f32,         // KV 缓存比例 (不拼接启动命令)
 
     // GPU 与设备分配
     pub gpu_device: String,
@@ -548,6 +560,7 @@ impl Default for AppSettings {
             kv_mlock: false,
             kv_mmap: true,
             kv_unified: false,
+            kv_cache_ratio: default_kv_cache_ratio(),
             gpu_device: "".to_string(),
             gpu_layers_mode: GpuLayersMode::All,
             split_mode: "none".to_string(),

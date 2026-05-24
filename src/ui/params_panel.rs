@@ -33,11 +33,22 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
 
-    // 会话超时设置 (--timeout) (秒)
+   // 会话超时设置 (--timeout) (秒)
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelSessionTimeout, lang));
         ui.add(egui::DragValue::new(&mut settings.session_timeout).range(60..=3600).speed(10)); // 60~3600秒，步进10
         ui.label("s");
+    });
+
+    // KV 缓存比例（DragValue）
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::LabelKvCacheRatio, lang));
+        ui.add(
+            egui::DragValue::new(&mut settings.kv_cache_ratio)
+                .range(0.0..=1.0)
+                .speed(0.01),
+        );
+        ui.label(format!("{:.2}", settings.kv_cache_ratio));
     });
 
     ui.add_space(12.0);
