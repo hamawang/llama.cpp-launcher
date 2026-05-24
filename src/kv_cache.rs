@@ -51,20 +51,24 @@ pub fn read_gguf_info(file_path: &Path) -> Result<GgufInfo, String> {
             .and_then(|v| v.as_u64())
             .ok_or_else(|| format!("无法从 GGUF 文件中读取块数 ({})", block_key))? as usize;
 
-    // 读取 KV head count
-    let kv_head_key = format!("{}.attention.key_head_count.k", arch);
+    // 读取 KV head count (fallback: attention.head_count)
+    let kv_head_key = format!("{}.attention.key_head_count", arch);
+    let kv_head_fallback = format!("{}.attention.head_count", arch);
     let kv_head_count = kv
         .get(&kv_head_key)
+        .or_else(|| kv.get(&kv_head_fallback))
         .and_then(|v| v.as_u64())
-        .ok_or_else(|| format!("无法从 GGUF 文件中读取 KV 头数 ({})", kv_head_key))?
+        .ok_or_else(|| format!("无法从 GGUF 文件中读取 KV 头数 (尝试了 {} / {})", kv_head_key, kv_head_fallback))?
         as usize;
 
-    // 读取 head dim
-    let head_dim_key = format!("{}.head_dim.k", arch);
+    // 读取 head dim (fallback: attention.key_length)
+    let head_dim_key = format!("{}.head_dim", arch);
+    let head_dim_fallback = format!("{}.attention.key_length", arch);
     let head_dim = kv
         .get(&head_dim_key)
+        .or_else(|| kv.get(&head_dim_fallback))
         .and_then(|v| v.as_u64())
-        .ok_or_else(|| format!("无法从 GGUF 文件中读取头维度 ({})", head_dim_key))?
+        .ok_or_else(|| format!("无法从 GGUF 文件中读取头维度 (尝试了 {} / {})", head_dim_key, head_dim_fallback))?
         as usize;
 
     Ok(GgufInfo {
