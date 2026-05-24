@@ -71,18 +71,18 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         .is_some_and(|name| name == "llama-server.exe");
     let can_start = server_path_valid && !settings.model_path.as_os_str().is_empty();
 
-    let mut kv_result: Option<String> = None;
-    if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnCalcKvCache, lang))).clicked() {
-        kv_result = match kv_cache::calc_and_format(settings) {
-            Ok(result) => Some(format!("{} {}", i18n::t(i18n::Key::LabelKvCacheResult, lang), result)),
-            Err(e) => Some(format!("⚠ {}", e)),
-        };
-    }
-    settings.kv_cache_result = kv_result;
+    ui.horizontal(|ui| {
+        if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnCalcKvCache, lang))).clicked() {
+            settings.kv_cache_result = match kv_cache::calc_and_format(settings) {
+                Ok(result) => Some(format!("{} {}", i18n::t(i18n::Key::LabelKvCacheResult, lang), result)),
+                Err(e) => Some(format!("⚠ {}", e)),
+            };
+        }
 
-    if let Some(ref result) = settings.kv_cache_result {
-        ui.small(egui::RichText::new(result).weak());
-    }
+        if let Some(ref result) = settings.kv_cache_result {
+            ui.small(egui::RichText::new(result).weak());
+        }
+    });
 
     ui.add_space(12.0);
     ui.heading(i18n::t(i18n::Key::SectionSampling, lang));

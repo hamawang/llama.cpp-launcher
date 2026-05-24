@@ -161,12 +161,21 @@ pub fn calc_kv_cache_space(_gguf: &GgufInfo, free_mib: u64) -> String {
 
 /// Facade function：聚合读取 GGUF + GPU 信息 → 计算并格式化结果
 pub fn calc_and_format(settings: &AppSettings) -> Result<String, String> {
+    log::info!("[calc_and_format] 开始计算 KV 缓存空间");
+    log::info!("[calc_and_format] model_path = {:?}", settings.model_path);
+    log::info!("[calc_and_format] server_path = {:?}", settings.server_path);
+
     // 1. 读取 GGUF 模型信息
     let gguf = read_gguf_info(&settings.model_path)?;
+    log::info!("[calc_and_format] GGUF info: block_count={}, kv_head_count={}, head_dim={}, file_size={} bytes",
+        gguf.block_count, gguf.kv_head_count, gguf.head_dim, gguf.file_size);
 
     // 2. 获取空闲显存
     let free_mib = get_free_gpu_mib(&settings.server_path)?;
+    log::info!("[calc_and_format] GPU 空闲显存: {} MiB", free_mib);
 
     // 3. 计算并格式化
-    Ok(calc_kv_cache_space(&gguf, free_mib))
+    let result = calc_kv_cache_space(&gguf, free_mib);
+    log::info!("[calc_and_format] KV 缓存计算结果: {}", result);
+    Ok(result)
 }
