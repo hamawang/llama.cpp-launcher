@@ -263,9 +263,9 @@ impl ServerManager {
 
         // KV 缓存配置
         if settings.kv_offload {
-            cmd.arg("-kvo");
+            cmd.arg("--kv-offload");
         } else {
-            cmd.arg("-nkvo");
+            cmd.arg("--no-kv-offload");
         }
         if !settings.cache_type_k.is_empty() {
             cmd.arg("--cache-type-k").arg(&settings.cache_type_k);
