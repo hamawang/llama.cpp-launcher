@@ -106,6 +106,7 @@ pub enum Key {
     // 参数面板
     PanelParamsTitle,
     LabelNCtx,
+    BtnSetMaxContextVram,
     LabelBatchSize,
     LabelUBatchSize,
     LabelSessionTimeout,
@@ -370,6 +371,8 @@ impl Key {
             (Key::PanelParamsTitle, &Language::En) => "Inference Params",
             (Key::LabelNCtx, &Language::Zh) => "上下文长度:",
             (Key::LabelNCtx, &Language::En) => "Context Length (n_ctx):",
+            (Key::BtnSetMaxContextVram, &Language::Zh) => "设置显存最大可用上下文",
+            (Key::BtnSetMaxContextVram, &Language::En) => "Set Max Context from VRAM",
             (Key::LabelBatchSize, &Language::Zh) => "最大批次大小:",
             (Key::LabelBatchSize, &Language::En) => "Max Batch Size:",
             (Key::LabelUBatchSize, &Language::Zh) => "最大物理批次大小:",

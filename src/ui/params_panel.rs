@@ -6,7 +6,14 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.heading(i18n::t(i18n::Key::PanelParamsTitle, lang));
     ui.separator();
 
-    // 上下文长度 (k)
+    // Server 可启动判断（上下文长度按钮和 KV 缓存计算共用）
+    let server_path_valid = settings.server_path
+        .file_name()
+        .and_then(|f| f.to_str())
+        .is_some_and(|name| name == "llama-server.exe");
+    let can_start = server_path_valid && !settings.model_path.as_os_str().is_empty();
+
+    // 上下文长度 (k) + 显存最大可用上下文按钮
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelNCtx, lang));
         ui.add(
@@ -17,6 +24,9 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.label("k");
         ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
+    if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnSetMaxContextVram, lang))).clicked() {
+        settings.n_ctx = kv_cache::calc_max_context();
+    }
 
     // 最大批次大小 (--batch-size) (k)
     ui.horizontal(|ui| {
@@ -65,12 +75,6 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     });
 
     // KV 缓存空间计算按钮
-    let server_path_valid = settings.server_path
-        .file_name()
-        .and_then(|f| f.to_str())
-        .is_some_and(|name| name == "llama-server.exe");
-    let can_start = server_path_valid && !settings.model_path.as_os_str().is_empty();
-
     ui.horizontal(|ui| {
         if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnCalcKvCache, lang))).clicked() {
             settings.kv_cache_result = match kv_cache::calc_and_format(settings) {
