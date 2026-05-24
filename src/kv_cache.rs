@@ -171,11 +171,11 @@ pub fn calc_max_context() -> usize {
     125
 }
 
-/// 计算 KV 缓存所需空间
+/// 计算 KV 缓存可用空间
 /// 公式: (GPU空闲显存 - 模型文件大小) - (并发数量 × block_count × embedding_length × 最大物理批次大小 × 4字节/f32)
 pub fn calc_kv_cache_space(gguf: &GgufInfo, settings: &AppSettings, free_mib: u64) -> String {
-    // KV 缓存占用（字节）= parallel_slots * block_count * embedding_length * batch_size_actual * 4
-    let kv_cache_bytes = (settings.parallel_slots as u64)
+    // Compute Buffer（字节）= parallel_slots * block_count * embedding_length * batch_size_actual * 4
+    let compute_buffer_bytes = (settings.parallel_slots as u64)
         .saturating_mul(gguf.block_count as u64)
         .saturating_mul(gguf.embedding_length as u64)
         .saturating_mul(settings.batch_size_actual() as u64)
@@ -187,14 +187,14 @@ pub fn calc_kv_cache_space(gguf: &GgufInfo, settings: &AppSettings, free_mib: u6
     // GPU空闲显存扣除模型文件后的可用空间（MiB）
     let usable_mib = free_mib.saturating_sub(model_mib);
 
-    // KV 缓存占用（MiB）
-    let kv_cache_mib = kv_cache_bytes / (1024 * 1024);
+    // Compute Buffer（MiB）
+    let compute_buffer_mib = compute_buffer_bytes / (1024 * 1024);
 
-    if kv_cache_mib > usable_mib {
-        format!("{} MB / {} MB（超出 {} MB）", usable_mib, kv_cache_mib, kv_cache_mib - usable_mib)
+    if compute_buffer_mib > usable_mib {
+        format!("{} MB / {} MB（超出 {} MB）", usable_mib, compute_buffer_mib, compute_buffer_mib - usable_mib)
     } else {
-        let remaining = usable_mib - kv_cache_mib;
-        format!("{} MB / {} MB（剩余 {} MB）", kv_cache_mib, usable_mib, remaining)
+        let remaining = usable_mib - compute_buffer_mib;
+        format!("{} MB / {} MB（剩余 {} MB）", compute_buffer_mib, usable_mib, remaining)
     }
 }
 
