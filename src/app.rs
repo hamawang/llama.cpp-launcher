@@ -42,20 +42,23 @@ impl LlamaLauncherApp {
         let server_manager = ServerManager::new();
         let rpc_manager = RpcManager::new();
 
-        // 全局 UI 放大 1.5 倍
+       // 全局 UI 放大 1.5 倍
         cc.egui_ctx.set_zoom_factor(1.5);
+
+        // 同步日志开关状态到全局标志
+        crate::set_log_to_file(settings.log_to_file);
 
         Self {
             settings,
             settings_manager,
             server_manager,
             rpc_manager,
-            tab_selected: "Server".to_string(),
+            tab_selected: "server".to_string(),
             show_about: false,
             lang,
             auto_start_server_on_first_frame,
             debug_mode: false,
-            spacing_debugger: SpacingDebugger::new(),
+            spacing_debugger: SpacingDebugger::default(),
         }
     }
 

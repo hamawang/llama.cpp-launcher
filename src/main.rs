@@ -19,7 +19,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
 /// 文件日志写入开关（全局标志，由帮助菜单复选框控制）
-static LOG_TO_FILE_ENABLED: AtomicBool = AtomicBool::new(true);
+static LOG_TO_FILE_ENABLED: AtomicBool = AtomicBool::new(false);
 
 pub fn set_log_to_file(enabled: bool) {
     LOG_TO_FILE_ENABLED.store(enabled, Ordering::Relaxed);
@@ -48,24 +48,54 @@ fn init_logger() {
     let exe_path = env::current_exe().unwrap_or_default();
     let exe_dir = exe_path.parent().map(PathBuf::from).unwrap_or_else(|| PathBuf::from("."));
 
-    // 生成带时间戳的日志文件名: llama_launcher_20260525_143000.log
-    let timestamp = Local::now().format("%Y%m%d_%H%M%S").to_string();
-    let log_path = exe_dir.join(format!("llama_launcher_{}.log", timestamp));
-
-    // 打开或创建日志文件（追加模式）
-    let file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&log_path)
-        .expect("Failed to create log file");
-
-    let logger = FileLogger {
-        writer: Mutex::new(BufWriter::new(file)),
+    // 读取配置，获取 log_to_file 设置
+    let config_path = exe_dir.join("llama_cpp_launcher_settings.json");
+    let log_enabled = if config_path.exists() {
+        match std::fs::read_to_string(&config_path) {
+            Ok(content) => {
+                serde_json::from_str::<crate::config::settings::AppSettings>(&content)
+                    .map(|s| s.log_to_file)
+                    .unwrap_or(false)
+            }
+            Err(_) => false,
+        }
+    } else {
+        false
     };
 
-    // 初始化日志系统
-    if log::set_boxed_logger(Box::new(logger)).is_ok() {
+    // 根据配置决定是否初始化文件日志器
+    if log_enabled {
+        let timestamp = Local::now().format("%Y%m%d_%H%M%S").to_string();
+        let log_path = exe_dir.join(format!("llama_launcher_{}.log", timestamp));
+
+        let file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&log_path)
+            .expect("Failed to create log file");
+
+        let logger = FileLogger {
+            writer: Mutex::new(BufWriter::new(file)),
+        };
+
+        if log::set_boxed_logger(Box::new(logger)).is_ok() {
+            log::set_max_level(LevelFilter::Info);
+        }
+
+        // 同步全局开关状态
+        LOG_TO_FILE_ENABLED.store(true, Ordering::Relaxed);
+    } else {
+        // 未启用文件日志，使用空 logger（仅记录到内存）
+        struct NoOpLogger;
+        impl Log for NoOpLogger {
+            fn enabled(&self, _metadata: &Metadata) -> bool { false }
+            fn log(&self, _record: &Record) {}
+            fn flush(&self) {}
+        }
+        let _ = log::set_boxed_logger(Box::new(NoOpLogger));
         log::set_max_level(LevelFilter::Info);
+
+        LOG_TO_FILE_ENABLED.store(false, Ordering::Relaxed);
     }
 }
 
