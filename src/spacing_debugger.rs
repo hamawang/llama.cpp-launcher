@@ -16,6 +16,7 @@ impl SpacingDebugger {
         self.rects.clear();
     }
 
+    #[allow(dead_code)]
     /// 包装一个控件，记录其矩形，并返回原 response
     /// 用法：let resp = debugger.record(ui.button("点击"));
     pub fn record(&mut self, response: Response) -> Response {
