@@ -172,9 +172,9 @@ pub fn calc_max_context() -> usize {
 }
 
 /// 计算 KV 缓存可用空间
-/// 公式: (GPU空闲显存 - 模型文件大小) - (并发数量 × block_count × embedding_length × 最大物理批次大小 × 4字节/f32)
+/// 公式: (GPU空闲显存 - 模型文件大小) - (并发数量 × block_count × embedding_length × 最大物理批次大小 × 2字节/f16 × 2缓冲倍率)
 pub fn calc_kv_cache_space(gguf: &GgufInfo, settings: &AppSettings, free_mib: u64) -> String {
-    // Compute Buffer（字节）= parallel_slots * block_count * embedding_length * batch_size_actual * 4
+    // Compute Buffer（字节）= parallel_slots * block_count * embedding_length * batch_size_actual * 2(f16) * 2(缓冲倍率)
     let compute_buffer_bytes = (settings.parallel_slots as u64)
         .saturating_mul(gguf.block_count as u64)
         .saturating_mul(gguf.embedding_length as u64)
