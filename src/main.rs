@@ -7,6 +7,7 @@ pub mod i18n;
 pub mod kv_cache;
 pub mod shortcut;
 pub mod ui;
+mod spacing_debugger;
 
 use app::LlamaLauncherApp;
 use egui::{FontData, FontDefinitions, FontFamily};

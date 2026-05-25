@@ -2,6 +2,7 @@ use crate::config::settings::{AppSettings, SettingsManager};
 use crate::engine::rpc::{RpcManager, RpcState};
 use crate::engine::server::{ServerManager, ServerState};
 use crate::i18n::{self, Language};
+use crate::spacing_debugger::SpacingDebugger;
 use crate::ui::{launch_commands_panel, log_panel, model_panel, params_panel, presets_panel, rpc_panel, server_panel};
 
 pub struct LlamaLauncherApp {
@@ -14,6 +15,7 @@ pub struct LlamaLauncherApp {
     lang: Language,
     auto_start_server_on_first_frame: bool,  // 新增
     debug_mode: bool,                         // egui Inspector / 调试模式开关
+    spacing_debugger: SpacingDebugger,        // UI 间距可视化工具
 }
 
 impl LlamaLauncherApp {
@@ -53,6 +55,7 @@ impl LlamaLauncherApp {
             lang,
             auto_start_server_on_first_frame,
             debug_mode: false,
+            spacing_debugger: SpacingDebugger::new(),
         }
     }
 
@@ -74,25 +77,36 @@ impl LlamaLauncherApp {
                     .is_some_and(|name| name == "llama-server.exe");
                 let can_start = server_path_valid
                     && !self.settings.model_path.as_os_str().is_empty();
-                if ui
-                    .add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnStartServer, &self.lang)).fill(start_fill))
-                    .clicked()
-                {
+                let resp = ui.add_enabled(
+                    can_start,
+                    egui::Button::new(i18n::t(i18n::Key::BtnStartServer, &self.lang)).fill(start_fill),
+                );
+                if self.debug_mode {
+                    self.spacing_debugger.rects.push(resp.rect);
+                }
+                if resp.clicked() {
                     self.server_manager.start(&self.settings);
                 }
             }
             ServerState::Running => {
-                if ui.add(egui::Button::new(i18n::t(i18n::Key::BtnStopServer, &self.lang)).fill(stop_fill)).clicked() {
+                let resp = ui.add(egui::Button::new(i18n::t(i18n::Key::BtnStopServer, &self.lang)).fill(stop_fill));
+                if self.debug_mode {
+                    self.spacing_debugger.rects.push(resp.rect);
+                }
+                if resp.clicked() {
                     self.server_manager.stop();
                 }
             }
             ServerState::Starting | ServerState::Stopping => {
-                ui.label(i18n::t(i18n::Key::StatusProcessing, &self.lang));
+                let resp = ui.label(i18n::t(i18n::Key::StatusProcessing, &self.lang));
+                if self.debug_mode {
+                    self.spacing_debugger.rects.push(resp.rect);
+                }
             }
         }
     }
 
-    fn render_rpc_controls(&mut self, ui: &mut egui::Ui) {
+   fn render_rpc_controls(&mut self, ui: &mut egui::Ui) {
         let rpc_state = self.rpc_manager.state();
         let rpc_start_fill = egui::Color32::from_rgb(40, 100, 140);
         let rpc_stop_fill = egui::Color32::from_rgb(180, 50, 50);
@@ -102,20 +116,31 @@ impl LlamaLauncherApp {
                     .file_name()
                     .and_then(|f| f.to_str())
                     .is_some_and(|name| name == "rpc-server.exe");
-                if ui
-                    .add_enabled(rpc_path_valid, egui::Button::new(i18n::t(i18n::Key::BtnStartRpc, &self.lang)).fill(rpc_start_fill))
-                    .clicked()
-                {
+                let resp = ui.add_enabled(
+                    rpc_path_valid,
+                    egui::Button::new(i18n::t(i18n::Key::BtnStartRpc, &self.lang)).fill(rpc_start_fill),
+                );
+                if self.debug_mode {
+                    self.spacing_debugger.rects.push(resp.rect);
+                }
+                if resp.clicked() {
                     self.rpc_manager.start(&self.settings);
                 }
             }
             RpcState::Running => {
-                if ui.add(egui::Button::new(i18n::t(i18n::Key::BtnStopRpc, &self.lang)).fill(rpc_stop_fill)).clicked() {
+                let resp = ui.add(egui::Button::new(i18n::t(i18n::Key::BtnStopRpc, &self.lang)).fill(rpc_stop_fill));
+                if self.debug_mode {
+                    self.spacing_debugger.rects.push(resp.rect);
+                }
+                if resp.clicked() {
                     self.rpc_manager.stop();
                 }
             }
             RpcState::Starting | RpcState::Stopping => {
-                ui.label(i18n::t(i18n::Key::StatusProcessing, &self.lang));
+                let resp = ui.label(i18n::t(i18n::Key::StatusProcessing, &self.lang));
+                if self.debug_mode {
+                    self.spacing_debugger.rects.push(resp.rect);
+                }
             }
         }
     }
@@ -124,10 +149,14 @@ impl LlamaLauncherApp {
         let server_running = matches!(self.server_manager.state(), ServerState::Running);
         let listening = self.server_manager.is_listening();
         let enabled = server_running && listening;
-        if ui.add_enabled(
+        let resp = ui.add_enabled(
             enabled,
             egui::Button::new(i18n::t(i18n::Key::BtnOpenWebClient, &self.lang)),
-        ).clicked() {
+        );
+        if self.debug_mode {
+            self.spacing_debugger.rects.push(resp.rect);
+        }
+        if resp.clicked() {
             open_web_client_url(self.settings.port);
         }
     }
@@ -149,6 +178,11 @@ impl eframe::App for LlamaLauncherApp {
                     s.debug.hover_shows_next = self.debug_mode;
                 });
             }
+        }
+
+        // 调试模式：每帧开始时清空间距记录
+        if self.debug_mode {
+            self.spacing_debugger.begin_frame();
         }
 
         // 应用启动时自动启动 Server
@@ -287,6 +321,11 @@ impl eframe::App for LlamaLauncherApp {
                 }
             });
         });
+
+        // 调试模式：绘制控件间距可视化
+        if self.debug_mode {
+            self.spacing_debugger.visualize(ui);
+        }
     }
 }
 
