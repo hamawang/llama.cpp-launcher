@@ -101,7 +101,7 @@ fn default_max_log_lines() -> i32 {
 }
 
 fn default_log_to_file() -> bool {
-    true
+    false
 }
 
 // n_ctx / batch_size / ubatch_size 以 k 为单位存储 (1k = 1024)
