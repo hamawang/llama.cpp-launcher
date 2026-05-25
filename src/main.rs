@@ -15,7 +15,15 @@ use std::env;
 use std::fs::OpenOptions;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
+
+/// 文件日志写入开关（全局标志，由帮助菜单复选框控制）
+static LOG_TO_FILE_ENABLED: AtomicBool = AtomicBool::new(true);
+
+pub fn set_log_to_file(enabled: bool) {
+    LOG_TO_FILE_ENABLED.store(enabled, Ordering::Relaxed);
+}
 
 struct FileLogger {
     writer: Mutex<BufWriter<std::fs::File>>,
@@ -24,7 +32,7 @@ struct FileLogger {
 impl Log for FileLogger {
     fn enabled(&self, _metadata: &Metadata) -> bool { true }
     fn log(&self, record: &Record) {
-        if self.enabled(record.metadata()) {
+        if self.enabled(record.metadata()) && LOG_TO_FILE_ENABLED.load(Ordering::Relaxed) {
             let mut w = self.writer.lock().unwrap();
             writeln!(w, "[{}] {}", Local::now().format("%Y-%m-%d %H:%M:%S"), record.args()).ok();
             w.flush().ok(); // 强制刷新，确保日志立即写入磁盘

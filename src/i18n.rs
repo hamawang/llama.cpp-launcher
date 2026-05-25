@@ -186,6 +186,7 @@ pub enum Key {
     MenuItemRepo,
 
     // 菜单 - 调试模式
+    MenuItemLogToFile,
     MenuItemDebugMode,
 
     // 通用
@@ -215,8 +216,10 @@ impl Key {
             (Key::MenuItemRepo, &Language::En) => "Repository",
 
             // 调试模式
-            (Key::MenuItemDebugMode, &Language::Zh) => "⚙ 调试模式",
-            (Key::MenuItemDebugMode, &Language::En) => "⚙ Debug Mode (Inspector)",
+  (Key::MenuItemLogToFile, &Language::Zh) => "📝 保存文件日志",
+        (Key::MenuItemLogToFile, &Language::En) => "📝 Save File Log",
+        (Key::MenuItemDebugMode, &Language::Zh) => "⚙ 调试模式",
+        (Key::MenuItemDebugMode, &Language::En) => "⚙ Debug Mode (Inspector)",
             (Key::MenuItemCreateShortcut, &Language::Zh) => "创建桌面快捷方式",
             (Key::MenuItemCreateShortcut, &Language::En) => "Create Desktop Shortcut",
 

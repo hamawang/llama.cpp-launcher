@@ -100,6 +100,10 @@ fn default_max_log_lines() -> i32 {
     100
 }
 
+fn default_log_to_file() -> bool {
+    true
+}
+
 // n_ctx / batch_size / ubatch_size 以 k 为单位存储 (1k = 1024)
 // 反序列化时兼容旧版原始值（如 4096 → 自动转为 4）
 
@@ -537,6 +541,10 @@ pub struct AppSettings {
     #[serde(default)]
     pub auto_start: bool,
 
+    // 文件日志开关（默认开启）
+    #[serde(default = "default_log_to_file")]
+    pub log_to_file: bool,
+
     // llama.cpp 版本信息（不序列化，运行时缓存）
     #[serde(skip, default)]
     pub llama_version: String,
@@ -604,6 +612,7 @@ impl Default for AppSettings {
             auto_scroll_logs: default_auto_scroll_logs(),
             max_log_lines: default_max_log_lines(),
             auto_start: false,
+            log_to_file: default_log_to_file(),
             auto_start_preset_name: None,
             llama_version: String::new(),
             kv_cache_result: None,

@@ -279,6 +279,16 @@ impl eframe::App for LlamaLauncherApp {
                     if ui.button(i18n::t(i18n::Key::MenuItemRepo, &self.lang)).clicked() {
                         open_repo_url();
                     }
+                    // 文件日志开关：选中时写入磁盘，不选中时静默丢弃
+                    let mut log_to_file = self.settings.log_to_file;
+                    if ui.checkbox(&mut log_to_file, i18n::t(i18n::Key::MenuItemLogToFile, &self.lang)).changed() {
+                        crate::set_log_to_file(log_to_file);
+                        self.settings.log_to_file = log_to_file;
+                        // 保存设置到文件
+                        if let Err(e) = self.settings_manager.save(&self.settings) {
+                            log::error!("保存设置失败：{}", e);
+                        }
+                    }
                     // 调试模式：开启 egui Inspector / 内置检查器面板
                     ui.checkbox(&mut self.debug_mode, i18n::t(i18n::Key::MenuItemDebugMode, &self.lang));
                 });
