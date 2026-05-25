@@ -28,7 +28,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, server: &mut ServerMana
             egui::ProgressBar::new(progress)
                 .text(&label),
         );
-        ui.add_space(4.0);
+        ui.add_space(8.0);
     }
 
     // max_log_lines == 0 时不显示日志区域
@@ -46,7 +46,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, server: &mut ServerMana
                 }
 
                 if logs.is_empty() {
-                    ui.add_space(20.0);
+                    ui.add_space(8.0);
                     ui.horizontal_centered(|ui| {
                         ui.colored_label(egui::Color32::GRAY, i18n::t(i18n::Key::HintNoLogs, lang));
                     });

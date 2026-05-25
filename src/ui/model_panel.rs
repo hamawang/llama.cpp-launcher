@@ -204,7 +204,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         settings.model_dir = std::path::PathBuf::from(&dir_str);
     }
 
-    ui.add_space(8.0);
+    ui.add_space(12.0);
 
     // 文件夹为空时提示
     if settings.model_dir.as_os_str().is_empty() {
