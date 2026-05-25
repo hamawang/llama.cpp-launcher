@@ -217,8 +217,8 @@ impl Key {
             (Key::MenuItemRepo, &Language::En) => "Repository",
 
             // 调试模式
-(Key::MenuItemLogToFile, &Language::Zh) => "📝 保存日志文件",
-  (Key::MenuItemLogToFile, &Language::En) => "📝 Save Log File",
+            (Key::MenuItemLogToFile, &Language::Zh) => "📝 保存日志文件",
+            (Key::MenuItemLogToFile, &Language::En) => "📝 Save Log File",
             (Key::MenuItemDebugMode, &Language::Zh) => "⚙ 调试模式",
             (Key::MenuItemDebugMode, &Language::En) => "⚙ Debug Mode (Inspector)",
             (Key::MenuItemCreateShortcut, &Language::Zh) => "创建桌面快捷方式",

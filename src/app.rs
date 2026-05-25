@@ -42,7 +42,7 @@ impl LlamaLauncherApp {
         let server_manager = ServerManager::new();
         let rpc_manager = RpcManager::new();
 
-       // 全局 UI 放大 1.5 倍
+        // 全局 UI 放大 1.5 倍
         cc.egui_ctx.set_zoom_factor(1.5);
 
         // 同步日志开关状态到全局标志
