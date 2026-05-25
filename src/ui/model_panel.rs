@@ -67,8 +67,8 @@ fn parse_tags(filename: &str) -> Vec<(String, egui::Color32)> {
         let color = if is_param_size(&lower) {
             // 🟣 参数量: 7b, 335m, 1.5b
             purple
-        } else if lower.starts_with('q') {
-            // 🟠 量化类型: q4_k_m, q8_0
+        } else if is_quantization(&lower) {
+            // 🟠 量化类型: q4_k_m, q8_0, iq4_nl, iq2_xs …
             orange
         } else if trimmed.chars().all(|c| c.is_ascii_digit() || c == '.') {
             // ⚫ 版本号: 3.1, 2
@@ -109,6 +109,15 @@ fn parse_tags(filename: &str) -> Vec<(String, egui::Color32)> {
 fn is_param_size(s: &str) -> bool {
     let has_digit = s.chars().any(|c| c.is_ascii_digit());
     has_digit && (s.ends_with('b') || s.ends_with('m'))
+}
+
+/// 量化类型: q4_k_m, q8_0, iq4_nl, iq2_xs … (排除 qwen/qwq 等模型名)
+fn is_quantization(s: &str) -> bool {
+    if s.starts_with("iq") && s.chars().nth(2).map_or(false, |c| c.is_ascii_digit()) {
+        return true; // iq4_nl, iq2_xs …
+    }
+    // q 开头，第二个字符是数字（排除 "qwen", "qwq" 等模型名）
+    s.starts_with('q') && s.chars().nth(1).map_or(false, |c| c.is_ascii_digit())
 }
 
 /// 训练方法关键词
