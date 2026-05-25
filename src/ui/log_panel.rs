@@ -17,7 +17,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, server: &mut ServerMana
         ui.small(i18n::t(i18n::Key::HintLogSession, lang));
     });
 
-    ui.add_space(8.0);
+    ui.add_space(4.0);
 
     // 预填充进度条（0-100%），仅在进度 > 0 时显示
     let progress = server.progress();
@@ -28,7 +28,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, server: &mut ServerMana
             egui::ProgressBar::new(progress)
                 .text(&label),
         );
-        ui.add_space(8.0);
+        ui.add_space(4.0);
     }
 
     // max_log_lines == 0 时不显示日志区域
