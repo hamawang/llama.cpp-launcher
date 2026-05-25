@@ -166,9 +166,67 @@ fn regex_search_free_mib(line: &str) -> Option<u64> {
     None
 }
 
-/// 计算最大可用上下文（占位函数，返回 125k）
-pub fn calc_max_context() -> usize {
-    125
+/// KV 缓存类型 → 精度字节数（f64 以支持量化类型的非整数字节）
+fn cache_type_precision_bytes(cache_type: &str) -> f64 {
+    match cache_type {
+        "f32" => 4.0,
+        "f16" | "bf16" => 2.0,
+        "q8_0" => 1.0,
+        "q5_0" | "q5_1" => 0.625, // 5 bits per element
+        "q4_0" | "q4_1" | "iq4_nl" => 0.5, // 4 bits per element
+        _ => 2.0, // 默认 f16
+    }
+}
+
+/// 计算最大可用上下文（k 为单位）
+///
+/// 公式：
+///   Compute Buffer = parallel_slots × block_count × embedding_length × batch_size_actual × 4
+///   单 token KV 占用 = kv_head_count × head_dim × (precision_k + precision_v) × block_count
+///   最大 token 数 = ((GPU 空闲显存 - 模型文件) - Compute Buffer) / 单 token KV 占用 × kv_cache_ratio
+///   返回值 = 最大 token 数 / 1024 （单位 k）
+pub fn calc_max_context(gguf: &GgufInfo, settings: &AppSettings, free_mib: u64) -> u64 {
+    // Compute Buffer（字节）= parallel_slots * block_count * embedding_length * batch_size_actual × 4
+    let compute_buffer_bytes = (settings.parallel_slots as u64)
+        .saturating_mul(gguf.block_count as u64)
+        .saturating_mul(gguf.embedding_length as u64)
+        .saturating_mul(settings.batch_size_actual() as u64)
+        .saturating_mul(4);
+
+    // 模型文件占用（MiB）
+    let model_mib = gguf.file_size / (1024 * 1024);
+
+    // GPU 空闲显存扣除模型文件后的可用空间（字节）
+    let usable_bytes = (free_mib.saturating_sub(model_mib) as u64)
+        .saturating_mul(1024)
+        .saturating_mul(1024);
+
+    // 扣掉 Compute Buffer 后剩余给 KV 缓存的空间（字节）
+    let kv_bytes = usable_bytes.saturating_sub(compute_buffer_bytes);
+
+    if kv_bytes == 0 {
+        return 0;
+    }
+
+    // K 和 V 的精度字节数
+    let precision_k = cache_type_precision_bytes(&settings.cache_type_k);
+    let precision_v = cache_type_precision_bytes(&settings.cache_type_v);
+
+    // 单个 token 的 KV 缓存占用（字节）= kv_head_count × head_dim × (precision_k + precision_v) × block_count
+    let per_token_kv_bytes = gguf.kv_head_count as f64
+        * gguf.head_dim as f64
+        * (precision_k + precision_v)
+        * gguf.block_count as f64;
+
+    if per_token_kv_bytes <= 0.0 {
+        return 0;
+    }
+
+    // 最大 token 数 = 剩余字节 / 单 token 占用 × kv_cache_ratio
+    let max_tokens = (kv_bytes as f64) / per_token_kv_bytes * settings.kv_cache_ratio as f64;
+
+    // 返回 k 单位（1k = 1024）
+    (max_tokens / 1024.0) as u64
 }
 
 /// 计算 KV 缓存可用空间
@@ -217,4 +275,25 @@ pub fn calc_and_format(settings: &AppSettings) -> Result<String, String> {
     let result = calc_kv_cache_space(&gguf, settings, free_mib);
     log::info!("[calc_and_format] KV 缓存计算结果: {}", result);
     Ok(result)
+}
+
+/// Facade function：聚合读取 GGUF + GPU 信息 → 返回最大上下文（k 单位）
+pub fn calc_max_context_facade(settings: &AppSettings) -> Result<usize, String> {
+    log::info!("[calc_max_context_facade] 开始计算最大上下文");
+
+    // 1. 读取 GGUF 模型信息
+    let gguf = read_gguf_info(&settings.model_path)?;
+    log::info!("[calc_max_context_facade] GGUF info: block_count={}, kv_head_count={}, head_dim={}, embedding_length={}, file_size={} bytes",
+        gguf.block_count, gguf.kv_head_count, gguf.head_dim, gguf.embedding_length, gguf.file_size);
+
+    // 2. 获取空闲显存
+    let free_mib = get_free_gpu_mib(&settings.server_path)?;
+    log::info!("[calc_max_context_facade] GPU 空闲显存: {} MiB", free_mib);
+
+    // 3. 计算最大上下文（k 单位）
+    let max_ctx_k = calc_max_context(&gguf, settings, free_mib);
+    log::info!("[calc_max_context_facade] cache_type_k={}, cache_type_v={}, kv_cache_ratio={}",
+        settings.cache_type_k, settings.cache_type_v, settings.kv_cache_ratio);
+    log::info!("[calc_max_context_facade] 最大可用上下文: {}k", max_ctx_k);
+    Ok(max_ctx_k as usize)
 }

@@ -25,7 +25,10 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.small(i18n::t(i18n::Key::HintKUnit, lang));
     });
     if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnSetMaxContextVram, lang))).clicked() {
-        settings.n_ctx = kv_cache::calc_max_context();
+        match kv_cache::calc_max_context_facade(settings) {
+            Ok(val) => settings.n_ctx = val,
+            Err(e) => log::warn!("[params_panel] calc_max_context 失败: {}", e),
+        }
     }
 
     // 最大批次大小 (--batch-size) (k)
