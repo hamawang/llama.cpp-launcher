@@ -63,7 +63,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                 .range(60..=3600)
                 .speed(10),
         ); // 60~3600秒，步进10
-        ui.label("s");
+        ui.label(i18n::t(i18n::Key::HintSUnit, lang));
     });
 
     // KV 缓存比例（DragValue）

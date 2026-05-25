@@ -111,6 +111,7 @@ pub enum Key {
     LabelUBatchSize,
     LabelSessionTimeout,
     HintKUnit,
+    HintSUnit, // 超时单位后缀：s / 秒
     SectionSampling,
     LabelTemperature,
     LabelTopP,
@@ -384,6 +385,8 @@ impl Key {
             (Key::LabelSessionTimeout, &Language::En) => "Session Timeout:",
             (Key::HintKUnit, &Language::Zh) => "(1k = 1024)",
             (Key::HintKUnit, &Language::En) => "(1k = 1024)",
+            (Key::HintSUnit, &Language::Zh) => "秒",
+            (Key::HintSUnit, &Language::En) => "s",
             (Key::SectionSampling, &Language::Zh) => "采样参数",
             (Key::SectionSampling, &Language::En) => "Sampling",
             (Key::LabelTemperature, &Language::Zh) => "温度:",
