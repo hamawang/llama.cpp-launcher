@@ -1,4 +1,4 @@
-use crate::config::settings::{AppSettings, GpuLayersMode};
+use crate::config::settings::{AppSettings, GpuLayersMode, is_server_binary_name};
 use crate::i18n;
 use crate::kv_cache;
 
@@ -10,7 +10,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     let server_path_valid = settings.server_path
         .file_name()
         .and_then(|f| f.to_str())
-        .is_some_and(|name| name == "llama-server.exe");
+        .is_some_and(is_server_binary_name);
     let can_start = server_path_valid && !settings.model_path.as_os_str().is_empty();
 
     // 上下文长度 (k) + 显存最大可用上下文按钮

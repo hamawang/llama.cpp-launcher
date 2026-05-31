@@ -1,4 +1,4 @@
-use crate::config::settings::{AppSettings, SettingsManager};
+use crate::config::settings::{AppSettings, SettingsManager, is_server_binary_name};
 use crate::i18n;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -37,7 +37,7 @@ pub fn ui(
             .server_path
             .file_name()
             .and_then(|f| f.to_str())
-            .is_some_and(|name| name == "llama-server.exe")
+            .is_some_and(is_server_binary_name)
             && settings.server_path.exists();
 
         if server_path_valid {

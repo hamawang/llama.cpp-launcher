@@ -512,8 +512,8 @@ impl Key {
             }
             (Key::ErrRpcPathMissing, &Language::Zh) => "请先配置 rpc-server 路径",
             (Key::ErrRpcPathMissing, &Language::En) => "Please configure rpc-server path first",
-            (Key::ErrRpcFileNotFound, &Language::Zh) => "rpc-server.exe 文件不存在",
-            (Key::ErrRpcFileNotFound, &Language::En) => "rpc-server.exe file not found",
+            (Key::ErrRpcFileNotFound, &Language::Zh) => "rpc-server 文件不存在",
+            (Key::ErrRpcFileNotFound, &Language::En) => "rpc-server file not found",
             (Key::ErrStartFailed, &Language::Zh) => "启动失败",
             (Key::ErrStartFailed, &Language::En) => "Start failed",
             (Key::ErrPortConflict, &Language::Zh) => "Server 端口和 RPC 端口不能相同",
