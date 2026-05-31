@@ -1,5 +1,6 @@
 use crate::config::settings::AppSettings;
 use std::fs;
+#[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::path::Path;
 

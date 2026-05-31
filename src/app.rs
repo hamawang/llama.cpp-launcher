@@ -1,4 +1,4 @@
-use crate::config::settings::{AppSettings, SettingsManager};
+use crate::config::settings::{AppSettings, SettingsManager, is_server_binary_name, is_rpc_binary_name};
 use crate::engine::rpc::{RpcManager, RpcState};
 use crate::engine::server::{ServerManager, ServerState};
 use crate::i18n::{self, Language};
@@ -77,7 +77,7 @@ impl LlamaLauncherApp {
                 let server_path_valid = self.settings.server_path
                     .file_name()
                     .and_then(|f| f.to_str())
-                    .is_some_and(|name| name == "llama-server.exe");
+                    .is_some_and(is_server_binary_name);
                 let can_start = server_path_valid
                     && !self.settings.model_path.as_os_str().is_empty();
                 let resp = ui.add_enabled(
@@ -118,7 +118,7 @@ impl LlamaLauncherApp {
                 let rpc_path_valid = self.settings.rpc_server_path
                     .file_name()
                     .and_then(|f| f.to_str())
-                    .is_some_and(|name| name == "rpc-server.exe");
+                    .is_some_and(is_rpc_binary_name);
                 let resp = ui.add_enabled(
                     rpc_path_valid,
                     egui::Button::new(i18n::t(i18n::Key::BtnStartRpc, &self.lang)).fill(rpc_start_fill),
@@ -231,8 +231,7 @@ impl eframe::App for LlamaLauncherApp {
                             self.settings = s;
                         }
                     }
-                    // 开机自启动（仅在 Windows 显示）
-                    #[cfg(target_os = "windows")]
+                    // 开机自启动
                     if ui.checkbox(&mut self.settings.auto_start, i18n::t(i18n::Key::MenuItemAutoStart, &self.lang)).changed() {
                         if self.settings.auto_start {
                             enable_auto_start();
@@ -244,8 +243,7 @@ impl eframe::App for LlamaLauncherApp {
                             log::error!("保存设置失败：{}", e);
                         }
                     }
-                    // 创建桌面快捷方式（仅在 Windows 显示）
-                    #[cfg(target_os = "windows")]
+                    // 创建桌面快捷方式
                     if ui.button(i18n::t(i18n::Key::MenuItemCreateShortcut, &self.lang)).clicked() {
                         let _ = crate::shortcut::create_desktop_shortcut();
                     }
@@ -411,12 +409,61 @@ fn disable_auto_start() {
     }
 }
 
-// 非 Windows 平台的空实现
+// 非 Windows 平台的实现
 #[cfg(not(target_os = "windows"))]
-fn enable_auto_start() {}
+fn enable_auto_start() {
+    use std::fs;
+    
+    // 获取 XDG autostart 目录
+    let autostart_dir = dirs::config_dir()
+        .map(|d| d.join("autostart"))
+        .expect("无法获取 XDG config 目录");
+    fs::create_dir_all(&autostart_dir).ok();
+    
+    // 获取当前可执行文件路径
+    let exe_path = match std::env::current_exe() {
+        Ok(p) => p,
+        Err(e) => {
+            log::error!("获取当前 exe 路径失败: {}", e);
+            return;
+        }
+    };
+    
+    // 创建 .desktop 文件内容
+    let desktop_content = format!(
+        r#"[Desktop Entry]
+Type=Application
+Name=LLama Launcher
+Exec={}
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+"#,
+        exe_path.display()
+    );
+    
+    // 写入 autostart 目录
+    let desktop_path = autostart_dir.join("llama-cpp-launcher.desktop");
+    match fs::write(&desktop_path, &desktop_content) {
+        Ok(_) => log::info!("XDG autostart 文件已创建: {}", desktop_path.display()),
+        Err(e) => log::error!("创建 autostart 文件失败: {}", e),
+    }
+}
 
 #[cfg(not(target_os = "windows"))]
-fn disable_auto_start() {}
+fn disable_auto_start() {
+    use std::fs;
+    
+    let autostart_file = dirs::config_dir()
+        .map(|d| d.join("autostart/llama-cpp-launcher.desktop"));
+    
+    if let Some(path) = autostart_file {
+        match fs::remove_file(&path) {
+            Ok(_) => log::info!("XDG autostart 文件已删除: {}", path.display()),
+            Err(e) => log::error!("删除 autostart 文件失败: {}", e),
+        }
+    }
+}
 
 // 用 ShellExecuteW 打开 URL，无黑窗口 (Windows)
 #[cfg(target_os = "windows")]
