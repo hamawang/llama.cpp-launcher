@@ -135,8 +135,9 @@ fn main() -> eframe::Result {
 /// 从系统字体目录加载 CJK 中文字体 (适配 egui 0.34: Arc<FontData>)
 fn load_cjk_fonts(fonts: &mut FontDefinitions) {
     let cjk_proportional: Vec<&str> = if cfg!(target_os = "windows") {
-        // Windows 中文字体文件路径
+        // Windows 字体文件路径（Emoji 字体必须放在 CJK 字体之前）
         vec![
+            ("C:\\Windows\\Fonts\\seguiemj.ttf", "Segoe UI Emoji"), // Emoji 字体
             ("C:\\Windows\\Fonts\\msyh.ttc", "Microsoft YaHei"), // 微软雅黑
             ("C:\\Windows\\Fonts\\msyhbd.ttc", "Microsoft YaHei Bold"), // 微软雅黑粗体
             ("C:\\Windows\\Fonts\\simhei.ttf", "SimHei"),        // 黑体
