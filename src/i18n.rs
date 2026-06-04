@@ -123,6 +123,8 @@ pub enum Key {
     FaModeOn,
     FaModeOff,
     FaModeAuto,
+    GpuModeAuto,
+    GpuModeAll,
 
     // 推测解码（Speculative Decoding）区域
     SectionSpecDecoding,
@@ -436,6 +438,10 @@ impl Key {
             (Key::FaModeOff, &Language::En) => "Off",
             (Key::FaModeAuto, &Language::Zh) => "自动",
             (Key::FaModeAuto, &Language::En) => "Auto",
+            (Key::GpuModeAuto, &Language::Zh) => "自动",
+            (Key::GpuModeAuto, &Language::En) => "Auto",
+            (Key::GpuModeAll, &Language::Zh) => "全部",
+            (Key::GpuModeAll, &Language::En) => "All",
 
             // 推测解码（Speculative Decoding）
             (Key::SectionSpecDecoding, &Language::Zh) => "推测解码",
@@ -598,8 +604,8 @@ impl Key {
             (Key::HelpCacheTypeV, &Language::En) => "V cache type, affects VRAM usage and precision",
             (Key::HintGpuDevice, &Language::Zh) => "0-256",
             (Key::HintGpuDevice, &Language::En) => "0-256",
-            (Key::HelpGpuDevice, &Language::Zh) => "GPU 层数，0=自动，1-256=指定层数",
-            (Key::HelpGpuDevice, &Language::En) => "GPU layers, 0=auto, 1-256=specific layers",
+            (Key::HelpGpuDevice, &Language::Zh) => "GPU 层数卸载到显存的层数，自动=自动决定，全部=全部卸载到 GPU，手动=指定具体层数 (0-256)",
+            (Key::HelpGpuDevice, &Language::En) => "GPU layers to offload to VRAM. Auto=auto decide, All=offload all to GPU, Manual=specify specific layers (0-256)",
             (Key::HelpSplitMode, &Language::Zh) => "张量拆分模式，多 GPU 时使用",
             (Key::HelpSplitMode, &Language::En) => "Tensor split mode, used for multi-GPU",
             (Key::HelpTensorSplit, &Language::Zh) => "张量拆分比例，多 GPU 时指定各 GPU 占比",

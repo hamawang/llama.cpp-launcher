@@ -269,16 +269,20 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
 
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelGpuDevice, lang));
-        let gpu_modes = ["auto", "all"];
+        let gpu_modes = [
+            (i18n::Key::GpuModeAuto, GpuLayersMode::Auto),
+            (i18n::Key::GpuModeAll, GpuLayersMode::All),
+        ];
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 8.0;
-            for (value, mode) in gpu_modes.iter().zip([GpuLayersMode::Auto, GpuLayersMode::All].iter()) {
+            for (label_key, mode) in &gpu_modes {
                 let selected = match &settings.gpu_layers_mode {
-                    GpuLayersMode::Auto => *value == "auto",
-                    GpuLayersMode::All => *value == "all",
+                    GpuLayersMode::Auto => matches!(mode, GpuLayersMode::Auto),
+                    GpuLayersMode::All => matches!(mode, GpuLayersMode::All),
                     GpuLayersMode::Manual(_) => false,
                 };
-                if ui.selectable_label(selected, *value).clicked() {
+                let label = i18n::t(*label_key, lang);
+                if ui.selectable_label(selected, label).clicked() {
                     settings.gpu_layers_mode = *mode;
                     manual_gpu_layers = false;
                 }
