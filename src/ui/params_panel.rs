@@ -259,22 +259,52 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.heading(i18n::t(i18n::Key::SectionGpuDevice, lang));
     ui.separator();
 
-    // GPU 层数（统一使用拖拽输入框，默认值 99）
+    // GPU 层数（可选择标签 + 手动指定复选框）
+    let mut manual_gpu_layers = matches!(settings.gpu_layers_mode, GpuLayersMode::Manual(_));
     let mut gpu_layers = match settings.gpu_layers_mode {
-        GpuLayersMode::Auto | GpuLayersMode::All => 99usize,
+        GpuLayersMode::Auto => 0usize,
+        GpuLayersMode::All => 999usize,
         GpuLayersMode::Manual(n) => n,
     };
 
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelGpuDevice, lang));
-        if ui
-            .add(egui::DragValue::new(&mut gpu_layers).range(0..=256))
-            .changed()
-        {
-            settings.gpu_layers_mode = GpuLayersMode::Manual(gpu_layers);
-        }
+        let gpu_modes = ["auto", "all"];
+        ui.horizontal(|ui| {
+            ui.spacing_mut().item_spacing.x = 8.0;
+            for (value, mode) in gpu_modes.iter().zip([GpuLayersMode::Auto, GpuLayersMode::All].iter()) {
+                let selected = match &settings.gpu_layers_mode {
+                    GpuLayersMode::Auto => *value == "auto",
+                    GpuLayersMode::All => *value == "all",
+                    GpuLayersMode::Manual(_) => false,
+                };
+                if ui.selectable_label(selected, *value).clicked() {
+                    settings.gpu_layers_mode = *mode;
+                    manual_gpu_layers = false;
+                }
+            }
+        });
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpGpuDevice, lang));
     });
+
+    // 手动指定 GPU 层数
+    ui.horizontal(|ui| {
+        ui.checkbox(
+            &mut manual_gpu_layers,
+            i18n::t(i18n::Key::CheckboxManualGpuLayers, lang),
+        );
+        helper::help_button_inline(ui, i18n::t(i18n::Key::HelpGpuDevice, lang));
+    });
+    if manual_gpu_layers {
+        ui.indent("manual_gpu_layers_options", |ui| {
+            ui.horizontal(|ui| {
+                ui.label(i18n::t(i18n::Key::LabelGpuDevice, lang));
+                ui.add(egui::DragValue::new(&mut gpu_layers).range(0..=256));
+                ui.small(i18n::t(i18n::Key::HintGpuDevice, lang));
+            });
+        });
+        settings.gpu_layers_mode = GpuLayersMode::Manual(gpu_layers);
+    }
 
     // 设备列表
     ui.horizontal(|ui| {
