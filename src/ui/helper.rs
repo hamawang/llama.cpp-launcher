@@ -59,12 +59,16 @@ pub fn help_button_with_style(
     help_text: &str,
     style: &HelpButtonStyle,
 ) -> egui::Response {
-    // 保存并临时修改 hover 状态的视觉效果，防止按钮变宽
+    // 保存并临时修改 hover/active 状态的视觉效果，防止按钮变宽和点击动画
     let visuals = ui.visuals_mut();
-    let old_expansion = visuals.widgets.hovered.expansion;
-    let old_bg_stroke = visuals.widgets.hovered.bg_stroke;
+    let old_hover_expansion = visuals.widgets.hovered.expansion;
+    let old_hover_bg_stroke = visuals.widgets.hovered.bg_stroke;
+    let old_active_expansion = visuals.widgets.active.expansion;
+    let old_active_bg_stroke = visuals.widgets.active.bg_stroke;
     visuals.widgets.hovered.expansion = 0.0;
     visuals.widgets.hovered.bg_stroke = Stroke::NONE;
+    visuals.widgets.active.expansion = 0.0;
+    visuals.widgets.active.bg_stroke = Stroke::NONE;
 
     let response = ui.add(
         egui::Button::new(
@@ -76,13 +80,16 @@ pub fn help_button_with_style(
             .fill(style.fill)
             .corner_radius(style.corner_radius)
             .min_size(style.size)
-            .stroke(Stroke::new(1.0, style.stroke_color)),
+            .stroke(Stroke::new(1.0, style.stroke_color))
+            .sense(egui::Sense::hover()),  // 只响应悬停，不响应点击
     );
 
     // 恢复原来的设置
     let visuals = ui.visuals_mut();
-    visuals.widgets.hovered.expansion = old_expansion;
-    visuals.widgets.hovered.bg_stroke = old_bg_stroke;
+    visuals.widgets.hovered.expansion = old_hover_expansion;
+    visuals.widgets.hovered.bg_stroke = old_hover_bg_stroke;
+    visuals.widgets.active.expansion = old_active_expansion;
+    visuals.widgets.active.bg_stroke = old_active_bg_stroke;
 
     response.on_hover_text(help_text)
 }
