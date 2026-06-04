@@ -1,4 +1,4 @@
-use crate::config::settings::{AppSettings, SettingsManager, is_server_binary_name, is_rpc_binary_name};
+use crate::config::settings::{is_rpc_binary_name, is_server_binary_name, AppSettings, SettingsManager};
 use crate::engine::rpc::{RpcManager, RpcState};
 use crate::engine::server::{ServerManager, ServerState};
 use crate::i18n::{self, Language};
@@ -413,13 +413,13 @@ fn disable_auto_start() {
 #[cfg(not(target_os = "windows"))]
 fn enable_auto_start() {
     use std::fs;
-    
+
     // 获取 XDG autostart 目录
     let autostart_dir = dirs::config_dir()
         .map(|d| d.join("autostart"))
         .expect("无法获取 XDG config 目录");
     fs::create_dir_all(&autostart_dir).ok();
-    
+
     // 获取当前可执行文件路径
     let exe_path = match std::env::current_exe() {
         Ok(p) => p,
@@ -428,7 +428,7 @@ fn enable_auto_start() {
             return;
         }
     };
-    
+
     // 创建 .desktop 文件内容
     let desktop_content = format!(
         r#"[Desktop Entry]
@@ -441,7 +441,7 @@ X-GNOME-Autostart-enabled=true
 "#,
         exe_path.display()
     );
-    
+
     // 写入 autostart 目录
     let desktop_path = autostart_dir.join("llama-cpp-launcher.desktop");
     match fs::write(&desktop_path, &desktop_content) {
@@ -453,10 +453,10 @@ X-GNOME-Autostart-enabled=true
 #[cfg(not(target_os = "windows"))]
 fn disable_auto_start() {
     use std::fs;
-    
+
     let autostart_file = dirs::config_dir()
         .map(|d| d.join("autostart/llama-cpp-launcher.desktop"));
-    
+
     if let Some(path) = autostart_file {
         match fs::remove_file(&path) {
             Ok(_) => log::info!("XDG autostart 文件已删除: {}", path.display()),

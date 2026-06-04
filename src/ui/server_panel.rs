@@ -1,4 +1,4 @@
-use crate::config::settings::{AppSettings, SettingsManager, is_server_binary_name};
+use crate::config::settings::{is_server_binary_name, AppSettings, SettingsManager};
 use crate::i18n;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
