@@ -84,7 +84,7 @@ jobs:
       - name: Prepare artifacts
         run: |
           # 从 Cargo.toml 读取版本号
-          VERSION=$(grep -oP 'version\s*=\s*"\K[^"]+' Cargo.toml)
+          VERSION=$(awk -F '"' '/^\[package\]/ {p=1} p && /^version/ {print $2; exit}' Cargo.toml | tr -d '\n\r')
           echo "检测到版本号: $VERSION"
 
           mkdir -p dist
