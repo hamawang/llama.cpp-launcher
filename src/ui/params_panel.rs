@@ -220,28 +220,40 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     });
 
     // 锁定内存
-    ui.checkbox(
-        &mut settings.kv_mlock,
-        i18n::t(i18n::Key::CheckboxKvMlock, lang),
-    );
+    ui.horizontal(|ui| {
+        ui.checkbox(
+            &mut settings.kv_mlock,
+            i18n::t(i18n::Key::CheckboxKvMlock, lang),
+        );
+        helper::help_button_inline(ui, i18n::t(i18n::Key::HelpKvMlock, lang));
+    });
 
     // 内存映射
-    ui.checkbox(
-        &mut settings.kv_mmap,
-        i18n::t(i18n::Key::CheckboxKvMmap, lang),
-    );
+    ui.horizontal(|ui| {
+        ui.checkbox(
+            &mut settings.kv_mmap,
+            i18n::t(i18n::Key::CheckboxKvMmap, lang),
+        );
+        helper::help_button_inline(ui, i18n::t(i18n::Key::HelpKvMmap, lang));
+    });
 
     // 统一键值缓存
-    ui.checkbox(
-        &mut settings.kv_unified,
-        i18n::t(i18n::Key::CheckboxKvUnified, lang),
-    );
+    ui.horizontal(|ui| {
+        ui.checkbox(
+            &mut settings.kv_unified,
+            i18n::t(i18n::Key::CheckboxKvUnified, lang),
+        );
+        helper::help_button_inline(ui, i18n::t(i18n::Key::HelpKvUnified, lang));
+    });
 
     // 完整滑动窗口
-    ui.checkbox(
-        &mut settings.swa_full,
-        i18n::t(i18n::Key::CheckboxSwaFull, lang),
-    );
+    ui.horizontal(|ui| {
+        ui.checkbox(
+            &mut settings.swa_full,
+            i18n::t(i18n::Key::CheckboxSwaFull, lang),
+        );
+        helper::help_button_inline(ui, i18n::t(i18n::Key::HelpSwaFull, lang));
+    });
 
     ui.add_space(12.0);
     ui.heading(i18n::t(i18n::Key::SectionGpuDevice, lang));

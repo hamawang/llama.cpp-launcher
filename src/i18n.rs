@@ -217,6 +217,10 @@ pub enum Key {
     HelpSpecDraftNMin,
     HelpSpecDraftPMin,
     HelpSpecDraftPSplit,
+    HelpKvMlock,
+    HelpKvMmap,
+    HelpKvUnified,
+    HelpSwaFull,
 }
 
 impl Key {
@@ -606,6 +610,14 @@ impl Key {
             (Key::HelpSpecDraftPMin, &Language::En) => "Minimum trust threshold, reject speculation below this",
             (Key::HelpSpecDraftPSplit, &Language::Zh) => "分裂概率，控制推测分裂点",
             (Key::HelpSpecDraftPSplit, &Language::En) => "Split probability, controls speculation split point",
+            (Key::HelpKvMlock, &Language::Zh) => "锁定 KV 缓存到内存，防止被交换到磁盘",
+            (Key::HelpKvMlock, &Language::En) => "Lock KV cache to memory, prevent swapping to disk",
+            (Key::HelpKvMmap, &Language::Zh) => "内存映射加载模型，减少内存占用",
+            (Key::HelpKvMmap, &Language::En) => "Memory-map model loading, reduces memory usage",
+            (Key::HelpKvUnified, &Language::Zh) => "统一键值缓存，共享 K/V 缓存空间",
+            (Key::HelpKvUnified, &Language::En) => "Unified KV cache, share K/V cache space",
+            (Key::HelpSwaFull, &Language::Zh) => "完整滑动窗口注意力，保留全部上下文",
+            (Key::HelpSwaFull, &Language::En) => "Full sliding window attention, retain all context",
         }
     }
 }
