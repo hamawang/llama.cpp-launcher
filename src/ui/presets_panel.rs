@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// 导出/导入的“参数面板”专用结构（不包含 Server/RPC/模型路径等）
 #[derive(Serialize, Deserialize)]
 struct ParamsExport {
-    n_ctx: usize,
+    context: usize,
     batch_size: usize,
     ubatch_size: f32,
     temperature: f32,
@@ -43,7 +43,7 @@ struct ParamsExport {
 impl ParamsExport {
     fn from_settings(s: &AppSettings) -> Self {
         Self {
-            n_ctx: s.n_ctx,
+            context: s.context,
             batch_size: s.batch_size,
             ubatch_size: s.ubatch_size,
             temperature: s.temperature,
@@ -77,7 +77,7 @@ impl ParamsExport {
     }
 
     fn apply_to(self, s: &mut AppSettings) {
-        s.n_ctx = self.n_ctx;
+        s.context = self.context;
         s.batch_size = self.batch_size;
         s.ubatch_size = self.ubatch_size;
         s.temperature = self.temperature;

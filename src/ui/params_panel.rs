@@ -18,7 +18,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelNCtx, lang));
         ui.add(
-            egui::DragValue::new(&mut settings.n_ctx)
+            egui::DragValue::new(&mut settings.context)
                 .range(1..=1024) // 1k ~ 1024k
                 .speed(1),
         );
@@ -28,7 +28,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     });
     if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnSetMaxContextVram, lang))).clicked() {
         match kv_cache::calc_max_context_facade(settings) {
-            Ok(val) => settings.n_ctx = val,
+            Ok(val) => settings.context = val,
             Err(e) => log::warn!("[params_panel] calc_max_context 失败: {}", e),
         }
     }
