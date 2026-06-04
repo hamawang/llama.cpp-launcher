@@ -48,7 +48,7 @@ impl<'de> serde::Deserialize<'de> for GpuLayersMode {
                 let v = value.trim().to_lowercase();
                 if v == "auto" {
                     Ok(GpuLayersMode::Auto)
-                } else if v == "all" || v == "99" {
+                } else if v == "all" || v == "999" {
                     Ok(GpuLayersMode::All)
                 } else if let Ok(n) = v.parse::<usize>() {
                     Ok(GpuLayersMode::Manual(n))
@@ -74,7 +74,7 @@ impl GpuLayersMode {
     pub fn to_arg(&self) -> String {
         match self {
             GpuLayersMode::Auto => "auto".to_string(),
-            GpuLayersMode::All => "99".to_string(),
+            GpuLayersMode::All => "999".to_string(),
             GpuLayersMode::Manual(n) => n.to_string(),
         }
     }
