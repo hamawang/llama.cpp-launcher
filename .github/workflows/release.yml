@@ -106,7 +106,7 @@ jobs:
           path: dist/
 
   release:
-    needs: [build-windows, build-linux]
+    needs: [ build-windows, build-linux ]
     runs-on: ubuntu-latest
     steps:
       - name: Download Windows artifact
