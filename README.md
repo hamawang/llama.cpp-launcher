@@ -1,4 +1,10 @@
+<div align="center">
+
 # llama.cpp-launcher
+
+[![English](https://img.shields.io/badge/English-blue)](README_EN.md) [![中文](https://img.shields.io/badge/中文-red)](README.md)
+
+</div>
 
 ❓ **这是什么？**
 
