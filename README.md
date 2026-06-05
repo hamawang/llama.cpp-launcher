@@ -128,7 +128,6 @@ src/
 **支持的平台：**
 - ✅ Windows 10/11
 - ✅ Linux（X11）
-- ✅ macOS（实验性支持）
 
 **相关链接：**
 - [llama.cpp](https://github.com/ggerganov/llama.cpp) - 核心推理引擎
