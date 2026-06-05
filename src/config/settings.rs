@@ -184,7 +184,7 @@ fn default_spec_type() -> String {
 }
 
 fn default_spec_draft_n_max() -> usize {
-    16
+    3
 }
 
 fn default_spec_draft_p_min() -> f32 {
@@ -192,7 +192,7 @@ fn default_spec_draft_p_min() -> f32 {
 }
 
 fn default_spec_draft_p_split() -> f32 {
-    0.10
+    1.0
 }
 
 // KV 缓存比例默认值
