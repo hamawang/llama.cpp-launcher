@@ -5,7 +5,7 @@
 
     if target_os == "windows" {
         let mut res = winres::WindowsResource::new();
-        res.set_icon("llama-blue.ico");
+        res.set_icon("llama.ico");
         res.set("ProductName", "llama.cpp launcher");
         res.set("FileDescription", "llama.cpp launcher - GUI Launcher");
         res.set("LegalCopyright", "Copyright 2025");
