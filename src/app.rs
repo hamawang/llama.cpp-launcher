@@ -1,9 +1,14 @@
-use crate::config::settings::{is_rpc_binary_name, is_server_binary_name, AppSettings, SettingsManager};
+use crate::config::settings::{
+    is_rpc_binary_name, is_server_binary_name, AppSettings, SettingsManager,
+};
 use crate::engine::rpc::{RpcManager, RpcState};
 use crate::engine::server::{ServerManager, ServerState};
 use crate::i18n::{self, Language};
 use crate::spacing_debugger::SpacingDebugger;
-use crate::ui::{launch_commands_panel, log_panel, model_panel, params_panel, presets_panel, rpc_panel, server_panel};
+use crate::ui::{
+    launch_commands_panel, log_panel, model_panel, params_panel, presets_panel, rpc_panel,
+    server_panel,
+};
 
 pub struct LlamaLauncherApp {
     settings: AppSettings,
@@ -13,10 +18,10 @@ pub struct LlamaLauncherApp {
     tab_selected: String,
     show_about: bool,
     lang: Language,
-    auto_start_server_on_first_frame: bool,  // 新增
-    start_minimized: bool,                    // 开机自启时最小化到任务栏
-    debug_mode: bool,                         // egui Inspector / 调试模式开关
-    spacing_debugger: SpacingDebugger,        // UI 间距可视化工具
+    auto_start_server_on_first_frame: bool, // 新增
+    start_minimized: bool,                  // 开机自启时最小化到任务栏
+    debug_mode: bool,                       // egui Inspector / 调试模式开关
+    spacing_debugger: SpacingDebugger,      // UI 间距可视化工具
 }
 
 impl LlamaLauncherApp {
@@ -76,15 +81,18 @@ impl LlamaLauncherApp {
         let stop_fill = egui::Color32::from_rgb(180, 50, 50);
         match server_state {
             ServerState::Idle | ServerState::Error(_) => {
-                let server_path_valid = self.settings.server_path
+                let server_path_valid = self
+                    .settings
+                    .server_path
                     .file_name()
                     .and_then(|f| f.to_str())
                     .is_some_and(is_server_binary_name);
-                let can_start = server_path_valid
-                    && !self.settings.model_path.as_os_str().is_empty();
+                let can_start =
+                    server_path_valid && !self.settings.model_path.as_os_str().is_empty();
                 let resp = ui.add_enabled(
                     can_start,
-                    egui::Button::new(i18n::t(i18n::Key::BtnStartServer, &self.lang)).fill(start_fill),
+                    egui::Button::new(i18n::t(i18n::Key::BtnStartServer, &self.lang))
+                        .fill(start_fill),
                 );
                 if self.debug_mode {
                     self.spacing_debugger.rects.push(resp.rect);
@@ -94,7 +102,10 @@ impl LlamaLauncherApp {
                 }
             }
             ServerState::Running => {
-                let resp = ui.add(egui::Button::new(i18n::t(i18n::Key::BtnStopServer, &self.lang)).fill(stop_fill));
+                let resp = ui.add(
+                    egui::Button::new(i18n::t(i18n::Key::BtnStopServer, &self.lang))
+                        .fill(stop_fill),
+                );
                 if self.debug_mode {
                     self.spacing_debugger.rects.push(resp.rect);
                 }
@@ -117,13 +128,16 @@ impl LlamaLauncherApp {
         let rpc_stop_fill = egui::Color32::from_rgb(180, 50, 50);
         match rpc_state {
             RpcState::Idle | RpcState::Error(_) => {
-                let rpc_path_valid = self.settings.rpc_server_path
+                let rpc_path_valid = self
+                    .settings
+                    .rpc_server_path
                     .file_name()
                     .and_then(|f| f.to_str())
                     .is_some_and(is_rpc_binary_name);
                 let resp = ui.add_enabled(
                     rpc_path_valid,
-                    egui::Button::new(i18n::t(i18n::Key::BtnStartRpc, &self.lang)).fill(rpc_start_fill),
+                    egui::Button::new(i18n::t(i18n::Key::BtnStartRpc, &self.lang))
+                        .fill(rpc_start_fill),
                 );
                 if self.debug_mode {
                     self.spacing_debugger.rects.push(resp.rect);
@@ -133,7 +147,10 @@ impl LlamaLauncherApp {
                 }
             }
             RpcState::Running => {
-                let resp = ui.add(egui::Button::new(i18n::t(i18n::Key::BtnStopRpc, &self.lang)).fill(rpc_stop_fill));
+                let resp = ui.add(
+                    egui::Button::new(i18n::t(i18n::Key::BtnStopRpc, &self.lang))
+                        .fill(rpc_stop_fill),
+                );
                 if self.debug_mode {
                     self.spacing_debugger.rects.push(resp.rect);
                 }
@@ -199,7 +216,8 @@ impl eframe::App for LlamaLauncherApp {
         // 开机自启时最小化到任务栏（仅第一帧执行）
         if self.start_minimized {
             self.start_minimized = false;
-            ui.ctx().send_viewport_cmd(egui::ViewportCommand::Visible(false));
+            ui.ctx()
+                .send_viewport_cmd(egui::ViewportCommand::Visible(false));
         }
 
         self.server_manager.poll_logs();
@@ -216,11 +234,16 @@ impl eframe::App for LlamaLauncherApp {
                     ui.label(i18n::t(i18n::Key::AboutDescription, &self.lang));
                     ui.separator();
                     ui.horizontal_wrapped(|ui| {
-                        ui.label(egui::RichText::new(i18n::t(i18n::Key::AboutCopyright, &self.lang)).size(10.0));
+                        ui.label(
+                            egui::RichText::new(i18n::t(i18n::Key::AboutCopyright, &self.lang))
+                                .size(10.0),
+                        );
                     });
                     // 关闭按钮居中显示
                     ui.horizontal_centered(|ui| {
-                        if ui.button(i18n::t(i18n::Key::BtnClose, &self.lang)).clicked()
+                        if ui
+                            .button(i18n::t(i18n::Key::BtnClose, &self.lang))
+                            .clicked()
                         {
                             self.show_about = false;
                         }
@@ -231,16 +254,28 @@ impl eframe::App for LlamaLauncherApp {
         egui::Panel::top("top_panel").show_inside(ui, |ui| {
             egui::MenuBar::new().ui(ui, |ui| {
                 ui.menu_button(i18n::t(i18n::Key::MenuFile, &self.lang), |ui| {
-                    if ui.button(i18n::t(i18n::Key::MenuItemSaveConfig, &self.lang)).clicked() {
+                    if ui
+                        .button(i18n::t(i18n::Key::MenuItemSaveConfig, &self.lang))
+                        .clicked()
+                    {
                         self.save();
                     }
-                    if ui.button(i18n::t(i18n::Key::MenuItemLoadConfig, &self.lang)).clicked() {
+                    if ui
+                        .button(i18n::t(i18n::Key::MenuItemLoadConfig, &self.lang))
+                        .clicked()
+                    {
                         if let Ok(s) = self.settings_manager.load() {
                             self.settings = s;
                         }
                     }
                     // 开机自启动
-                    if ui.checkbox(&mut self.settings.auto_start, i18n::t(i18n::Key::MenuItemAutoStart, &self.lang)).changed() {
+                    if ui
+                        .checkbox(
+                            &mut self.settings.auto_start,
+                            i18n::t(i18n::Key::MenuItemAutoStart, &self.lang),
+                        )
+                        .changed()
+                    {
                         if self.settings.auto_start {
                             enable_auto_start();
                         } else {
@@ -252,7 +287,10 @@ impl eframe::App for LlamaLauncherApp {
                         }
                     }
                     // 创建桌面快捷方式
-                    if ui.button(i18n::t(i18n::Key::MenuItemCreateShortcut, &self.lang)).clicked() {
+                    if ui
+                        .button(i18n::t(i18n::Key::MenuItemCreateShortcut, &self.lang))
+                        .clicked()
+                    {
                         let _ = crate::shortcut::create_desktop_shortcut();
                     }
                 });
@@ -282,15 +320,27 @@ impl eframe::App for LlamaLauncherApp {
                 self.render_web_client_button(ui);
 
                 ui.menu_button(i18n::t(i18n::Key::MenuHelp, &self.lang), |ui| {
-                    if ui.button(i18n::t(i18n::Key::MenuItemAbout, &self.lang)).clicked() {
+                    if ui
+                        .button(i18n::t(i18n::Key::MenuItemAbout, &self.lang))
+                        .clicked()
+                    {
                         self.show_about = true;
                     }
-                    if ui.button(i18n::t(i18n::Key::MenuItemRepo, &self.lang)).clicked() {
+                    if ui
+                        .button(i18n::t(i18n::Key::MenuItemRepo, &self.lang))
+                        .clicked()
+                    {
                         open_repo_url();
                     }
                     // 文件日志开关：选中时写入磁盘，不选中时静默丢弃
                     let mut log_to_file = self.settings.log_to_file;
-                    if ui.checkbox(&mut log_to_file, i18n::t(i18n::Key::MenuItemLogToFile, &self.lang)).changed() {
+                    if ui
+                        .checkbox(
+                            &mut log_to_file,
+                            i18n::t(i18n::Key::MenuItemLogToFile, &self.lang),
+                        )
+                        .changed()
+                    {
                         crate::set_log_to_file(log_to_file);
                         self.settings.log_to_file = log_to_file;
                         // 保存设置到文件
@@ -299,7 +349,10 @@ impl eframe::App for LlamaLauncherApp {
                         }
                     }
                     // 调试模式：开启 egui Inspector / 内置检查器面板
-                    ui.checkbox(&mut self.debug_mode, i18n::t(i18n::Key::MenuItemDebugMode, &self.lang));
+                    ui.checkbox(
+                        &mut self.debug_mode,
+                        i18n::t(i18n::Key::MenuItemDebugMode, &self.lang),
+                    );
                 });
 
                 ui.separator();
@@ -323,12 +376,29 @@ impl eframe::App for LlamaLauncherApp {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 match self.tab_selected.as_str() {
-                    tab if tab == i18n::t(i18n::Key::TabServer, &self.lang) => server_panel::ui(ui, &mut self.settings, &self.settings_manager, &self.lang),
-                    tab if tab == i18n::t(i18n::Key::TabRpc, &self.lang) => rpc_panel::ui(ui, &mut self.settings, &self.settings_manager, &self.lang),
-                    tab if tab == i18n::t(i18n::Key::TabModel, &self.lang) => model_panel::ui(ui, &mut self.settings, &self.lang),
-                    tab if tab == i18n::t(i18n::Key::TabParams, &self.lang) => params_panel::ui(ui, &mut self.settings, &self.lang),
-                    tab if tab == i18n::t(i18n::Key::TabLog, &self.lang) => log_panel::ui(ui, &mut self.settings, &mut self.server_manager, &self.lang),
-                    tab if tab == i18n::t(i18n::Key::TabCommands, &self.lang) => launch_commands_panel::ui(ui, &self.server_manager, &self.rpc_manager, &self.lang),
+                    tab if tab == i18n::t(i18n::Key::TabServer, &self.lang) => {
+                        server_panel::ui(ui, &mut self.settings, &self.settings_manager, &self.lang)
+                    }
+                    tab if tab == i18n::t(i18n::Key::TabRpc, &self.lang) => {
+                        rpc_panel::ui(ui, &mut self.settings, &self.settings_manager, &self.lang)
+                    }
+                    tab if tab == i18n::t(i18n::Key::TabModel, &self.lang) => {
+                        model_panel::ui(ui, &mut self.settings, &self.lang)
+                    }
+                    tab if tab == i18n::t(i18n::Key::TabParams, &self.lang) => {
+                        params_panel::ui(ui, &mut self.settings, &self.lang)
+                    }
+                    tab if tab == i18n::t(i18n::Key::TabLog, &self.lang) => {
+                        log_panel::ui(ui, &mut self.settings, &mut self.server_manager, &self.lang)
+                    }
+                    tab if tab == i18n::t(i18n::Key::TabCommands, &self.lang) => {
+                        launch_commands_panel::ui(
+                            ui,
+                            &self.server_manager,
+                            &self.rpc_manager,
+                            &self.lang,
+                        )
+                    }
                     tab if tab == i18n::t(i18n::Key::TabPresets, &self.lang) => {
                         let should_start = presets_panel::ui(ui, &mut self.settings, &self.lang);
                         if should_start {
@@ -464,8 +534,7 @@ X-GNOME-Autostart-enabled=true
 fn disable_auto_start() {
     use std::fs;
 
-    let autostart_file = dirs::config_dir()
-        .map(|d| d.join("autostart/llama-cpp-launcher.desktop"));
+    let autostart_file = dirs::config_dir().map(|d| d.join("autostart/llama-cpp-launcher.desktop"));
 
     if let Some(path) = autostart_file {
         match fs::remove_file(&path) {

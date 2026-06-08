@@ -13,7 +13,10 @@ pub fn ui(ui: &mut egui::Ui, server: &ServerManager, rpc: &RpcManager, lang: &i1
         egui::ScrollArea::horizontal().show(ui, |ui| {
             ui.monospace(cmd);
         });
-        if ui.button(i18n::t(i18n::Key::BtnCopyToClipboard, lang)).clicked() {
+        if ui
+            .button(i18n::t(i18n::Key::BtnCopyToClipboard, lang))
+            .clicked()
+        {
             ui.ctx().copy_text(cmd.to_string());
         }
     } else {
@@ -28,7 +31,10 @@ pub fn ui(ui: &mut egui::Ui, server: &ServerManager, rpc: &RpcManager, lang: &i1
         egui::ScrollArea::horizontal().show(ui, |ui| {
             ui.monospace(cmd);
         });
-        if ui.button(i18n::t(i18n::Key::BtnCopyToClipboard, lang)).clicked() {
+        if ui
+            .button(i18n::t(i18n::Key::BtnCopyToClipboard, lang))
+            .clicked()
+        {
             ui.ctx().copy_text(cmd.to_string());
         }
     } else {

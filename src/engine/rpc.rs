@@ -90,17 +90,23 @@ impl RpcManager {
         let rpc_path = settings.rpc_server_path.clone();
 
         if rpc_path.as_os_str().is_empty() {
-            self.state = RpcState::Error(i18n::t(i18n::Key::ErrRpcPathMissing, &i18n::Language::En).to_string());
+            self.state = RpcState::Error(
+                i18n::t(i18n::Key::ErrRpcPathMissing, &i18n::Language::En).to_string(),
+            );
             return;
         }
 
         if !self.check_rpc_server(&rpc_path) {
-            self.state = RpcState::Error(i18n::t(i18n::Key::ErrRpcFileNotFound, &i18n::Language::En).to_string());
+            self.state = RpcState::Error(
+                i18n::t(i18n::Key::ErrRpcFileNotFound, &i18n::Language::En).to_string(),
+            );
             return;
         }
 
         if settings.port == settings.rpc_port {
-            self.state = RpcState::Error(i18n::t(i18n::Key::ErrPortConflict, &i18n::Language::En).to_string());
+            self.state = RpcState::Error(
+                i18n::t(i18n::Key::ErrPortConflict, &i18n::Language::En).to_string(),
+            );
             return;
         }
 
@@ -108,9 +114,12 @@ impl RpcManager {
         self._threads.clear();
 
         let mut cmd = Command::new(&rpc_path);
-        cmd.arg("--host").arg(&settings.rpc_host)
-            .arg("--port").arg(settings.rpc_port.to_string())
-            .arg("--threads").arg(settings.rpc_threads.to_string());
+        cmd.arg("--host")
+            .arg(&settings.rpc_host)
+            .arg("--port")
+            .arg(settings.rpc_port.to_string())
+            .arg("--threads")
+            .arg(settings.rpc_threads.to_string());
 
         if !settings.rpc_device.is_empty() {
             cmd.arg("--device").arg(&settings.rpc_device);
@@ -130,7 +139,10 @@ impl RpcManager {
         // 捕获启动命令（在 spawn 消费 cmd 之前）
         let rpc_path_cloned = rpc_path.clone();
         let cmd_line = {
-            let args: Vec<String> = cmd.get_args().map(|a| a.to_string_lossy().to_string()).collect();
+            let args: Vec<String> = cmd
+                .get_args()
+                .map(|a| a.to_string_lossy().to_string())
+                .collect();
             format!("{} {}", rpc_path_cloned.display(), args.join(" "))
         };
 
@@ -169,7 +181,11 @@ impl RpcManager {
                 self._threads.push(stdout_thread);
             }
             Err(e) => {
-                self.state = RpcState::Error(format!("{}: {}", i18n::t(i18n::Key::ErrStartFailed, &i18n::Language::En), e));
+                self.state = RpcState::Error(format!(
+                    "{}: {}",
+                    i18n::t(i18n::Key::ErrStartFailed, &i18n::Language::En),
+                    e
+                ));
                 self.connection = RpcConnection::Disconnected;
                 self.launch_command = None;
             }
@@ -197,7 +213,11 @@ impl RpcManager {
                 if status.success() {
                     self.state = RpcState::Idle;
                 } else {
-                    self.state = RpcState::Error(format!("{}: {:?}", i18n::t(i18n::Key::StatusRpcCrashed, &i18n::Language::En), status.code()));
+                    self.state = RpcState::Error(format!(
+                        "{}: {:?}",
+                        i18n::t(i18n::Key::StatusRpcCrashed, &i18n::Language::En),
+                        status.code()
+                    ));
                     self.launch_command = None;
                 }
                 self.connection = RpcConnection::Disconnected;

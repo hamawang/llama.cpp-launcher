@@ -63,8 +63,12 @@ pub fn read_gguf_info(file_path: &Path) -> Result<GgufInfo, String> {
         .or_else(|| kv.get(&kv_head_fallback_qwen))
         .or_else(|| kv.get(&kv_head_fallback))
         .and_then(|v| v.as_u64())
-        .ok_or_else(|| format!("无法从 GGUF 文件中读取 KV 头数 (尝试了 {} / {} / {})", kv_head_key, kv_head_fallback_qwen, kv_head_fallback))?
-        as usize;
+        .ok_or_else(|| {
+            format!(
+                "无法从 GGUF 文件中读取 KV 头数 (尝试了 {} / {} / {})",
+                kv_head_key, kv_head_fallback_qwen, kv_head_fallback
+            )
+        })? as usize;
 
     // 读取 head dim (fallback: attention.key_length)
     let head_dim_key = format!("{}.head_dim", arch);
@@ -73,8 +77,12 @@ pub fn read_gguf_info(file_path: &Path) -> Result<GgufInfo, String> {
         .get(&head_dim_key)
         .or_else(|| kv.get(&head_dim_fallback))
         .and_then(|v| v.as_u64())
-        .ok_or_else(|| format!("无法从 GGUF 文件中读取头维度 (尝试了 {} / {})", head_dim_key, head_dim_fallback))?
-        as usize;
+        .ok_or_else(|| {
+            format!(
+                "无法从 GGUF 文件中读取头维度 (尝试了 {} / {})",
+                head_dim_key, head_dim_fallback
+            )
+        })? as usize;
 
     // 读取 embedding length
     let emb_key = format!("{}.embedding_length", arch);
@@ -175,9 +183,9 @@ fn cache_type_precision_bytes(cache_type: &str) -> f64 {
         "f32" => 4.0,
         "f16" | "bf16" => 2.0,
         "q8_0" => 1.0,
-        "q5_0" | "q5_1" => 0.625, // 5 bits per element
+        "q5_0" | "q5_1" => 0.625,          // 5 bits per element
         "q4_0" | "q4_1" | "iq4_nl" => 0.5, // 4 bits per element
-        _ => 2.0, // 默认 f16
+        _ => 2.0,                          // 默认 f16
     }
 }
 
@@ -296,8 +304,12 @@ pub fn calc_max_context_facade(settings: &AppSettings) -> Result<usize, String> 
 
     // 3. 计算最大上下文（k 单位）
     let max_ctx_k = calc_max_context(&gguf, settings, free_mib);
-    log::info!("[calc_max_context_facade] cache_type_k={}, cache_type_v={}, kv_cache_ratio={}",
-        settings.cache_type_k, settings.cache_type_v, settings.kv_cache_ratio);
+    log::info!(
+        "[calc_max_context_facade] cache_type_k={}, cache_type_v={}, kv_cache_ratio={}",
+        settings.cache_type_k,
+        settings.cache_type_v,
+        settings.kv_cache_ratio
+    );
     log::info!("[calc_max_context_facade] 最大可用上下文: {}k", max_ctx_k);
     Ok(max_ctx_k as usize)
 }

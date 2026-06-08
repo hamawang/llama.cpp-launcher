@@ -288,7 +288,7 @@ impl Default for Preset {
             host: "127.0.0.1".to_string(),
             port: 8080,
             parallel_slots: 1,
-            context: 4,         // 4k = 4096
+            context: 4,       // 4k = 4096
             batch_size: 2,    // 2k = 2048
             ubatch_size: 0.5, // 0.5k = 512
             temperature: 0.8,
@@ -565,7 +565,7 @@ impl Default for AppSettings {
             mmproj_path: PathBuf::new(),
             dflash_path: PathBuf::new(),
             model_dir: PathBuf::new(),
-            context: 4,         // 4k = 4096
+            context: 4,       // 4k = 4096
             batch_size: 2,    // 2k = 2048
             ubatch_size: 0.5, // 0.5k = 512
             temperature: 0.8,

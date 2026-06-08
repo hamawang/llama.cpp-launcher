@@ -42,7 +42,12 @@ impl SpacingDebugger {
         if let Some(hovered) = hovered_rect {
             // 高亮悬浮控件
             let painter = ui.ctx().debug_painter();
-            painter.rect_stroke(hovered, 0.0, Stroke::new(2.0, Color32::YELLOW), StrokeKind::Inside);
+            painter.rect_stroke(
+                hovered,
+                0.0,
+                Stroke::new(2.0, Color32::YELLOW),
+                StrokeKind::Inside,
+            );
 
             // 计算四个方向的间距并绘制
             self.draw_spacing(&painter, hovered, Direction::Up);
@@ -59,15 +64,13 @@ impl SpacingDebugger {
             .iter()
             .filter(|r| **r != hovered) // 排除自身
             .filter(|r| match dir {
-                Direction::Up => r.max.y <= hovered.min.y,       // 在上方
-                Direction::Down => r.min.y >= hovered.max.y,     // 在下方
-                Direction::Left => r.max.x <= hovered.min.x,     // 在左侧
-                Direction::Right => r.min.x >= hovered.max.x,    // 在右侧
+                Direction::Up => r.max.y <= hovered.min.y,    // 在上方
+                Direction::Down => r.min.y >= hovered.max.y,  // 在下方
+                Direction::Left => r.max.x <= hovered.min.x,  // 在左侧
+                Direction::Right => r.min.x >= hovered.max.x, // 在右侧
             })
             .min_by_key(|r| match dir {
-                Direction::Up | Direction::Down => {
-                    (r.center().y - hovered.center().y).abs() as i32
-                }
+                Direction::Up | Direction::Down => (r.center().y - hovered.center().y).abs() as i32,
                 Direction::Left | Direction::Right => {
                     (r.center().x - hovered.center().x).abs() as i32
                 }
@@ -111,10 +114,7 @@ impl SpacingDebugger {
 
             if gap > 0.0 {
                 // 绘制间距标尺线
-                painter.line_segment(
-                    [line_start, line_end],
-                    Stroke::new(2.0, Color32::RED),
-                );
+                painter.line_segment([line_start, line_end], Stroke::new(2.0, Color32::RED));
                 // 绘制间距数值
                 painter.text(
                     label_pos + vec2(5.0, 0.0),

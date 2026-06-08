@@ -27,7 +27,8 @@ pub fn create_desktop_shortcut() -> Result<(), String> {
     // 4. 创建 ShellLink 快捷方式（自动设置工作目录为 exe 所在目录）
     let link = shortcuts_rs::ShellLink::new(&exe_path, None, None, None)
         .map_err(|e| format!("创建快捷方式对象失败：{}", e))?;
-    link.create_lnk(&shortcut_path).map_err(|e| format!("创建快捷方式失败：{}", e))?;
+    link.create_lnk(&shortcut_path)
+        .map_err(|e| format!("创建快捷方式失败：{}", e))?;
 
     Ok(())
 }

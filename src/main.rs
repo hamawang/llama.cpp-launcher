@@ -6,8 +6,8 @@ pub mod engine;
 pub mod i18n;
 pub mod kv_cache;
 pub mod shortcut;
-pub mod ui;
 mod spacing_debugger;
+pub mod ui;
 
 use chrono::Local;
 use log::{LevelFilter, Log, Metadata, Record};
@@ -30,11 +30,19 @@ struct FileLogger {
 }
 
 impl Log for FileLogger {
-    fn enabled(&self, _metadata: &Metadata) -> bool { true }
+    fn enabled(&self, _metadata: &Metadata) -> bool {
+        true
+    }
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) && LOG_TO_FILE_ENABLED.load(Ordering::Relaxed) {
             let mut w = self.writer.lock().unwrap();
-            writeln!(w, "[{}] {}", Local::now().format("%Y-%m-%d %H:%M:%S"), record.args()).ok();
+            writeln!(
+                w,
+                "[{}] {}",
+                Local::now().format("%Y-%m-%d %H:%M:%S"),
+                record.args()
+            )
+            .ok();
             w.flush().ok(); // 强制刷新，确保日志立即写入磁盘
         }
     }
@@ -46,17 +54,18 @@ impl Log for FileLogger {
 fn init_logger() {
     // 获取 exe 同级目录
     let exe_path = env::current_exe().unwrap_or_default();
-    let exe_dir = exe_path.parent().map(PathBuf::from).unwrap_or_else(|| PathBuf::from("."));
+    let exe_dir = exe_path
+        .parent()
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("."));
 
     // 读取配置，获取 log_to_file 设置
     let config_path = exe_dir.join("llama_cpp_launcher_settings.json");
     let log_enabled = if config_path.exists() {
         match std::fs::read_to_string(&config_path) {
-            Ok(content) => {
-                serde_json::from_str::<crate::config::settings::AppSettings>(&content)
-                    .map(|s| s.log_to_file)
-                    .unwrap_or(false)
-            }
+            Ok(content) => serde_json::from_str::<crate::config::settings::AppSettings>(&content)
+                .map(|s| s.log_to_file)
+                .unwrap_or(false),
             Err(_) => false,
         }
     } else {
@@ -88,7 +97,9 @@ fn init_logger() {
         // 未启用文件日志，使用空 logger（仅记录到内存）
         struct NoOpLogger;
         impl Log for NoOpLogger {
-            fn enabled(&self, _metadata: &Metadata) -> bool { false }
+            fn enabled(&self, _metadata: &Metadata) -> bool {
+                false
+            }
             fn log(&self, _record: &Record) {}
             fn flush(&self) {}
         }
@@ -135,100 +146,28 @@ fn main() -> eframe::Result {
     )
 }
 
-/// 从系统字体目录加载 CJK 中文字体 (适配 egui 0.34: Arc<FontData>)
+/// 加载内置字体（编译时嵌入，适配 egui 0.34）
 fn load_cjk_fonts(fonts: &mut FontDefinitions) {
-    let cjk_proportional: Vec<&str> = if cfg!(target_os = "windows") {
-        // Windows 字体文件路径（Emoji 字体必须放在 CJK 字体之前）
-        vec![
-            ("C:\\Windows\\Fonts\\seguiemj.ttf", "Segoe UI Emoji"), // Emoji 字体
-            ("C:\\Windows\\Fonts\\msyh.ttc", "Microsoft YaHei"), // 微软雅黑
-            ("C:\\Windows\\Fonts\\msyhbd.ttc", "Microsoft YaHei Bold"), // 微软雅黑粗体
-            ("C:\\Windows\\Fonts\\simhei.ttf", "SimHei"),        // 黑体
-            ("C:\\Windows\\Fonts\\simsun.ttc", "SimSun"),        // 宋体
-        ]
-            .into_iter()
-            .filter_map(|(path, name)| {
-                if let Ok(data) = std::fs::read(path) {
-                    fonts
-                        .font_data
-                        .insert(name.to_string(), Arc::new(FontData::from_owned(data)));
-                    Some(name)
-                } else {
-                    None
-                }
-            })
-            .collect()
-    } else if cfg!(target_os = "macos") {
-        vec![
-            ("/System/Library/Fonts/PingFang.ttc", "PingFang SC"),
-            ("/System/Library/Fonts/STHeiti Lite.ttc", "STHeiti"),
-            (
-                "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
-                "Arial Unicode",
-            ),
-        ]
-            .into_iter()
-            .filter_map(|(path, name)| {
-                if let Ok(data) = std::fs::read(path) {
-                    fonts
-                        .font_data
-                        .insert(name.to_string(), Arc::new(FontData::from_owned(data)));
-                    Some(name)
-                } else {
-                    None
-                }
-            })
-            .collect()
-    } else {
-        // Linux
-        vec![
-            (
-                "/usr/share/fonts/truetype/noto/NotoSansSC-Regular.ttf",
-                "Noto Sans SC",
-            ),
-            (
-                "/usr/share/fonts/opentype/noto/NotoSansSC-Regular.otf",
-                "Noto Sans SC",
-            ),
-            (
-                "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
-                "WenQuanYi Micro Hei",
-            ),
-        ]
-            .into_iter()
-            .filter_map(|(path, name)| {
-                if let Ok(data) = std::fs::read(path) {
-                    fonts
-                        .font_data
-                        .insert(name.to_string(), Arc::new(FontData::from_owned(data)));
-                    Some(name)
-                } else {
-                    None
-                }
-            })
-            .collect()
-    };
+    // 只嵌入 CJK 中文字体（egui 内置 NotoEmoji-Regular 已支持 emoji）
+    let cjk_bytes = include_bytes!("../assets/NotoSansSC-Regular.ttf");
 
-    // 将 CJK 字体添加到 Proportional 和 Monospace 家族，作为 fallback
-    if !cjk_proportional.is_empty() {
-        fonts
-            .families
-            .entry(FontFamily::Proportional)
-            .or_insert_with(|| {
-                let mut vec = Vec::new();
-                vec.push("Ubuntu-Light".to_owned());
-                vec
-            })
-            .extend(cjk_proportional.iter().map(|s| s.to_string()));
+    // 注册 CJK 字体数据
+    fonts.font_data.insert(
+        "Noto Sans SC".to_owned(),
+        Arc::new(FontData::from_owned(cjk_bytes.to_vec())),
+    );
 
-        fonts
-            .families
-            .entry(FontFamily::Monospace)
-            .or_insert_with(|| {
-                let mut vec = Vec::new();
-                vec.push("Hack".to_owned());
-                vec
-            })
-            .extend(cjk_proportional.iter().map(|s| s.to_string()));
+    // 在现有字体家族的 **最前面** 插入 CJK 字体，保留 egui 内置 emoji 字体
+    // egui 默认: Proportional = [Ubuntu-Light, NotoEmoji-Regular, emoji-icon-font]
+    // egui 默认: Monospace    = [Hack, Ubuntu-Light, NotoEmoji-Regular, emoji-icon-font]
+
+    if let Some(proportional) = fonts.families.get_mut(&FontFamily::Proportional) {
+        proportional.insert(0, "Noto Sans SC".to_owned());
     }
+
+    if let Some(monospace) = fonts.families.get_mut(&FontFamily::Monospace) {
+        monospace.insert(0, "Noto Sans SC".to_owned());
+    }
+
+    log::info!("CJK 字体加载完成 (Noto Sans SC)");
 }

@@ -286,7 +286,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                 .map(|idx| {
                     idx < settings.presets.len()
                         && settings.auto_start_preset_name.as_ref()
-                        == Some(&settings.presets[idx].name)
+                            == Some(&settings.presets[idx].name)
                 })
                 .unwrap_or(false);
 

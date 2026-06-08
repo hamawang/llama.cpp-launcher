@@ -74,7 +74,9 @@ impl ServerManager {
             ServerState::Starting => i18n::t(i18n::Key::StatusStarting, lang).to_string(),
             ServerState::Running => i18n::t(i18n::Key::StatusRunning, lang).to_string(),
             ServerState::Stopping => i18n::t(i18n::Key::StatusStopping, lang).to_string(),
-            ServerState::Error(msg) => format!("{}: {}", i18n::t(i18n::Key::StatusError, lang), msg),
+            ServerState::Error(msg) => {
+                format!("{}: {}", i18n::t(i18n::Key::StatusError, lang), msg)
+            }
         }
     }
 
@@ -87,7 +89,10 @@ impl ServerManager {
     // 判断 Server 是否已输出 "server is listening on"（表示真正就绪）
     pub fn is_listening(&self) -> bool {
         let inner = self.inner.lock().unwrap();
-        inner.logs.iter().any(|e| e.text.contains("server is listening on"))
+        inner
+            .logs
+            .iter()
+            .any(|e| e.text.contains("server is listening on"))
     }
 
     pub fn clear_logs(&mut self) {
@@ -104,7 +109,12 @@ impl ServerManager {
         let line = line.trim_start();
 
         // 必须以数字开头（类似时间戳）
-        if !line.chars().next().map(|c| c.is_ascii_digit()).unwrap_or(false) {
+        if !line
+            .chars()
+            .next()
+            .map(|c| c.is_ascii_digit())
+            .unwrap_or(false)
+        {
             return None;
         }
 
@@ -168,10 +178,10 @@ impl ServerManager {
                 rest.find(','),
                 rest.find('\n'),
             ]
-                .into_iter()
-                .flatten()
-                .min()
-                .unwrap_or(rest.len());
+            .into_iter()
+            .flatten()
+            .min()
+            .unwrap_or(rest.len());
             let num_str = rest[..end].trim();
 
             if let Ok(v) = num_str.parse::<f32>() {
@@ -196,12 +206,16 @@ impl ServerManager {
         let model_path = settings.model_path.clone();
 
         if server_path.as_os_str().is_empty() || model_path.as_os_str().is_empty() {
-            self.state = ServerState::Error(i18n::t(i18n::Key::ErrServerModelMissing, &i18n::Language::En).to_string());
+            self.state = ServerState::Error(
+                i18n::t(i18n::Key::ErrServerModelMissing, &i18n::Language::En).to_string(),
+            );
             return;
         }
 
         if settings.port == settings.rpc_port {
-            self.state = ServerState::Error(i18n::t(i18n::Key::ErrPortConflict, &i18n::Language::En).to_string());
+            self.state = ServerState::Error(
+                i18n::t(i18n::Key::ErrPortConflict, &i18n::Language::En).to_string(),
+            );
             return;
         }
 
@@ -211,20 +225,34 @@ impl ServerManager {
         self._threads.clear();
 
         let mut cmd = Command::new(&server_path);
-        cmd.arg("--model").arg(&model_path)
-            .arg("--host").arg(&settings.host)
-            .arg("--port").arg(settings.port.to_string())
-            .arg("--ctx-size").arg(settings.context_actual().to_string())
-            .arg("--parallel").arg(settings.parallel_slots.to_string())
-            .arg("--batch-size").arg(settings.batch_size_actual().to_string())
-            .arg("--ubatch-size").arg(settings.ubatch_size_actual().to_string())
-            .arg("--timeout").arg(settings.session_timeout.to_string())
-            .arg("--gpu-layers").arg(settings.gpu_layers_mode.to_arg())
-            .arg("--temperature").arg(settings.temperature.to_string())
-            .arg("--top-p").arg(settings.top_p.to_string())
-            .arg("--top-k").arg(settings.top_k.to_string())
-            .arg("--repeat-penalty").arg(settings.repeat_penalty.to_string())
-            .arg("--presence-penalty").arg(settings.presence_penalty.to_string());
+        cmd.arg("--model")
+            .arg(&model_path)
+            .arg("--host")
+            .arg(&settings.host)
+            .arg("--port")
+            .arg(settings.port.to_string())
+            .arg("--ctx-size")
+            .arg(settings.context_actual().to_string())
+            .arg("--parallel")
+            .arg(settings.parallel_slots.to_string())
+            .arg("--batch-size")
+            .arg(settings.batch_size_actual().to_string())
+            .arg("--ubatch-size")
+            .arg(settings.ubatch_size_actual().to_string())
+            .arg("--timeout")
+            .arg(settings.session_timeout.to_string())
+            .arg("--gpu-layers")
+            .arg(settings.gpu_layers_mode.to_arg())
+            .arg("--temperature")
+            .arg(settings.temperature.to_string())
+            .arg("--top-p")
+            .arg(settings.top_p.to_string())
+            .arg("--top-k")
+            .arg(settings.top_k.to_string())
+            .arg("--repeat-penalty")
+            .arg(settings.repeat_penalty.to_string())
+            .arg("--presence-penalty")
+            .arg(settings.presence_penalty.to_string());
 
         // Flash Attention
         if !settings.flash_attn.is_empty() {
@@ -369,13 +397,15 @@ impl ServerManager {
                                     // 优先使用基于时间戳+位置的单字母等级检测
                                     let level = match Self::detect_log_level(&l) {
                                         Some(level) => level,
-                                        None => if l.contains("WARN") || l.contains("warn") {
-                                            LogLevel::Warn
-                                        } else if l.contains("ERROR") || l.contains("error") {
-                                            LogLevel::Error
-                                        } else {
-                                            LogLevel::Info
-                                        },
+                                        None => {
+                                            if l.contains("WARN") || l.contains("warn") {
+                                                LogLevel::Warn
+                                            } else if l.contains("ERROR") || l.contains("error") {
+                                                LogLevel::Error
+                                            } else {
+                                                LogLevel::Info
+                                            }
+                                        }
                                     };
 
                                     let (text, p) = Self::parse_progress(&l);
@@ -387,10 +417,7 @@ impl ServerManager {
                                     if inner.logs.len() >= MAX_LOG_LINES {
                                         inner.logs.pop_front();
                                     }
-                                    inner.logs.push_back(LogEntry {
-                                        text,
-                                        level,
-                                    });
+                                    inner.logs.push_back(LogEntry { text, level });
                                 }
                                 Err(_) => break,
                             }
@@ -416,13 +443,15 @@ impl ServerManager {
                                     // 优先使用基于时间戳+位置的单字母等级检测
                                     let level = match Self::detect_log_level(&l) {
                                         Some(level) => level,
-                                        None => if l.contains("WARN") || l.contains("warn") {
-                                            LogLevel::Warn
-                                        } else if l.contains("ERROR") || l.contains("error") {
-                                            LogLevel::Error
-                                        } else {
-                                            LogLevel::Info
-                                        },
+                                        None => {
+                                            if l.contains("WARN") || l.contains("warn") {
+                                                LogLevel::Warn
+                                            } else if l.contains("ERROR") || l.contains("error") {
+                                                LogLevel::Error
+                                            } else {
+                                                LogLevel::Info
+                                            }
+                                        }
                                     };
                                     let (text, p) = Self::parse_progress(&l);
                                     let mut inner = inner_clone2.lock().unwrap();
@@ -433,10 +462,7 @@ impl ServerManager {
                                     if inner.logs.len() >= MAX_LOG_LINES {
                                         inner.logs.pop_front();
                                     }
-                                    inner.logs.push_back(LogEntry {
-                                        text,
-                                        level,
-                                    });
+                                    inner.logs.push_back(LogEntry { text, level });
                                 }
                                 Err(_) => break,
                             }
@@ -448,7 +474,11 @@ impl ServerManager {
                 self._threads.push(stderr_thread);
             }
             Err(e) => {
-                self.state = ServerState::Error(format!("{}: {}", i18n::t(i18n::Key::ErrStartFailed, &i18n::Language::En), e));
+                self.state = ServerState::Error(format!(
+                    "{}: {}",
+                    i18n::t(i18n::Key::ErrStartFailed, &i18n::Language::En),
+                    e
+                ));
                 self.launch_command = None;
             }
         }
@@ -472,7 +502,11 @@ impl ServerManager {
                 let exit_msg = if status.success() {
                     i18n::t(i18n::Key::StatusServerExited, &i18n::Language::En).to_string()
                 } else {
-                    format!("{}: {:?}", i18n::t(i18n::Key::StatusServerCrashed, &i18n::Language::En), status.code())
+                    format!(
+                        "{}: {:?}",
+                        i18n::t(i18n::Key::StatusServerCrashed, &i18n::Language::En),
+                        status.code()
+                    )
                 };
                 // 超过上限时丢弃最旧的一行
                 if inner.logs.len() >= MAX_LOG_LINES {

@@ -8,7 +8,8 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     ui.separator();
 
     // Server 可启动判断（上下文长度按钮和 KV 缓存计算共用）
-    let server_path_valid = settings.server_path
+    let server_path_valid = settings
+        .server_path
         .file_name()
         .and_then(|f| f.to_str())
         .is_some_and(is_server_binary_name);
@@ -26,7 +27,13 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         ui.small(i18n::t(i18n::Key::HintKUnit, lang));
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpNCtx, lang));
     });
-    if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnSetMaxContextVram, lang))).clicked() {
+    if ui
+        .add_enabled(
+            can_start,
+            egui::Button::new(i18n::t(i18n::Key::BtnSetMaxContextVram, lang)),
+        )
+        .clicked()
+    {
         match kv_cache::calc_max_context_facade(settings) {
             Ok(val) => settings.context = val,
             Err(e) => log::warn!("[params_panel] calc_max_context 失败: {}", e),
@@ -85,9 +92,19 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
 
     // KV 缓存空间计算按钮
     ui.horizontal(|ui| {
-        if ui.add_enabled(can_start, egui::Button::new(i18n::t(i18n::Key::BtnCalcKvCache, lang))).clicked() {
+        if ui
+            .add_enabled(
+                can_start,
+                egui::Button::new(i18n::t(i18n::Key::BtnCalcKvCache, lang)),
+            )
+            .clicked()
+        {
             settings.kv_cache_result = match kv_cache::calc_and_format(settings) {
-                Ok(result) => Some(format!("{} {}", i18n::t(i18n::Key::LabelKvCacheResult, lang), result)),
+                Ok(result) => Some(format!(
+                    "{} {}",
+                    i18n::t(i18n::Key::LabelKvCacheResult, lang),
+                    result
+                )),
                 Err(e) => Some(format!("⚠ {}", e)),
             };
         }
@@ -104,9 +121,11 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 温度
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelTemperature, lang));
-        ui.add(egui::Slider::new(&mut settings.temperature, 0.0..=2.0)
-            .smallest_positive(0.01)
-            .custom_formatter(|v, _| format!("{:.2}", v)));
+        ui.add(
+            egui::Slider::new(&mut settings.temperature, 0.0..=2.0)
+                .smallest_positive(0.01)
+                .custom_formatter(|v, _| format!("{:.2}", v)),
+        );
         ui.label(format!("{:.2}", settings.temperature));
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpTemperature, lang));
     });
@@ -114,9 +133,11 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // top_p
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelTopP, lang));
-        ui.add(egui::Slider::new(&mut settings.top_p, 0.0..=1.0)
-            .smallest_positive(0.01)
-            .custom_formatter(|v, _| format!("{:.2}", v)));
+        ui.add(
+            egui::Slider::new(&mut settings.top_p, 0.0..=1.0)
+                .smallest_positive(0.01)
+                .custom_formatter(|v, _| format!("{:.2}", v)),
+        );
         ui.label(format!("{:.2}", settings.top_p));
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpTopP, lang));
     });
@@ -131,9 +152,11 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 重复惩罚
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelRepeatPenalty, lang));
-        ui.add(egui::Slider::new(&mut settings.repeat_penalty, 0.0..=2.0)
-            .smallest_positive(0.01)
-            .custom_formatter(|v, _| format!("{:.2}", v)));
+        ui.add(
+            egui::Slider::new(&mut settings.repeat_penalty, 0.0..=2.0)
+                .smallest_positive(0.01)
+                .custom_formatter(|v, _| format!("{:.2}", v)),
+        );
         ui.label(format!("{:.2}", settings.repeat_penalty));
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpRepeatPenalty, lang));
     });
@@ -141,9 +164,11 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 存在惩罚
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelPresencePenalty, lang));
-        ui.add(egui::Slider::new(&mut settings.presence_penalty, -2.0..=2.0)
-            .smallest_positive(0.01)
-            .custom_formatter(|v, _| format!("{:.2}", v)));
+        ui.add(
+            egui::Slider::new(&mut settings.presence_penalty, -2.0..=2.0)
+                .smallest_positive(0.01)
+                .custom_formatter(|v, _| format!("{:.2}", v)),
+        );
         ui.label(format!("{:.2}", settings.presence_penalty));
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpPresencePenalty, lang));
     });
@@ -412,9 +437,11 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 信任度 --spec-draft-p-min（Slider）
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::SpecDraftPMinLabel, lang));
-        ui.add(egui::Slider::new(&mut settings.spec_draft_p_min, 0.0..=1.0)
-            .smallest_positive(0.01)
-            .custom_formatter(|v, _| format!("{:.2}", v)));
+        ui.add(
+            egui::Slider::new(&mut settings.spec_draft_p_min, 0.0..=1.0)
+                .smallest_positive(0.01)
+                .custom_formatter(|v, _| format!("{:.2}", v)),
+        );
         ui.label(format!("{:.2}", settings.spec_draft_p_min));
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpSpecDraftPMin, lang));
     });
@@ -422,9 +449,11 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 分裂概率 --spec-draft-p-split（Slider）
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::SpecDraftPSplitLabel, lang));
-        ui.add(egui::Slider::new(&mut settings.spec_draft_p_split, 0.0..=1.0)
-            .smallest_positive(0.01)
-            .custom_formatter(|v, _| format!("{:.2}", v)));
+        ui.add(
+            egui::Slider::new(&mut settings.spec_draft_p_split, 0.0..=1.0)
+                .smallest_positive(0.01)
+                .custom_formatter(|v, _| format!("{:.2}", v)),
+        );
         ui.label(format!("{:.2}", settings.spec_draft_p_split));
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpSpecDraftPSplit, lang));
     });

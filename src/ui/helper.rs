@@ -1,7 +1,6 @@
 /// 帮助按钮组件 - 问号气泡提示
 use egui::{Color32, RichText, Stroke, Vec2};
 
-
 /// 帮助按钮样式配置
 pub struct HelpButtonStyle {
     /// 按钮背景色
@@ -77,11 +76,11 @@ pub fn help_button_with_style(
                 .strong()
                 .size(style.text_size),
         )
-            .fill(style.fill)
-            .corner_radius(style.corner_radius)
-            .min_size(style.size)
-            .stroke(Stroke::new(1.0, style.stroke_color))
-            .sense(egui::Sense::hover()),  // 只响应悬停，不响应点击
+        .fill(style.fill)
+        .corner_radius(style.corner_radius)
+        .min_size(style.size)
+        .stroke(Stroke::new(1.0, style.stroke_color))
+        .sense(egui::Sense::hover()), // 只响应悬停，不响应点击
     );
 
     // 恢复原来的设置

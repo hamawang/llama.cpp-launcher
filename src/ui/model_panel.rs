@@ -40,21 +40,19 @@ fn auto_detect_model_dir() -> Option<std::path::PathBuf> {
 
 /// 文件名解析为彩色标签（9 色方案）
 fn parse_tags(filename: &str) -> Vec<(String, egui::Color32)> {
-    let stem = filename
-        .strip_suffix(".gguf")
-        .unwrap_or(filename);
+    let stem = filename.strip_suffix(".gguf").unwrap_or(filename);
 
     // 原有 5 色
-    let purple = egui::Color32::from_rgb(180, 120, 255);   // 参数量
-    let orange = egui::Color32::from_rgb(255, 165, 0);     // 量化类型
-    let gray = egui::Color32::from_rgb(160, 160, 160);     // 版本号
-    let green = egui::Color32::from_rgb(100, 200, 100);    // 训练方法
-    let blue = egui::Color32::from_rgb(100, 150, 255);     // 模型名称 (兜底)
-    // 新增 4 色
-    let yellow = egui::Color32::from_rgb(255, 215, 0);     // 精度
-    let pink = egui::Color32::from_rgb(255, 100, 130);     // LoRA/Adapter
-    let brown = egui::Color32::from_rgb(205, 133, 63);     // 上下文长度
-    let cyan = egui::Color32::from_rgb(0, 210, 210);       // 架构类型
+    let purple = egui::Color32::from_rgb(180, 120, 255); // 参数量
+    let orange = egui::Color32::from_rgb(255, 165, 0); // 量化类型
+    let gray = egui::Color32::from_rgb(160, 160, 160); // 版本号
+    let green = egui::Color32::from_rgb(100, 200, 100); // 训练方法
+    let blue = egui::Color32::from_rgb(100, 150, 255); // 模型名称 (兜底)
+                                                       // 新增 4 色
+    let yellow = egui::Color32::from_rgb(255, 215, 0); // 精度
+    let pink = egui::Color32::from_rgb(255, 100, 130); // LoRA/Adapter
+    let brown = egui::Color32::from_rgb(205, 133, 63); // 上下文长度
+    let cyan = egui::Color32::from_rgb(0, 210, 210); // 架构类型
 
     let mut tags = Vec::new();
     for part in stem.split('-') {
@@ -76,21 +74,23 @@ fn parse_tags(filename: &str) -> Vec<(String, egui::Color32)> {
         } else if is_training_method(&lower) {
             // 🟢 训练方法: instruct/chat/sft/rlhf/dpo/orpo/grpo
             green
-        } else if lower.contains("fp16") || lower.contains("bf16")
-            || lower.contains("f32") || lower.contains("fp8")
+        } else if lower.contains("fp16")
+            || lower.contains("bf16")
+            || lower.contains("f32")
+            || lower.contains("fp8")
         {
             // 🟡 精度: fp16, bf16, f32, fp8
             yellow
-        } else if lower.contains("lora") || lower.contains("adapter")
-            || lower.contains("delta")
-        {
+        } else if lower.contains("lora") || lower.contains("adapter") || lower.contains("delta") {
             // 🩷 LoRA/Adapter/Delta
             pink
         } else if is_context_length(&lower) {
             // 🟤 上下文长度: 128k, c4k, long
             brown
-        } else if lower.contains("mamba") || lower.contains("rwkv")
-            || lower.contains("hyena") || lower.contains("decoder")
+        } else if lower.contains("mamba")
+            || lower.contains("rwkv")
+            || lower.contains("hyena")
+            || lower.contains("decoder")
         {
             // 🩵 架构类型: mamba, rwkv, hyena, decoder
             cyan
@@ -122,8 +122,12 @@ fn is_quantization(s: &str) -> bool {
 
 /// 训练方法关键词
 fn is_training_method(s: &str) -> bool {
-    s.contains("instruct") || s.contains("chat") || s.contains("sft")
-        || s.contains("rlhf") || s.contains("dpo") || s.contains("orpo")
+    s.contains("instruct")
+        || s.contains("chat")
+        || s.contains("sft")
+        || s.contains("rlhf")
+        || s.contains("dpo")
+        || s.contains("orpo")
         || s.contains("grpo")
 }
 
@@ -203,18 +207,17 @@ fn render_file_list(
             // 标签
             let tags = parse_tags(&filename);
             for (text, color) in &tags {
-                ui.add(egui::Button::new(egui::RichText::new(text).color(egui::Color32::WHITE))
-                    .fill(*color)
-                    .corner_radius(4.0));
+                ui.add(
+                    egui::Button::new(egui::RichText::new(text).color(egui::Color32::WHITE))
+                        .fill(*color)
+                        .corner_radius(4.0),
+                );
             }
 
             ui.separator();
 
             // 单选框
-            if ui
-                .add(egui::RadioButton::new(selected, ""))
-                .clicked()
-            {
+            if ui.add(egui::RadioButton::new(selected, "")).clicked() {
                 on_select(file_path);
             }
         });
@@ -228,7 +231,10 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 文件夹选择
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelModelDir, lang));
-        if ui.button(i18n::t(i18n::Key::BtnSelectFolder, lang)).clicked() {
+        if ui
+            .button(i18n::t(i18n::Key::BtnSelectFolder, lang))
+            .clicked()
+        {
             if let Some(path) = rfd::FileDialog::new()
                 .set_title(i18n::t(i18n::Key::DialogSelectFolder, lang))
                 .pick_folder()
