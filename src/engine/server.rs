@@ -517,6 +517,8 @@ impl ServerManager {
                     level: LogLevel::Warn,
                 });
                 self.state = ServerState::Idle;
+                // 清除 child，防止每帧重复添加崩溃日志
+                inner.child = None;
             }
         }
         drop(inner);
