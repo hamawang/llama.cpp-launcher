@@ -51,13 +51,13 @@ pub fn ui(
     // 快捷按钮
     ui.horizontal(|ui| {
         if ui
-            .small_button(i18n::t(i18n::Key::BtnHostLocal, lang))
+            .add(egui::Button::new(i18n::t(i18n::Key::BtnHostLocal, lang)).min_size(egui::vec2(40.0, 20.0)))
             .clicked()
         {
             settings.rpc_host = "127.0.0.1".to_string();
         }
         if ui
-            .small_button(i18n::t(i18n::Key::BtnHostAny, lang))
+            .add(egui::Button::new(i18n::t(i18n::Key::BtnHostAny, lang)).min_size(egui::vec2(50.0, 20.0)))
             .clicked()
         {
             settings.rpc_host = "0.0.0.0".to_string();
