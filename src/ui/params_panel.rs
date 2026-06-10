@@ -355,13 +355,6 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         settings.gpu_layers_mode = GpuLayersMode::Manual(gpu_layers);
     }
 
-    // 设备列表
-    ui.horizontal(|ui| {
-        ui.label(i18n::t(i18n::Key::LabelRpcDevice, lang));
-        ui.text_edit_singleline(&mut settings.gpu_device);
-        ui.small(i18n::t(i18n::Key::HintRpcDevice, lang));
-    });
-
     // 拆分模式
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelSplitMode, lang));

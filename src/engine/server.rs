@@ -327,9 +327,6 @@ impl ServerManager {
         }
 
         // GPU 与设备分配
-        if !settings.gpu_device.is_empty() {
-            cmd.arg("--device").arg(&settings.gpu_device);
-        }
         if !settings.split_mode.is_empty() && settings.split_mode != "layer" {
             cmd.arg("--split-mode").arg(&settings.split_mode);
         }

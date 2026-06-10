@@ -37,7 +37,6 @@ struct ParamsExport {
     swa_full: bool,
 
     // GPU/设备分配
-    gpu_device: String,
     gpu_layers_mode: GpuLayersMode,
     split_mode: String,
     tensor_split: String,
@@ -77,7 +76,6 @@ impl ParamsExport {
             kv_unified: s.kv_unified,
             swa_full: s.swa_full,
 
-            gpu_device: s.gpu_device.clone(),
             gpu_layers_mode: s.gpu_layers_mode,
             split_mode: s.split_mode.clone(),
             tensor_split: s.tensor_split.clone(),
@@ -116,7 +114,6 @@ impl ParamsExport {
         s.kv_unified = self.kv_unified;
         s.swa_full = self.swa_full;
 
-        s.gpu_device = self.gpu_device;
         s.gpu_layers_mode = self.gpu_layers_mode;
         s.split_mode = self.split_mode;
         s.tensor_split = self.tensor_split;
