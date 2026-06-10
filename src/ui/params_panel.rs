@@ -358,13 +358,20 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 拆分模式
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelSplitMode, lang));
-        let modes = ["none", "layer", "row", "tensor"];
+        let modes: [(&str, i18n::Key); 3] = [
+            ("none", i18n::Key::SplitModeNone),
+            ("layer", i18n::Key::SplitModeLayer),
+            ("tensor", i18n::Key::SplitModeTensor),
+        ];
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = 8.0;
-            for mode in &modes {
-                let selected = settings.split_mode == *mode;
-                if ui.selectable_label(selected, *mode).clicked() {
-                    settings.split_mode = mode.to_string();
+            for (value, label_key) in &modes {
+                let selected = settings.split_mode == *value;
+                if ui
+                    .selectable_label(selected, i18n::t(*label_key, lang))
+                    .clicked()
+                {
+                    settings.split_mode = value.to_string();
                 }
             }
         });
