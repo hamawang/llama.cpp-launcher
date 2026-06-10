@@ -118,6 +118,12 @@ pub fn ui(
         ui.add(egui::DragValue::new(&mut settings.parallel_slots).range(1..=32));
     });
 
+    // 模型别名
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::LabelAlias, lang));
+        ui.text_edit_singleline(&mut settings.alias);
+    });
+
     // 功能开关（统一紧凑排列）
     ui.checkbox(
         &mut settings.verbose,

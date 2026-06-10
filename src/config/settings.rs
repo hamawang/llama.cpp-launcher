@@ -451,6 +451,8 @@ pub struct AppSettings {
     pub dflash_path: PathBuf,
     #[serde(default)]
     pub model_dir: PathBuf,
+    #[serde(default)]
+    pub alias: String, // --alias
 
     // 推理参数（以 k 为单位存储，1k = 1024）
     #[serde(
@@ -597,6 +599,7 @@ impl Default for AppSettings {
             mmproj_path: PathBuf::new(),
             dflash_path: PathBuf::new(),
             model_dir: PathBuf::new(),
+            alias: String::new(),
             context: 4,       // 4k = 4096
             batch_size: 2,    // 2k = 2048
             ubatch_size: 0.5, // 0.5k = 512

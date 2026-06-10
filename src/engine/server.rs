@@ -274,6 +274,11 @@ impl ServerManager {
             cmd.arg("--mmproj").arg(&settings.mmproj_path);
         }
 
+        // 模型别名
+        if !settings.alias.is_empty() {
+            cmd.arg("--alias").arg(&settings.alias);
+        }
+
         // DFlash / Speculative Decoding 参数整合
         let dflash_configured = !settings.dflash_path.as_os_str().is_empty();
 

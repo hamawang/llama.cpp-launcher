@@ -70,6 +70,7 @@ pub enum Key {
     LabelHost,
     LabelPort,
     LabelParallelSlots,
+    LabelAlias,
 
     CheckboxVerbose,
     CheckboxOfflineMode, // “离线模式”
@@ -345,6 +346,8 @@ impl Key {
             (Key::LabelPort, &Language::En) => "Port:",
             (Key::LabelParallelSlots, &Language::Zh) => "并发数量 (--parallel):",
             (Key::LabelParallelSlots, &Language::En) => "Parallel slots (--parallel):",
+            (Key::LabelAlias, &Language::Zh) => "模型别名 (--alias):",
+            (Key::LabelAlias, &Language::En) => "Model alias (--alias):",
 
             (Key::CheckboxVerbose, &Language::Zh) => "详细输出 (--verbose)",
             (Key::CheckboxVerbose, &Language::En) => "Verbose output (--verbose)",
