@@ -51,6 +51,9 @@ impl LlamaLauncherApp {
         // 全局 UI 放大 1.5 倍
         cc.egui_ctx.set_zoom_factor(1.5);
 
+        // 设置亮色主题（跨平台统一）
+        cc.egui_ctx.set_visuals(egui::Visuals::light());
+
         // 同步日志开关状态到全局标志
         crate::set_log_to_file(settings.log_to_file);
 
