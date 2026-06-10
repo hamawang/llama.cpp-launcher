@@ -231,6 +231,15 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
     // 文件夹选择
     ui.horizontal(|ui| {
         ui.label(i18n::t(i18n::Key::LabelModelDir, lang));
+        let mut dir_str = settings.model_dir.to_string_lossy().to_string();
+        let response = ui.text_edit_singleline(&mut dir_str);
+        if response.changed() {
+            settings.model_dir = std::path::PathBuf::from(&dir_str);
+        }
+    });
+
+    // 按钮行
+    ui.horizontal(|ui| {
         if ui
             .button(i18n::t(i18n::Key::BtnSelectFolder, lang))
             .clicked()
@@ -250,12 +259,6 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
             }
         }
     });
-
-    let mut dir_str = settings.model_dir.to_string_lossy().to_string();
-    let response = ui.text_edit_singleline(&mut dir_str);
-    if response.changed() {
-        settings.model_dir = std::path::PathBuf::from(&dir_str);
-    }
 
     ui.add_space(12.0);
 
