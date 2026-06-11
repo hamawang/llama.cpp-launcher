@@ -586,8 +586,8 @@ impl Key {
             (Key::ErrPortConflict, &Language::En) => "Server port and RPC port cannot be the same",
 
             // 关于
-            (Key::AboutTitle, &Language::Zh) => "ℹ️ 关于",
-            (Key::AboutTitle, &Language::En) => "ℹ️ About",
+            (Key::AboutTitle, &Language::Zh) => "关于",
+            (Key::AboutTitle, &Language::En) => "About",
             (Key::AboutVersion, &Language::Zh) => ABOUT_VERSION_TEXT,
             (Key::AboutVersion, &Language::En) => ABOUT_VERSION_TEXT,
             (Key::AboutDescription, &Language::Zh) => "llama-server 图形启动器",

@@ -121,7 +121,7 @@ fn main() -> eframe::Result {
     let start_minimized = env::args().any(|arg| arg == "--minimized");
 
     // 使用统一的主窗口尺寸
-    let default_size = egui::vec2(1250.0, 800.0);
+    let default_size = egui::vec2(1300.0, 800.0);
 
     let viewport = egui::ViewportBuilder::default()
         .with_inner_size(default_size)
