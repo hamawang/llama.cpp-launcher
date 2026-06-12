@@ -151,6 +151,8 @@ pub enum Key {
     CheckboxKvUnified,
     CheckboxSwaFull,
     LabelKvCacheRatio,
+    LabelCtxCheckpoints,
+    LabelCheckpointMinStep,
     SectionGpuDevice,
     LabelGpuDevice,
     LabelSplitMode,
@@ -234,6 +236,8 @@ pub enum Key {
     HelpKvMmap,
     HelpKvUnified,
     HelpSwaFull,
+    HelpCtxCheckpoints,
+    HelpCheckpointMinStep,
 }
 
 impl Key {
@@ -503,6 +507,10 @@ impl Key {
             (Key::CheckboxSwaFull, &Language::En) => "Full Sliding Window (--swa-full)",
             (Key::LabelKvCacheRatio, &Language::Zh) => "KV 缓存比例:",
             (Key::LabelKvCacheRatio, &Language::En) => "KV Cache Ratio:",
+            (Key::LabelCtxCheckpoints, &Language::Zh) => "上下文检查点 (--ctx-checkpoints):",
+            (Key::LabelCtxCheckpoints, &Language::En) => "Context Checkpoints (--ctx-checkpoints):",
+            (Key::LabelCheckpointMinStep, &Language::Zh) => "最小检查点步长 (--checkpoint-min-step):",
+            (Key::LabelCheckpointMinStep, &Language::En) => "Min Checkpoint Step (--checkpoint-min-step):",
             (Key::SectionGpuDevice, &Language::Zh) => "GPU 与设备分配",
             (Key::SectionGpuDevice, &Language::En) => "GPU & Device Allocation",
             (Key::LabelGpuDevice, &Language::Zh) => "GPU 层数 (--gpu-layers):",
@@ -657,6 +665,10 @@ impl Key {
             (Key::HelpKvUnified, &Language::En) => "Unified KV cache, share K/V cache space",
             (Key::HelpSwaFull, &Language::Zh) => "完整滑动窗口注意力，保留全部上下文",
             (Key::HelpSwaFull, &Language::En) => "Full sliding window attention, retain all context",
+            (Key::HelpCtxCheckpoints, &Language::Zh) => "上下文检查点数量，用于 KV 缓存管理",
+            (Key::HelpCtxCheckpoints, &Language::En) => "Number of context checkpoints for KV cache management",
+            (Key::HelpCheckpointMinStep, &Language::Zh) => "最小检查点步长，控制检查点间隔",
+            (Key::HelpCheckpointMinStep, &Language::En) => "Minimum checkpoint step, controls checkpoint interval",
         }
     }
 }

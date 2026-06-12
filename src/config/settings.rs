@@ -200,6 +200,16 @@ fn default_kv_cache_ratio() -> f32 {
     0.95
 }
 
+// 上下文检查点默认值
+fn default_ctx_checkpoints() -> usize {
+    32
+}
+
+// 最小检查点步长默认值
+fn default_checkpoint_min_step() -> usize {
+    512
+}
+
 // Duplicate definition removed - keeping only one instance above
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Preset {
@@ -266,6 +276,10 @@ pub struct Preset {
     pub swa_full: bool, // --swa-full
     #[serde(default = "default_kv_cache_ratio")]
     pub kv_cache_ratio: f32, // KV 缓存比例 (不拼接启动命令)
+    #[serde(default = "default_ctx_checkpoints")]
+    pub ctx_checkpoints: usize, // --ctx-checkpoints
+    #[serde(default = "default_checkpoint_min_step")]
+    pub checkpoint_min_step: usize, // --checkpoint-min-step
     // GPU 与设备分配
     pub gpu_layers_mode: GpuLayersMode,
     pub split_mode: String,
@@ -325,6 +339,8 @@ impl Default for Preset {
             kv_unified: false,
             swa_full: false,
             kv_cache_ratio: default_kv_cache_ratio(),
+            ctx_checkpoints: default_ctx_checkpoints(),
+            checkpoint_min_step: default_checkpoint_min_step(),
             gpu_layers_mode: GpuLayersMode::Auto,
             split_mode: "none".to_string(),
             tensor_split: "".to_string(),
@@ -375,6 +391,8 @@ impl Preset {
             kv_unified: settings.kv_unified,
             swa_full: settings.swa_full,
             kv_cache_ratio: settings.kv_cache_ratio,
+            ctx_checkpoints: settings.ctx_checkpoints,
+            checkpoint_min_step: settings.checkpoint_min_step,
             gpu_layers_mode: settings.gpu_layers_mode,
             split_mode: settings.split_mode.clone(),
             tensor_split: settings.tensor_split.clone(),
@@ -422,6 +440,8 @@ impl Preset {
         settings.kv_unified = self.kv_unified;
         settings.swa_full = self.swa_full;
         settings.kv_cache_ratio = self.kv_cache_ratio;
+        settings.ctx_checkpoints = self.ctx_checkpoints;
+        settings.checkpoint_min_step = self.checkpoint_min_step;
         settings.gpu_layers_mode = self.gpu_layers_mode;
         settings.split_mode = self.split_mode;
         settings.tensor_split = self.tensor_split;
@@ -512,6 +532,10 @@ pub struct AppSettings {
     pub swa_full: bool, // --swa-full
     #[serde(default = "default_kv_cache_ratio")]
     pub kv_cache_ratio: f32, // KV 缓存比例 (不拼接启动命令)
+    #[serde(default = "default_ctx_checkpoints")]
+    pub ctx_checkpoints: usize, // --ctx-checkpoints
+    #[serde(default = "default_checkpoint_min_step")]
+    pub checkpoint_min_step: usize, // --checkpoint-min-step
 
     // GPU 与设备分配
     pub gpu_layers_mode: GpuLayersMode,
@@ -627,6 +651,8 @@ impl Default for AppSettings {
             kv_unified: false,
             swa_full: false,
             kv_cache_ratio: default_kv_cache_ratio(),
+            ctx_checkpoints: default_ctx_checkpoints(),
+            checkpoint_min_step: default_checkpoint_min_step(),
             gpu_layers_mode: GpuLayersMode::Auto,
             split_mode: "none".to_string(),
             tensor_split: "".to_string(),
