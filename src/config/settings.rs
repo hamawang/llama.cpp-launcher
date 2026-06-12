@@ -88,6 +88,10 @@ fn default_web_ui_enabled() -> bool {
     true
 }
 
+fn default_log_timestamps() -> bool {
+    true
+}
+
 fn default_session_timeout() -> usize {
     600 // 会话超时（秒）默认值
 }
@@ -300,6 +304,10 @@ pub struct Preset {
     #[serde(default = "default_web_ui_enabled")]
     pub web_ui_enabled: bool,
 
+    // 原生日志时间戳
+    #[serde(default = "default_log_timestamps")]
+    pub log_timestamps: bool,
+
     // 会话超时（秒）
     #[serde(default = "default_session_timeout")]
     pub session_timeout: usize,
@@ -351,6 +359,7 @@ impl Default for Preset {
             rpc_mode: false,
             rpc_endpoints: "127.0.0.1:50052".to_string(),
             web_ui_enabled: default_web_ui_enabled(),
+            log_timestamps: default_log_timestamps(),
             session_timeout: default_session_timeout(),
         }
     }
@@ -403,6 +412,7 @@ impl Preset {
             rpc_mode: settings.rpc_mode,
             rpc_endpoints: settings.rpc_endpoints.clone(),
             web_ui_enabled: settings.web_ui_enabled,
+            log_timestamps: settings.log_timestamps,
             session_timeout: settings.session_timeout,
         }
     }
@@ -452,6 +462,7 @@ impl Preset {
         settings.rpc_mode = self.rpc_mode;
         settings.rpc_endpoints = self.rpc_endpoints;
         settings.web_ui_enabled = self.web_ui_enabled;
+        settings.log_timestamps = self.log_timestamps;
         settings.session_timeout = self.session_timeout;
     }
 }
@@ -569,6 +580,10 @@ pub struct AppSettings {
     #[serde(default = "default_web_ui_enabled")]
     pub web_ui_enabled: bool,
 
+    // 原生日志时间戳（默认启用）
+    #[serde(default = "default_log_timestamps")]
+    pub log_timestamps: bool,
+
     // 会话超时（秒，追加 --timeout）
     #[serde(default = "default_session_timeout")]
     pub session_timeout: usize,
@@ -669,6 +684,7 @@ impl Default for AppSettings {
             rpc_mode: false,
             rpc_endpoints: "127.0.0.1:50052".to_string(),
             web_ui_enabled: default_web_ui_enabled(),
+            log_timestamps: default_log_timestamps(),
             session_timeout: default_session_timeout(),
             presets: Vec::new(),
             new_preset_name: String::new(),

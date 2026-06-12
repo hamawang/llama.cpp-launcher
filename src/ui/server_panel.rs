@@ -140,6 +140,12 @@ pub fn ui(
         i18n::t(i18n::Key::CheckboxVerbose, lang),
     );
 
+    // 原生日志时间戳
+    ui.checkbox(
+        &mut settings.log_timestamps,
+        i18n::t(i18n::Key::CheckboxLogTimestamps, lang),
+    );
+
     // 离线模式勾选框
     ui.checkbox(
         &mut settings.offline_mode,

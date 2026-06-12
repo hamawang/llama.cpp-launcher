@@ -73,9 +73,10 @@ pub enum Key {
     LabelAlias,
 
     CheckboxVerbose,
-    CheckboxOfflineMode, // “离线模式”
+    CheckboxOfflineMode, // "离线模式"
     CheckboxRpcMode,
     CheckboxEnableWebClient,
+    CheckboxLogTimestamps,
     LabelRpcEndpoints,
     HintRpcEndpoints,
     DialogSelectServer,
@@ -364,6 +365,8 @@ impl Key {
             (Key::CheckboxRpcMode, &Language::En) => "RPC Mode (--rpc)",
             (Key::CheckboxEnableWebClient, &Language::Zh) => "网页客户端 (--ui)",
             (Key::CheckboxEnableWebClient, &Language::En) => "Web Client (--ui)",
+            (Key::CheckboxLogTimestamps, &Language::Zh) => "原生日志时间 (--log-timestamps)",
+            (Key::CheckboxLogTimestamps, &Language::En) => "Log Timestamps (--log-timestamps)",
             (Key::LabelRpcEndpoints, &Language::Zh) => "RPC 节点地址:",
             (Key::LabelRpcEndpoints, &Language::En) => "RPC Endpoints:",
             (Key::HintRpcEndpoints, &Language::Zh) => "逗号分隔，如: 主机IP:端口,从机IP:端口",
