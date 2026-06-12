@@ -7,6 +7,7 @@ pub mod i18n;
 pub mod kv_cache;
 pub mod shortcut;
 mod spacing_debugger;
+pub mod theme;
 pub mod ui;
 
 use chrono::Local;
