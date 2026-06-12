@@ -188,21 +188,17 @@ impl LlamaLauncherApp {
 }
 
 impl eframe::App for LlamaLauncherApp {
-    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        // 先获取上下文并执行不依赖面板借用的操作，再释放引用避免后面 show_inside(ui) 冲突
-        {
-            let ctx = ui.ctx();
-            ctx.request_repaint_after(std::time::Duration::from_millis(500));
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.request_repaint_after(std::time::Duration::from_millis(500));
 
-            // 根据调试模式开关，控制 egui Inspector（悬浮时显示内置检查器面板）
-            // 开启时同时启用 hover_shows_next，方便查看控件之间的间距/位置关系
-            #[cfg(debug_assertions)]
-            {
-                ctx.set_debug_on_hover(self.debug_mode);
-                ctx.global_style_mut(|s| {
-                    s.debug.hover_shows_next = self.debug_mode;
-                });
-            }
+        // 根据调试模式开关，控制 egui Inspector（悬浮时显示内置检查器面板）
+        // 开启时同时启用 hover_shows_next，方便查看控件之间的间距/位置关系
+        #[cfg(debug_assertions)]
+        {
+            ctx.set_debug_on_hover(self.debug_mode);
+            ctx.style_mut(|s| {
+                s.debug.hover_shows_next = self.debug_mode;
+            });
         }
 
         // 调试模式：每帧开始时清空间距记录
@@ -219,8 +215,7 @@ impl eframe::App for LlamaLauncherApp {
         // 开机自启时最小化到任务栏（仅第一帧执行）
         if self.start_minimized {
             self.start_minimized = false;
-            ui.ctx()
-                .send_viewport_cmd(egui::ViewportCommand::Visible(false));
+            ctx.send_viewport_cmd(egui::ViewportCommand::Visible(false));
         }
 
         self.server_manager.poll_logs();
@@ -232,7 +227,7 @@ impl eframe::App for LlamaLauncherApp {
                 .resizable(false)
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .fixed_size([150.0, 0.0])
-                .show(ui, |ui| {
+                .show(ctx, |ui| {
                     ui.label(i18n::t(i18n::Key::AboutVersion, &self.lang));
                     ui.label(i18n::t(i18n::Key::AboutDescription, &self.lang));
                     ui.separator();
@@ -254,7 +249,7 @@ impl eframe::App for LlamaLauncherApp {
                 });
         }
 
-        egui::Panel::top("top_panel").show_inside(ui, |ui| {
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             egui::MenuBar::new().ui(ui, |ui| {
                 ui.menu_button(i18n::t(i18n::Key::MenuFile, &self.lang), |ui| {
                     if ui
@@ -376,7 +371,7 @@ impl eframe::App for LlamaLauncherApp {
             });
         });
 
-        egui::CentralPanel::default().show_inside(ui, |ui| {
+        egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 match self.tab_selected.as_str() {
                     tab if tab == i18n::t(i18n::Key::TabServer, &self.lang) => {
@@ -416,7 +411,7 @@ impl eframe::App for LlamaLauncherApp {
 
         // 调试模式：绘制控件间距可视化
         if self.debug_mode {
-            self.spacing_debugger.visualize(ui);
+            self.spacing_debugger.visualize(ctx);
         }
     }
 }

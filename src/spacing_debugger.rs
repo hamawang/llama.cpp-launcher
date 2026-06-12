@@ -1,4 +1,4 @@
-use egui::{pos2, vec2, Align2, Color32, Painter, Rect, Response, Stroke, StrokeKind, Ui};
+use egui::{pos2, vec2, Align2, Color32, Context, Painter, Rect, Response, Stroke, StrokeKind};
 
 /// 调试结构体：记录控件矩形，检测悬浮，计算并绘制间距
 pub struct SpacingDebugger {
@@ -25,11 +25,8 @@ impl SpacingDebugger {
     }
 
     /// 在所有控件绘制完成后调用，执行悬浮检测和可视化
-    pub fn visualize(&self, ui: &Ui) {
-        let pointer_pos = ui
-            .ctx()
-            .input(|i| i.pointer.hover_pos())
-            .unwrap_or_default();
+    pub fn visualize(&self, ctx: &Context) {
+        let pointer_pos = ctx.input(|i| i.pointer.hover_pos()).unwrap_or_default();
 
         // 找到鼠标悬浮的控件（取最后一个匹配的，即最上层）
         let hovered_rect = self
@@ -41,7 +38,7 @@ impl SpacingDebugger {
 
         if let Some(hovered) = hovered_rect {
             // 高亮悬浮控件
-            let painter = ui.ctx().debug_painter();
+            let painter = ctx.debug_painter();
             painter.rect_stroke(
                 hovered,
                 0.0,
