@@ -1,4 +1,5 @@
 use crate::config::settings::{AppSettings, SettingsManager};
+use crate::engine::rpc::RpcManager;
 use crate::i18n;
 
 pub fn ui(
@@ -6,6 +7,7 @@ pub fn ui(
     settings: &mut AppSettings,
     settings_manager: &SettingsManager,
     lang: &i18n::Language,
+    #[cfg_attr(not(target_os = "linux"), allow(unused_variables))] rpc_manager: &RpcManager,
 ) {
     ui.heading(i18n::t(i18n::Key::PanelRpcTitle, lang));
     ui.separator();
@@ -36,6 +38,23 @@ pub fn ui(
                 settings.rpc_server_path = path;
             } else {
                 settings.rpc_server_path = std::path::PathBuf::from("");
+            }
+        }
+        // 自动授权按钮（仅 Linux 显示）
+        #[cfg(target_os = "linux")]
+        {
+            let rpc_exists = rpc_manager.check_rpc_server(&settings.rpc_server_path);
+            let btn = egui::Button::new(i18n::t(i18n::Key::BtnAutoAuthorize, lang))
+                .min_size(egui::vec2(70.0, 20.0));
+            let btn = if rpc_exists {
+                btn
+            } else {
+                btn.sense(egui::Sense::hover())
+            };
+            if ui.add_enabled(rpc_exists, btn).clicked() {
+                if let Err(e) = rpc_manager.authorize_rpc_server(&settings.rpc_server_path) {
+                    log::error!("自动授权失败: {}", e);
+                }
             }
         }
     });

@@ -81,6 +81,27 @@ impl RpcManager {
         std::path::Path::new(path).exists()
     }
 
+    /// 对 rpc-server 文件授权读写权限（Linux 专用）
+    #[cfg(target_os = "linux")]
+    pub fn authorize_rpc_server(&self, path: &std::path::Path) -> Result<(), String> {
+        use std::fs;
+        use std::os::unix::fs::PermissionsExt;
+
+        if path.as_os_str().is_empty() {
+            return Err("rpc-server 路径为空".to_string());
+        }
+
+        if !path.exists() {
+            return Err("rpc-server 文件不存在".to_string());
+        }
+
+        // 设置读写权限 (rw-r--r-- = 0o644)
+        let perms = fs::Permissions::from_mode(0o644);
+        fs::set_permissions(path, perms).map_err(|e| format!("设置 rpc-server 权限失败：{}", e))?;
+
+        Ok(())
+    }
+
     /// 启动 rpc-server
     pub fn start(&mut self, settings: &AppSettings) {
         if self.is_running() {

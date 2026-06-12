@@ -407,12 +407,20 @@ impl eframe::App for LlamaLauncherApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 match self.tab_selected.as_str() {
-                    tab if tab == i18n::t(i18n::Key::TabServer, &self.lang) => {
-                        server_panel::ui(ui, &mut self.settings, &self.settings_manager, &self.lang)
-                    }
-                    tab if tab == i18n::t(i18n::Key::TabRpc, &self.lang) => {
-                        rpc_panel::ui(ui, &mut self.settings, &self.settings_manager, &self.lang)
-                    }
+                    tab if tab == i18n::t(i18n::Key::TabServer, &self.lang) => server_panel::ui(
+                        ui,
+                        &mut self.settings,
+                        &self.settings_manager,
+                        &self.lang,
+                        &self.server_manager,
+                    ),
+                    tab if tab == i18n::t(i18n::Key::TabRpc, &self.lang) => rpc_panel::ui(
+                        ui,
+                        &mut self.settings,
+                        &self.settings_manager,
+                        &self.lang,
+                        &self.rpc_manager,
+                    ),
                     tab if tab == i18n::t(i18n::Key::TabModel, &self.lang) => {
                         model_panel::ui(ui, &mut self.settings, &self.lang)
                     }

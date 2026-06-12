@@ -197,6 +197,36 @@ impl ServerManager {
         self.launch_command.clone()
     }
 
+    /// 检查 llama-server 文件是否存在
+    pub fn check_server(&self, path: &std::path::Path) -> bool {
+        if path.as_os_str().is_empty() {
+            return false;
+        }
+        std::path::Path::new(path).exists()
+    }
+
+    /// 对 llama-server 文件授权读写权限（Linux 专用）
+    #[cfg(target_os = "linux")]
+    pub fn authorize_server(&self, path: &std::path::Path) -> Result<(), String> {
+        use std::fs;
+        use std::os::unix::fs::PermissionsExt;
+
+        if path.as_os_str().is_empty() {
+            return Err("llama-server 路径为空".to_string());
+        }
+
+        if !path.exists() {
+            return Err("llama-server 文件不存在".to_string());
+        }
+
+        // 设置读写权限 (rw-r--r-- = 0o644)
+        let perms = fs::Permissions::from_mode(0o644);
+        fs::set_permissions(path, perms)
+            .map_err(|e| format!("设置 llama-server 权限失败：{}", e))?;
+
+        Ok(())
+    }
+
     pub fn start(&mut self, settings: &AppSettings) {
         if self.is_running() {
             return;

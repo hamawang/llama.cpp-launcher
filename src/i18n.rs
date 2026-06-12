@@ -91,6 +91,7 @@ pub enum Key {
     HintRpcDevice,
     CheckboxRpcCache,
     DialogSelectRpc,
+    BtnAutoAuthorize,
 
     // 模型面板
     PanelModelTitle,
@@ -393,6 +394,8 @@ impl Key {
             (Key::CheckboxRpcCache, &Language::En) => "Enable local file cache (--cache)",
             (Key::DialogSelectRpc, &Language::Zh) => "选择 rpc-server 可执行文件",
             (Key::DialogSelectRpc, &Language::En) => "Select rpc-server executable",
+            (Key::BtnAutoAuthorize, &Language::Zh) => "自动授权",
+            (Key::BtnAutoAuthorize, &Language::En) => "Auto Authorize",
 
             // 模型面板
             (Key::PanelModelTitle, &Language::Zh) => "模型管理",
