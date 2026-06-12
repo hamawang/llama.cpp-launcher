@@ -140,6 +140,7 @@ fn main() -> eframe::Result {
             // 配置 CJK 中文字体，解决中文乱码问题
             let mut fonts = FontDefinitions::default();
             load_cjk_fonts(&mut fonts);
+            load_icon_fonts(&mut fonts);
             cc.egui_ctx.set_fonts(fonts);
 
             Ok(Box::new(LlamaLauncherApp::new(&cc, start_minimized)))
@@ -171,4 +172,28 @@ fn load_cjk_fonts(fonts: &mut FontDefinitions) {
     }
 
     log::info!("CJK 字体加载完成 (Noto Sans SC)");
+}
+
+/// 加载 iconflow Fluent UI 图标字体
+fn load_icon_fonts(fonts: &mut FontDefinitions) {
+    let fallback_fonts: Vec<String> = fonts.font_data.keys().cloned().collect();
+
+    for font in iconflow::fonts() {
+        fonts.font_data.insert(
+            font.family.to_string(),
+            Arc::new(FontData::from_static(font.bytes)),
+        );
+        let family = fonts
+            .families
+            .entry(FontFamily::Name(font.family.into()))
+            .or_default();
+        family.insert(0, font.family.to_string());
+        for fallback in &fallback_fonts {
+            if fallback != font.family {
+                family.push(fallback.clone());
+            }
+        }
+    }
+
+    log::info!("iconflow 字体加载完成");
 }
