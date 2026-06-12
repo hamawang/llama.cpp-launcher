@@ -53,28 +53,15 @@ pub fn create_desktop_shortcut() -> Result<(), String> {
     let name = get_shortcut_name();
     let shortcut_path: PathBuf = desktop_dir.join(format!("{}.desktop", name));
 
-    // 4. 复制图标到 exe 同级目录（如果不存在）
+    // 4. 释放图标到 exe 同级目录（如果不存在）
+    // 图标在编译时嵌入二进制文件，运行时释放
     let icon_filename = "llama-cpp-launcher.png";
     let icon_path = exe_dir.join(icon_filename);
 
     if !icon_path.exists() {
-        // 尝试从多个可能的位置复制图标
-        let possible_sources = [
-            std::env::current_dir()
-                .unwrap_or_default()
-                .join(icon_filename),
-            std::env::current_dir()
-                .unwrap_or_default()
-                .join("assets")
-                .join(icon_filename),
-        ];
-
-        for src in &possible_sources {
-            if src.exists() {
-                fs::copy(src, &icon_path).map_err(|e| format!("复制图标文件失败：{}", e))?;
-                break;
-            }
-        }
+        // 从编译时嵌入的字节数据释放图标
+        const ICON_BYTES: &[u8] = include_bytes!("../llama-cpp-launcher.png");
+        fs::write(&icon_path, ICON_BYTES).map_err(|e| format!("释放图标文件失败：{}", e))?;
     }
 
     // 5. 创建 .desktop 文件内容（使用绝对路径引用图标）
