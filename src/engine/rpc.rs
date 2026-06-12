@@ -95,8 +95,8 @@ impl RpcManager {
             return Err("rpc-server 文件不存在".to_string());
         }
 
-        // 设置读写权限 (rw-r--r-- = 0o644)
-        let perms = fs::Permissions::from_mode(0o644);
+        // 设置读写执行权限 (rwxr-xr-x = 0o755)
+        let perms = fs::Permissions::from_mode(0o755);
         fs::set_permissions(path, perms).map_err(|e| format!("设置 rpc-server 权限失败：{}", e))?;
 
         Ok(())

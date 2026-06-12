@@ -69,46 +69,44 @@ pub fn ui(
             .is_some_and(is_server_binary_name)
             && settings.server_path.exists();
 
-        if server_path_valid {
-            if ui
-                .add_enabled(
-                    true,
-                    egui::Button::new(i18n::t(i18n::Key::BtnCheckVersion, lang)),
-                )
-                .clicked()
-            {
-                // 使用 CREATE_NO_WINDOW 防止弹出命令行窗口（Windows）
-                let mut cmd = std::process::Command::new(&settings.server_path);
-                cmd.arg("--version")
-                    .stdout(std::process::Stdio::piped())
-                    .stderr(std::process::Stdio::piped());
-                #[cfg(target_os = "windows")]
-                cmd.creation_flags(0x0800_0000u32); // CREATE_NO_WINDOW
-                match cmd.output() {
-                    Ok(output) => {
-                        let stdout = String::from_utf8_lossy(&output.stdout);
-                        let stderr = String::from_utf8_lossy(&output.stderr);
-                        let version = stdout
-                            .lines()
-                            .chain(stderr.lines())
-                            .find(|line| line.contains("version:"))
-                            .and_then(|line| {
-                                line.split_once("version:")
-                                    .map(|(_, v)| v.trim().to_string())
-                            })
-                            .unwrap_or_else(|| "未知版本".to_string());
-                        settings.llama_version = version;
-                    }
-                    Err(e) => {
-                        settings.llama_version = format!("获取失败: {}", e);
-                    }
+        if ui
+            .add_enabled(
+                server_path_valid,
+                egui::Button::new(i18n::t(i18n::Key::BtnCheckVersion, lang)),
+            )
+            .clicked()
+        {
+            // 使用 CREATE_NO_WINDOW 防止弹出命令行窗口（Windows）
+            let mut cmd = std::process::Command::new(&settings.server_path);
+            cmd.arg("--version")
+                .stdout(std::process::Stdio::piped())
+                .stderr(std::process::Stdio::piped());
+            #[cfg(target_os = "windows")]
+            cmd.creation_flags(0x0800_0000u32); // CREATE_NO_WINDOW
+            match cmd.output() {
+                Ok(output) => {
+                    let stdout = String::from_utf8_lossy(&output.stdout);
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+                    let version = stdout
+                        .lines()
+                        .chain(stderr.lines())
+                        .find(|line| line.contains("version:"))
+                        .and_then(|line| {
+                            line.split_once("version:")
+                                .map(|(_, v)| v.trim().to_string())
+                        })
+                        .unwrap_or_else(|| "未知版本".to_string());
+                    settings.llama_version = version;
+                }
+                Err(e) => {
+                    settings.llama_version = format!("获取失败: {}", e);
                 }
             }
+        }
 
-            // 小字显示版本信息
-            if !settings.llama_version.is_empty() {
-                ui.small(egui::RichText::new(&settings.llama_version).weak());
-            }
+        // 小字显示版本信息
+        if !settings.llama_version.is_empty() {
+            ui.small(egui::RichText::new(&settings.llama_version).weak());
         }
     });
 
