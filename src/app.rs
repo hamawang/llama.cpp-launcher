@@ -9,6 +9,20 @@ use crate::ui::{
     launch_commands_panel, log_panel, model_panel, params_panel, presets_panel, rpc_panel,
     server_panel,
 };
+use egui::{FontFamily, FontId, RichText};
+use iconflow::{try_icon, Pack, Size, Style};
+
+/// 生成带 Fluent 图标的 RichText
+fn icon_text(icon_name: &str, text: &str) -> RichText {
+    match try_icon(Pack::Fluentui, icon_name, Style::Filled, Size::Regular) {
+        Ok(icon) => {
+            let glyph = char::from_u32(icon.codepoint).unwrap_or('?');
+            let font_id = FontId::new(16.0, FontFamily::Name(icon.family.into()));
+            RichText::new(format!("{} {}", glyph, text)).font(font_id)
+        }
+        Err(_) => RichText::new(text),
+    }
+}
 
 pub struct LlamaLauncherApp {
     settings: AppSettings,
@@ -254,13 +268,19 @@ impl eframe::App for LlamaLauncherApp {
             egui::MenuBar::new().ui(ui, |ui| {
                 ui.menu_button(i18n::t(i18n::Key::MenuFile, &self.lang), |ui| {
                     if ui
-                        .button(i18n::t(i18n::Key::MenuItemSaveConfig, &self.lang))
+                        .button(icon_text(
+                            "save",
+                            &i18n::t(i18n::Key::MenuItemSaveConfig, &self.lang),
+                        ))
                         .clicked()
                     {
                         self.save();
                     }
                     if ui
-                        .button(i18n::t(i18n::Key::MenuItemLoadConfig, &self.lang))
+                        .button(icon_text(
+                            "folder-open",
+                            &i18n::t(i18n::Key::MenuItemLoadConfig, &self.lang),
+                        ))
                         .clicked()
                     {
                         if let Ok(s) = self.settings_manager.load() {
@@ -271,7 +291,7 @@ impl eframe::App for LlamaLauncherApp {
                     if ui
                         .checkbox(
                             &mut self.settings.auto_start,
-                            i18n::t(i18n::Key::MenuItemAutoStart, &self.lang),
+                            icon_text("power", &i18n::t(i18n::Key::MenuItemAutoStart, &self.lang)),
                         )
                         .changed()
                     {
@@ -287,7 +307,10 @@ impl eframe::App for LlamaLauncherApp {
                     }
                     // 创建桌面快捷方式
                     if ui
-                        .button(i18n::t(i18n::Key::MenuItemCreateShortcut, &self.lang))
+                        .button(icon_text(
+                            "link",
+                            &i18n::t(i18n::Key::MenuItemCreateShortcut, &self.lang),
+                        ))
                         .clicked()
                     {
                         let _ = crate::shortcut::create_desktop_shortcut();
@@ -320,13 +343,19 @@ impl eframe::App for LlamaLauncherApp {
 
                 ui.menu_button(i18n::t(i18n::Key::MenuHelp, &self.lang), |ui| {
                     if ui
-                        .button(i18n::t(i18n::Key::MenuItemAbout, &self.lang))
+                        .button(icon_text(
+                            "info",
+                            &i18n::t(i18n::Key::MenuItemAbout, &self.lang),
+                        ))
                         .clicked()
                     {
                         self.show_about = true;
                     }
                     if ui
-                        .button(i18n::t(i18n::Key::MenuItemRepo, &self.lang))
+                        .button(icon_text(
+                            "globe",
+                            &i18n::t(i18n::Key::MenuItemRepo, &self.lang),
+                        ))
                         .clicked()
                     {
                         open_repo_url();
@@ -336,7 +365,10 @@ impl eframe::App for LlamaLauncherApp {
                     if ui
                         .checkbox(
                             &mut log_to_file,
-                            i18n::t(i18n::Key::MenuItemLogToFile, &self.lang),
+                            icon_text(
+                                "document",
+                                &i18n::t(i18n::Key::MenuItemLogToFile, &self.lang),
+                            ),
                         )
                         .changed()
                     {
@@ -350,7 +382,7 @@ impl eframe::App for LlamaLauncherApp {
                     // 调试模式：开启 egui Inspector / 内置检查器面板
                     ui.checkbox(
                         &mut self.debug_mode,
-                        i18n::t(i18n::Key::MenuItemDebugMode, &self.lang),
+                        icon_text("bug", &i18n::t(i18n::Key::MenuItemDebugMode, &self.lang)),
                     );
                 });
 
