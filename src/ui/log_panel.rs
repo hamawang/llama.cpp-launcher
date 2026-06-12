@@ -91,7 +91,7 @@ pub fn ui(
                                 egui::Frame::default()
                                     .fill(egui::Color32::from_rgb(80, 80, 80))
                                     .inner_margin(egui::Margin::same(4))
-                                    .corner_radius(8.0)
+                                    .corner_radius(6.0)
                                     .show(ui, |ui| {
                                         ui.colored_label(egui::Color32::YELLOW, &text);
                                     });
