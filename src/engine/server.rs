@@ -361,9 +361,11 @@ impl ServerManager {
             cmd.arg("--verbose");
         }
 
-        // 原生日志时间戳
+        // 日志时间戳
         if settings.log_timestamps {
             cmd.arg("--log-timestamps");
+        } else {
+            cmd.arg("--no-log-timestamps");
         }
 
         // 离线模式：拼接 --offline（如 llama.cpp 支持）

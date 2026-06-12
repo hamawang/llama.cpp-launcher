@@ -365,7 +365,7 @@ impl Key {
             (Key::CheckboxRpcMode, &Language::En) => "RPC Mode (--rpc)",
             (Key::CheckboxEnableWebClient, &Language::Zh) => "网页客户端 (--ui)",
             (Key::CheckboxEnableWebClient, &Language::En) => "Web Client (--ui)",
-            (Key::CheckboxLogTimestamps, &Language::Zh) => "原生日志时间 (--log-timestamps)",
+            (Key::CheckboxLogTimestamps, &Language::Zh) => "日志时间戳 (--log-timestamps)",
             (Key::CheckboxLogTimestamps, &Language::En) => "Log Timestamps (--log-timestamps)",
             (Key::LabelRpcEndpoints, &Language::Zh) => "RPC 节点地址:",
             (Key::LabelRpcEndpoints, &Language::En) => "RPC Endpoints:",
