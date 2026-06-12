@@ -300,6 +300,28 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
         helper::help_button_inline(ui, i18n::t(i18n::Key::HelpSwaFull, lang));
     });
 
+    // 上下文检查点
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::LabelCtxCheckpoints, lang));
+        ui.add(
+            egui::DragValue::new(&mut settings.ctx_checkpoints)
+                .range(1..=256)
+                .speed(1),
+        );
+        helper::help_button_inline(ui, i18n::t(i18n::Key::HelpCtxCheckpoints, lang));
+    });
+
+    // 最小检查点步长
+    ui.horizontal(|ui| {
+        ui.label(i18n::t(i18n::Key::LabelCheckpointMinStep, lang));
+        ui.add(
+            egui::DragValue::new(&mut settings.checkpoint_min_step)
+                .range(64..=4096)
+                .speed(64),
+        );
+        helper::help_button_inline(ui, i18n::t(i18n::Key::HelpCheckpointMinStep, lang));
+    });
+
     ui.add_space(12.0);
     ui.heading(i18n::t(i18n::Key::SectionGpuDevice, lang));
     ui.separator();

@@ -331,6 +331,18 @@ impl ServerManager {
             cmd.arg("--swa-full");
         }
 
+        // 上下文检查点
+        if settings.ctx_checkpoints != 32 {
+            cmd.arg("--ctx-checkpoints")
+                .arg(settings.ctx_checkpoints.to_string());
+        }
+
+        // 最小检查点步长
+        if settings.checkpoint_min_step != 512 {
+            cmd.arg("--checkpoint-min-step")
+                .arg(settings.checkpoint_min_step.to_string());
+        }
+
         // GPU 与设备分配
         if !settings.split_mode.is_empty() && settings.split_mode != "layer" {
             cmd.arg("--split-mode").arg(&settings.split_mode);
