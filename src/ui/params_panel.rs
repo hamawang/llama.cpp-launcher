@@ -975,14 +975,30 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                 ui.spacing_mut().item_spacing.x = 6.0;
 
                 for (value, label) in &spec_options {
-                    let selected = settings.spec_type == *value;
+                    // 多选：spec_type 为逗号分隔列表，例如 "draft-mtp,ngram-map-k4v"
+                    let selected = settings.spec_type.split(',').any(|s| s == *value);
                     if ui.selectable_label(selected, *label).clicked() {
-                        settings.spec_type = value.to_string();
+                        let mut parts: Vec<String> = settings
+                            .spec_type
+                            .split(',')
+                            .map(|s| s.trim().to_string())
+                            .filter(|s| !s.is_empty() && s != "none")
+                            .collect();
+                        if parts.iter().any(|s| s == value) {
+                            parts.retain(|s| s != value);
+                        } else {
+                            parts.push(value.to_string());
+                        }
+                        settings.spec_type = if parts.is_empty() {
+                            "none".to_string()
+                        } else {
+                            parts.join(",")
+                        };
                     }
                 }
             });
             // draft-* 算法参数（draft-simple / draft-eagle3 / draft-mtp / draft-dflash / draft-dspark）
-            let is_draft = settings.spec_type.starts_with("draft-");
+            let is_draft = settings.spec_type.split(',').any(|s| s.starts_with("draft-"));
             if is_draft {
                 // 最大推测数量 --spec-draft-n-max（DragValue + 启用开关）
                 ui.horizontal(|ui| {
@@ -1072,10 +1088,9 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                 });
             }
             // ngram-simple / ngram-map-k / ngram-map-k4v 共用参数（size-n / size-m / min-hits）
-            let is_ngram_shared = matches!(
-                settings.spec_type.as_str(),
-                "ngram-simple" | "ngram-map-k" | "ngram-map-k4v"
-            );
+            let is_ngram_shared = settings.spec_type.split(',').any(|s| {
+                matches!(s, "ngram-simple" | "ngram-map-k" | "ngram-map-k4v")
+            });
             if is_ngram_shared {
                 ui.horizontal(|ui| {
                     ui.label(i18n::t(i18n::Key::SpecNgramSizeNLabel, lang));
@@ -1094,7 +1109,7 @@ pub fn ui(ui: &mut egui::Ui, settings: &mut AppSettings, lang: &i18n::Language) 
                 });
             }
             // ngram-mod 专用参数（n-min / n-max / n-match）
-            if settings.spec_type == "ngram-mod" {
+            if settings.spec_type.split(',').any(|s| s == "ngram-mod") {
                 ui.horizontal(|ui| {
                     ui.label(i18n::t(i18n::Key::SpecNgramModNMinLabel, lang));
                     ui.add(egui::DragValue::new(&mut settings.spec_ngram_mod_n_min).range(1..=256));
